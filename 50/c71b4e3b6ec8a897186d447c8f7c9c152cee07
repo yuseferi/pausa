@@ -1,0 +1,34 @@
+.github/workflows/semantic-release.yml
+  b0a9808d68de948e 1-38
+.github/workflows/release.yml
+  b0a9808d68de948e 1,4-6,8-12,35-48,61-63,80,87
+.releaserc.json
+  b0a9808d68de948e 1-43
+README.md
+  b0a9808d68de948e 189-211
+package.json
+  b0a9808d68de948e 1-18
+HOMEBREW.md
+  b0a9808d68de948e 35-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "50c71b4e3b6ec8a897186d447c8f7c9c152cee07",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 217,
+      "total_deletions": 70,
+      "accepted_lines": 309,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/658e26b602f745b2e21a8b44ab1ea9e3bd1114d591be4c1c5f7e1bc9a9ec5c52"
+    }
+  }
+}
