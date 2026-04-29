@@ -10,9 +10,19 @@ permissions:
   contents: write
 
 jobs:
-  build-macos-arm64:
-    name: Build macOS arm64 app bundle
+  build-macos:
+    name: Build macOS ${{ matrix.arch }} app bundle
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            platform: darwin/arm64
+            asset_suffix: arm64-macos
+          - arch: amd64
+            platform: darwin/amd64
+            asset_suffix: amd64-macos
 
     steps:
       - name: Check out repository
@@ -41,14 +51,15 @@ jobs:
       - name: Build app bundle
         run: |
           export PATH="$(go env GOPATH)/bin:$PATH"
-          wails build -platform darwin/arm64
+          wails build -platform "${{ matrix.platform }}"
 
       - name: Package app bundle
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           mkdir -p dist
-          ditto -c -k --keepParent build/bin/pausa.app "dist/pausa-${VERSION}-arm64-macos.zip"
-          shasum -a 256 "dist/pausa-${VERSION}-arm64-macos.zip" | awk '{print $1}' > "dist/pausa-${VERSION}-arm64-macos.zip.sha256"
+          ASSET="dist/pausa-${VERSION}-${{ matrix.asset_suffix }}.zip"
+          ditto -c -k --keepParent build/bin/pausa.app "$ASSET"
+          shasum -a 256 "$ASSET" | awk '{print $1}' > "$ASSET.sha256"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2

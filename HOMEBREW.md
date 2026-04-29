@@ -11,6 +11,12 @@ brew install --cask pausa
 
 That is the **current working path**.
 
+Pausa now ships both:
+- Apple Silicon (`arm64`)
+- Intel (`amd64`)
+
+so the repo-tap cask works on both modern Mac architectures.
+
 ---
 
 ## Goal: one-line install
@@ -45,26 +51,20 @@ Recommended fix:
 - notarization with Apple
 - staple the ticket to the final `.app`
 
-### 2. Release is Apple Silicon only
+### 2. Release is dual-arch, but still unsigned
 
-The current release asset is:
+The release workflow now publishes both:
 
 ```text
-pausa-1.0.0-arm64-macos.zip
+pausa-<version>-arm64-macos.zip
+pausa-<version>-amd64-macos.zip
 ```
 
-This means the cask is currently restricted to:
+and the cask selects the correct asset with `on_arm` / `on_intel`.
 
-```ruby
-depends_on arch: :arm64
-```
+This removes the architecture blocker for official inclusion.
 
-This is valid, but a **universal** or dual-arch release is more likely to be
-accepted and more useful to users.
-
-Recommended fix:
-- build and release both `darwin/arm64` and `darwin/amd64`
-- or produce a universal app bundle if feasible
+The main remaining blocker is still signing/notarization.
 
 ### 3. Ongoing cask maintenance
 
@@ -89,7 +89,7 @@ Casks/pausa.rb
 It is intentionally shaped close to the Homebrew style already:
 - lower-case token
 - `name`, `desc`, `homepage`
-- `depends_on arch: :arm64`
+- `on_arm` / `on_intel` architecture-specific assets
 - `app "pausa.app"`
 - `zap` stanza
 

@@ -85,6 +85,24 @@ If the tap is already added:
 brew install --cask pausa
 ```
 
+### Unsigned app note
+
+Pausa is currently distributed as an **unsigned / non-notarized** app bundle.
+That means macOS may block the first launch with a Gatekeeper warning.
+
+If that happens, either:
+
+1. Open it once from Finder using **right-click → Open**, or
+2. Remove the quarantine attribute manually:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/pausa.app
+open /Applications/pausa.app
+```
+
+This is the current free-distribution path. A paid Apple Developer account
+would be required for proper notarized distribution.
+
 ### Build from source
 
 Prerequisites:
