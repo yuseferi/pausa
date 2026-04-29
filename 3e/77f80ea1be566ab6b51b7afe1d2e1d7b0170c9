@@ -1,0 +1,130 @@
+frontend/src/views/WelcomeView.vue
+  b0a9808d68de948e 1-4,6-12,14-21,28,31-32,35-40,42-43,45-47,49-50,52-54,56,61-62,64-65,67-69,71-72
+internal/macos/workspace_darwin.go
+  b0a9808d68de948e 1-66
+internal/breakapp/assets.go
+  b0a9808d68de948e 1-13
+internal/macos/statusbar_darwin.go
+  b0a9808d68de948e 3,6-7,11,15-17,19-21,23-28,30-36,38-42,44-49,51-54,58-59,62-63,66,69-73,75-81,83,86-93,95-98,100-105,107-108,110-114,117-123,126-132,135-150
+internal/macos/bridge.h
+  b0a9808d68de948e 1-169
+frontend/src/main.js
+  b0a9808d68de948e 3,6-17
+ARCHITECTURE.md
+  b0a9808d68de948e 1-236
+internal/scheduler/state.go
+  b0a9808d68de948e 1-87
+frontend/src/lib/store.js
+  b0a9808d68de948e 1-130
+frontend/src/composables/useShortcuts.js
+  b0a9808d68de948e 1-29
+go.mod
+  b0a9808d68de948e 5,8
+frontend/src/components/BreathingGuide.vue
+  b0a9808d68de948e 1-41
+frontend/src/components/preferences/SectionDisplay.vue
+  b0a9808d68de948e 1-80
+internal/macos/windows_darwin.go
+  b0a9808d68de948e 3,6-13,15-16,18-21,24-29,32-33,35-38,40-42,45-51,54-62,65-74,77-86,90-102,105-109,112-113
+internal/config/config.go
+  b0a9808d68de948e 1-213
+frontend/src/components/preferences/SectionSchedule.vue
+  b0a9808d68de948e 1-62
+frontend/src/components/preferences/SectionGeneral.vue
+  b0a9808d68de948e 1-32
+frontend/src/components/LongBreakProgress.vue
+  b0a9808d68de948e 1-42
+internal/macos/stubs_other.go
+  b0a9808d68de948e 1-91
+frontend/src/components/preferences/SectionIdle.vue
+  b0a9808d68de948e 1-66
+frontend/src/components/ExerciseTip.vue
+  b0a9808d68de948e 1-41
+internal/config/config_test.go
+  b0a9808d68de948e 1-129
+internal/scheduler/scheduler_test.go
+  b0a9808d68de948e 1-618
+frontend/src/views/PreferencesView.vue
+  b0a9808d68de948e 1-40,42-50,52,54-68,71-74,81-84,86,89-94,97,100,103-104,107-108,110,112-113,115-124,126,128-130,134,137,140,143-144,147
+frontend/src/lib/api.js
+  b0a9808d68de948e 1-63
+frontend/src/components/preferences/SectionNotifications.vue
+  b0a9808d68de948e 1-55
+frontend/src/lib/duration.js
+  b0a9808d68de948e 1-39
+internal/macos/bridge.m
+  b0a9808d68de948e 1-1137
+frontend/src/components/preferences/SectionWorkingHours.vue
+  b0a9808d68de948e 1-86
+internal/tips/tips.go
+  b0a9808d68de948e 1-149
+internal/macos/idle_darwin.go
+  b0a9808d68de948e 1-23
+internal/macos/cgo_darwin.go
+  b0a9808d68de948e 1-22
+internal/macos/busy_darwin.go
+  b0a9808d68de948e 1-286
+frontend/src/views/DashboardView.vue
+  b0a9808d68de948e 1-24,26-27,29-32,34-40,42-61,66-67,69-70,72-73,76-77,82,86-88,91,94-96,98-102,104-106,108,110,112-117,119-122,124,126-132,134,136,138,141-142,146-161,163
+build/icons/build-icons.sh
+  b0a9808d68de948e 1-98
+build/icons/appicon.svg
+  b0a9808d68de948e 1-78
+internal/config/store.go
+  b0a9808d68de948e 1-137
+frontend/src/views/BreakView.vue
+  b0a9808d68de948e 1-33,35-44,48-52,54,56,58-61,63,65-75,78,82-84,87-92,94,96-98,100-102,105,108-109,111-112,114-116,119,121,124-128,131,135-136,138-139,141,144-145,147-148,151-152,155,158,160-161,163-164,168-169,171,173,175-176,179-185
+internal/breakapp/app.go
+  b0a9808d68de948e 1-5,10-11,14,16-20,22,24-30,35-38,40-58,61-62,64-68,72,74-101,104-111,113-114,117,119-120,122-128,130-131,133-134,137-138,140-141,143-144,146-150,153-154,156-157,159-161,164-165,167-168,170-171,173-174,176-177,179-180,182-186,189,191-215,218-220,222-260,264,266-276,279-289,292,294-299,301,303-306,308-309,311-316,320-321,323-344,346-354,357-360,362-405,407-410,413-421,423-426,428-429,432-434,436,439-441,443-446
+frontend/src/components/BreakCountdown.vue
+  b0a9808d68de948e 1-77
+build/icons/statusbar.svg
+  b0a9808d68de948e 1-25
+main.go
+  b0a9808d68de948e 1-3,8,16-23,30-33,35-44,46-56,58,60-65,67,72-77,87,92,94-136
+internal/scheduler/scheduler.go
+  b0a9808d68de948e 1-732
+frontend/src/components/StatsRow.vue
+  b0a9808d68de948e 1-50
+internal/clock/clock_test.go
+  b0a9808d68de948e 1-77
+frontend/src/composables/useCountdown.js
+  b0a9808d68de948e 1-40
+internal/clock/clock.go
+  b0a9808d68de948e 1-167
+internal/config/duration.go
+  b0a9808d68de948e 1-42
+internal/tips/seed.go
+  b0a9808d68de948e 1-5
+frontend/src/style.css
+  b0a9808d68de948e 3-11,15-19,23-37,40-44,46-48,51-60,63,65,67-71,77-79,82-83,85,87-90,92-95,97-98,100-119,121-129,131,134,136-140,143-144,146-147,150-154,156,158-159,161-162,164-166,168-169,171,173-176,179-182,187,190-194
+frontend/src/App.vue
+  b0a9808d68de948e 1-22,24-38,43-44,46-56,58-75
+internal/log/logger.go
+  b0a9808d68de948e 1-61
+internal/macos/notifications_darwin.go
+  b0a9808d68de948e 1-66
+README.md
+  b0a9808d68de948e 2,8,10,15,17-18,21-54,58,60,62-65,67,71,73,75-79,81-83,85-87,89,91-93,95,97-99,103,105,107-109,111,113,115-119,121,123,125-127,129-133,135,137-139,143,145,147-149,151-184,186,188,190,192-193,195-196,198-200,202-203,205-209,211-220,222,224,226,228-230,232-234,236,240,242,244-253,255-261,266,268,270-274,276,278-281,283,285-287,289,293,295-297,301,303-307,311,313-314
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "3e77f80ea1be566ab6b51b7afe1d2e1d7b0170c9",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 9562,
+      "total_deletions": 4398,
+      "accepted_lines": 7708,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/c8330f0a178fe0b0fe4aabd5ec091845a91ecf2a7ccaa483fed74a36eed4c3cd"
+    }
+  }
+}
