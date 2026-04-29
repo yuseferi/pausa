@@ -136,6 +136,25 @@ build/bin/pausa.app
 open build/bin/pausa.app
 ```
 
+### Install the built app locally
+
+To copy the freshly built app into `/Applications` on your current Mac:
+
+```bash
+make install-local
+```
+
+This will:
+- run a fresh production build
+- replace `/Applications/pausa.app`
+
+If macOS blocks first launch because the app is unsigned:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/pausa.app
+open /Applications/pausa.app
+```
+
 ---
 
 ## Development

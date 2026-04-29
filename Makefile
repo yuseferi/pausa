@@ -1,4 +1,4 @@
-.PHONY: dev build frontend test clean release
+.PHONY: dev build frontend test clean release install-local
 
 VERSION ?=
 
@@ -25,3 +25,9 @@ release:
 		exit 1; \
 	fi
 	./scripts/release.sh $(VERSION)
+
+install-local: build
+	rm -rf /Applications/pausa.app
+	cp -R build/bin/pausa.app /Applications/pausa.app
+	@echo "Installed /Applications/pausa.app"
+	@echo "If macOS blocks first launch, run: xattr -dr com.apple.quarantine /Applications/pausa.app"
