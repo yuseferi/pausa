@@ -7,6 +7,8 @@ cask "pausa" do
   desc "Native-feeling macOS break reminder with fullscreen-space overlays"
   homepage "https://github.com/yuseferi/pausa"
 
+  depends_on arch: :arm64
+
   app "pausa.app"
 
   zap trash: [
