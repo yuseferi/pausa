@@ -88,3 +88,99 @@ jobs:
           files: |
             dist/*.zip
             dist/*.sha256
+
+  update-cask:
+    name: Update Homebrew cask after release
+    runs-on: ubuntu-latest
+    needs: build-macos
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${{ github.event.inputs.version }}"
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch release checksums
+        id: assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          ARM_SHA=$(gh release view "$TAG" --json assets --jq '.assets[] | select(.name == "pausa-'"${{ steps.version.outputs.version }}"'-arm64-macos.zip") | .digest' | sed 's/^sha256://')
+          AMD_SHA=$(gh release view "$TAG" --json assets --jq '.assets[] | select(.name == "pausa-'"${{ steps.version.outputs.version }}"'-amd64-macos.zip") | .digest' | sed 's/^sha256://')
+
+          if [ -z "$ARM_SHA" ] || [ -z "$AMD_SHA" ]; then
+            echo "Missing release assets or digests for $TAG" >&2
+            exit 1
+          fi
+
+          echo "arm_sha=$ARM_SHA" >> "$GITHUB_OUTPUT"
+          echo "amd_sha=$AMD_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite cask
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          ARM_SHA="${{ steps.assets.outputs.arm_sha }}"
+          AMD_SHA="${{ steps.assets.outputs.amd_sha }}"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          version = os.environ["VERSION"]
+          arm_sha = os.environ["ARM_SHA"]
+          amd_sha = os.environ["AMD_SHA"]
+
+          content = f'''cask "pausa" do
+            version "{version}"
+
+            on_arm do
+              sha256 "{arm_sha}"
+              url "https://github.com/yuseferi/pausa/releases/download/v#{{version}}/pausa-#{{version}}-arm64-macos.zip"
+            end
+
+            on_intel do
+              sha256 "{amd_sha}"
+              url "https://github.com/yuseferi/pausa/releases/download/v#{{version}}/pausa-#{{version}}-amd64-macos.zip"
+            end
+
+            name "Pausa"
+            desc "Native-feeling macOS break reminder with fullscreen-space overlays"
+            homepage "https://github.com/yuseferi/pausa"
+
+            app "pausa.app"
+
+            zap trash: [
+              "~/Library/Application Support/Pausa",
+              "~/Library/Logs/Pausa",
+            ]
+          end
+          '''
+
+          Path("Casks/pausa.rb").write_text(content)
+          PY
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          ARM_SHA: ${{ steps.assets.outputs.arm_sha }}
+          AMD_SHA: ${{ steps.assets.outputs.amd_sha }}
+
+      - name: Commit updated cask
+        run: |
+          git diff --quiet -- Casks/pausa.rb && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/pausa.rb
+          git commit -m "chore(cask): update Pausa cask for ${{ steps.version.outputs.version }} [skip ci]"
+          git push origin HEAD:main
