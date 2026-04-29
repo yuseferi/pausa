@@ -1,0 +1,30 @@
+HOMEBREW.md
+  b0a9808d68de948e 14-19,54,56,59-60,63,65,67,92
+.github/workflows/release.yml
+  b0a9808d68de948e 13-14,16-25,54,60-62
+Casks/pausa.rb
+  b0a9808d68de948e 2-12
+README.md
+  b0a9808d68de948e 88-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "c6b78e9d31276e3694479ebb5437c3034fd4621d",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 113,
+      "total_deletions": 78,
+      "accepted_lines": 181,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/cef4d9e4b0c8b4f7dd8cac82848879df5d1e312c1ffe00395a68caaaa251adb9"
+    }
+  }
+}
