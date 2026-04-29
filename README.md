@@ -5,79 +5,115 @@
 <h1 align="center">Pausa</h1>
 
 <p align="center">
-  A native-feeling macOS break reminder for developers and knowledge workers.
+  <strong>A thoughtful, native macOS break reminder for developers and knowledge workers.</strong>
   <br>
+  Take better breaks. Stay focused in between.
+  <br><br>
   Built with Go, Wails, AppKit, and Vue.
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#how-it-works">How It Works</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#development">Development</a> •
+  <a href="#features">Features</a> &middot;
+  <a href="#how-it-works">How It Works</a> &middot;
+  <a href="#installation">Installation</a> &middot;
+  <a href="#development">Development</a> &middot;
   <a href="#configuration">Configuration</a>
 </p>
+
+<p align="center">
+  <img src="screenshots/break-overlay.png" alt="Pausa break overlay" width="760">
+</p>
+
+## Quick Start
 
 ```bash
 brew tap yuseferi/pausa https://github.com/yuseferi/pausa
 brew install --cask pausa
 ```
 
+That's it. Pausa lives in your menu bar and gently reminds you to take breaks throughout the day.
+
 ---
 
 ## Features
 
-### Break scheduling
-- Short breaks and long breaks with fully configurable intervals and durations
-- Postpone, skip, pause/resume, and take-a-break-now controls
-- Working-hours support so breaks only fire during the days/times you choose
-- Natural-break detection so real away-from-keyboard time can count as a break
+### Break Scheduling
 
-### Busy-aware auto-pause
-- Automatically pauses the countdown while you're busy so that time is **not** counted toward break timing
-- Detects:
-  - microphone in use for meetings and calls
-  - system now-playing/media playback
-  - sustained audio output for apps that don't publish now-playing state
-  - frontmost browser video/meeting pages, including muted YouTube and Google Meet
-- Resumes automatically when you're free again
+- **Short and long breaks** with fully configurable intervals and durations
+- **Flexible controls** -- postpone, skip, pause/resume, or take a break right now
+- **Working-hours support** so breaks only fire during the days and times you choose
+- **Natural-break detection** so real away-from-keyboard time counts as a break
 
-### Fullscreen and multi-monitor overlays
-- Native macOS `NSPanel` overlays render on top of fullscreen-app Spaces
-- Can cover every monitor or only the active screen
-- Fullscreen mode or compact centered-card mode
+### Smart Busy Detection
+
+Pausa automatically pauses the countdown while you're busy, so meeting time is never counted toward your next break. It detects:
+
+- Microphone activity (meetings, calls, huddles)
+- System media playback (Now Playing)
+- Sustained audio output for apps that don't publish media state
+- Frontmost browser video and meeting pages, including muted YouTube and Google Meet
+
+The timer resumes automatically when you're free again.
+
+### Fullscreen and Multi-Monitor Overlays
+
+- Native macOS `NSPanel` overlays that render on top of fullscreen Spaces
+- Option to cover every monitor or only the active screen
+- Choose between fullscreen mode or a compact centered card
 - Overlay actions: Skip and Postpone
 
-### Wellness guidance
-- Eye, stretch, move, and breathing tips during breaks
-- Breathing guide for long breaks
+### Wellness Guidance
+
+- Eye, stretch, movement, and breathing tips during breaks
+- Guided breathing exercise for long breaks
 - Long-break progress indicator and simple daily stats
 
-### Native macOS integration
-- Menu-bar-first app with native status item and dynamic icon state
+### Native macOS Integration
+
+- Menu-bar-first design with a native status item and dynamic icon
 - Native notifications with action buttons
-- Restores focus back to the previous app after breaks, including fullscreen apps
+- Automatically restores focus to your previous app after breaks, including fullscreen apps
 
 ---
 
 ## How It Works
 
-Pausa is macOS-first.
+Pausa is built from the ground up for macOS.
 
-- The **scheduler** is a single-goroutine actor with a tested state machine
-- The **frontend** is Vue, used for the dashboard and preferences
-- The **break UI** shown during active breaks is rendered through native AppKit overlay panels so it can appear above fullscreen-app Spaces
-- The **busy detection** pipeline combines microphone, now-playing, audio-output, and browser-tab heuristics
+- The **scheduler** is a single-goroutine actor backed by a tested state machine
+- The **frontend** is Vue, powering the dashboard and preferences UI
+- The **break overlay** is rendered through native AppKit panels so it can appear above fullscreen Spaces
+- The **busy-detection pipeline** combines microphone, Now Playing, audio-output, and browser-tab heuristics
 
-Architecture details live in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+For a deeper look at the architecture, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+## Screenshots
+
+### Dashboard
+
+<p align="center">
+  <img src="screenshots/dashboard.png" alt="Pausa dashboard" width="760">
+</p>
+
+### Preferences
+
+<p align="center">
+  <img src="screenshots/preferences-1.png" alt="Pausa preferences -- general settings" width="760">
+</p>
+
+<p align="center">
+  <img src="screenshots/preferences-2.png" alt="Pausa preferences -- display and idle settings" width="760">
+</p>
 
 ---
 
 ## Installation
 
-### Homebrew
+### Homebrew (Recommended)
 
-Pausa is distributed as a Homebrew **cask** (the correct Homebrew model for a macOS `.app` bundle):
+Pausa is distributed as a Homebrew **cask**, which is the standard Homebrew model for macOS `.app` bundles:
 
 ```bash
 brew tap yuseferi/pausa https://github.com/yuseferi/pausa
@@ -90,128 +126,84 @@ If the tap is already added:
 brew install --cask pausa
 ```
 
-### Unsigned app note
+### Gatekeeper Note
 
-Pausa is currently distributed as an **unsigned / non-notarized** app bundle.
-That means macOS may block the first launch with a Gatekeeper warning.
+Pausa is currently distributed as an **unsigned / non-notarized** app. macOS may show a Gatekeeper warning on first launch.
 
-If that happens, either:
+To resolve this, either:
 
-1. Open it once from Finder using **right-click → Open**, or
-2. Remove the quarantine attribute manually:
+1. Right-click the app in Finder and choose **Open**, or
+2. Remove the quarantine attribute from the terminal:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/pausa.app
 open /Applications/pausa.app
 ```
 
-This is the current free-distribution path. A paid Apple Developer account
-would be required for proper notarized distribution.
+> A properly notarized build requires a paid Apple Developer account. This is planned for a future release.
 
-### Build from source
+### Build from Source
 
-Prerequisites:
+**Prerequisites:**
+
 - Go 1.25+
 - Node.js 18+
-- Wails v2 CLI
+- [Wails v2 CLI](https://wails.io/)
 - Xcode Command Line Tools
 
 ```bash
-git clone git@github.com:yuseferi/pausa.git
+git clone https://github.com/yuseferi/pausa.git
 cd pausa
 
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 wails build
 ```
 
-The built app will be at:
+The built app will be at `build/bin/pausa.app`.
 
-```bash
-build/bin/pausa.app
-```
-
-### Run the built app
+**Run it:**
 
 ```bash
 open build/bin/pausa.app
 ```
 
-### Install the built app locally
-
-To copy the freshly built app into `/Applications` on your current Mac:
+**Install locally to `/Applications`:**
 
 ```bash
 make install-local
 ```
 
-This will:
-- run a fresh production build
-- replace `/Applications/pausa.app`
-
-If macOS blocks first launch because the app is unsigned:
-
-```bash
-xattr -dr com.apple.quarantine /Applications/pausa.app
-open /Applications/pausa.app
-```
+This runs a fresh production build and replaces `/Applications/pausa.app`. If macOS blocks the first launch, use the `xattr` command shown above.
 
 ---
 
 ## Development
 
-### Start development mode
+### Start Development Mode
 
 ```bash
 wails dev
 ```
 
-### Local release helper
+### Debug Logging
 
-To prepare both macOS release zips locally and automatically update
-`Casks/pausa.rb` with the new version and checksums:
-
-```bash
-scripts/release.sh 1.0.2
-```
-
-Or via `make`:
+Pausa supports runtime log levels via the `PAUSA_LOG_LEVEL` environment variable:
 
 ```bash
-make release VERSION=1.0.2
+PAUSA_LOG_LEVEL=debug wails dev
 ```
 
-This builds:
-- `dist/pausa-1.0.2-arm64-macos.zip`
-- `dist/pausa-1.0.2-amd64-macos.zip`
+Available levels: `debug`, `info`, `warn`, `error`
 
-and rewrites `Casks/pausa.rb` for you.
+Logs are also written to:
 
-### Automatic releases
-
-Pausa now uses **semantic-release** on `main`.
-
-That means:
-- release version is chosen automatically from commit messages
-- git tags are created automatically
-- GitHub releases are created automatically
-- the macOS asset workflow then builds and uploads the release zips for both architectures
-
-Use **Conventional Commits** for anything that should affect releases:
-
-```text
-feat: add muted browser video detection
-fix: pause scheduler while media is playing
-docs: update Homebrew install instructions
+```
+~/Library/Logs/Pausa/pausa.log
 ```
 
-Versioning rules:
-- `fix:` -> patch release
-- `feat:` -> minor release
-- `feat!:` or `BREAKING CHANGE:` -> major release
+### Clean Restart
 
-### Recommended clean restart
-
-Because `wails dev` may keep an old Go/cgo process alive while frontend assets hot-reload, a clean restart is sometimes useful when working on native macOS code:
+Because `wails dev` may keep a stale Go/cgo process alive while front-end assets hot-reload, a clean restart is sometimes helpful when working on native macOS code:
 
 ```bash
 pkill -9 pausa
@@ -219,24 +211,39 @@ go clean -cache
 wails dev
 ```
 
-### Debug logging
+### Local Release Helper
 
-Pausa supports runtime log levels through `PAUSA_LOG_LEVEL`:
+To prepare both macOS release zips locally and automatically update `Casks/pausa.rb` with the new version and checksums:
 
 ```bash
-PAUSA_LOG_LEVEL=debug wails dev
+scripts/release.sh 1.0.2
+# or
+make release VERSION=1.0.2
 ```
 
-Useful values:
-- `debug`
-- `info`
-- `warn`
-- `error`
+This builds:
 
-Logs are also written to:
+- `dist/pausa-1.0.2-arm64-macos.zip`
+- `dist/pausa-1.0.2-amd64-macos.zip`
 
-```bash
-~/Library/Logs/Pausa/pausa.log
+and rewrites `Casks/pausa.rb` for you.
+
+### Automatic Releases
+
+Pausa uses **semantic-release** on the `main` branch. Release versions, git tags, and GitHub releases are created automatically from commit messages. The macOS asset workflow then builds and uploads release zips for both architectures.
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for anything that should trigger a release:
+
+| Prefix | Release Type |
+|---|---|
+| `fix:` | Patch |
+| `feat:` | Minor |
+| `feat!:` or `BREAKING CHANGE:` | Major |
+
+```text
+feat: add muted browser video detection
+fix: pause scheduler while media is playing
+docs: update Homebrew install instructions
 ```
 
 ---
@@ -245,96 +252,47 @@ Logs are also written to:
 
 Configuration is stored at:
 
-```bash
+```
 ~/Library/Application Support/Pausa/config.json
 ```
 
-### Key settings
+All settings are editable through the Preferences UI. Key options include:
 
-#### Schedule
-- `shortInterval`
-- `shortDuration`
-- `longEvery`
-- `longDuration`
-- `postponeShort`
-- `postponeLong`
-
-#### Notifications
-- pre-break notifications
-- warning timings for short and long breaks
-- action buttons
-
-#### Display
-- theme
-- fullscreen break overlays
-- all-monitors overlays
-- exercise tips
-- breathing guide
-- accent color
-
-#### Working hours
-- enabled/disabled
-- weekdays
-- start and end time
-
-#### Idle and busy behavior
-- pause when idle
-- idle threshold
-- natural breaks
-- pause during meetings and videos
-- media debounce for audio-output fallback
+| Category | Settings |
+|---|---|
+| **Schedule** | Short/long break intervals and durations, postpone durations |
+| **Notifications** | Pre-break warnings, timing, action buttons |
+| **Display** | Theme, fullscreen overlays, all-monitors mode, exercise tips, breathing guide, accent color |
+| **Working Hours** | Enable/disable, weekday selection, start and end times |
+| **Idle & Busy** | Pause when idle, idle threshold, natural breaks, meeting/video detection, media debounce |
 
 ---
 
-## Busy Detection Details
+## Busy Detection in Detail
 
-Pausa currently uses these signals to auto-pause the scheduler:
+Pausa uses multiple signals to automatically pause the break timer while you're occupied:
 
-1. **Microphone active**
-   - catches Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation, etc.
+| Signal | What It Catches |
+|---|---|
+| **Microphone active** | Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation |
+| **Now Playing** | Apps and browsers that publish system media state |
+| **Audio output activity** | Fallback for apps that don't publish Now Playing (debounced to ignore short sounds) |
+| **Browser tab URL heuristic** | Muted frontmost video/meeting pages (YouTube, Google Meet, Netflix, Vimeo, Twitch, Disney+, Hulu, Prime Video, Loom) |
 
-2. **Now Playing**
-   - catches apps/browsers that publish system media state
+**Supported browsers:** Chrome, Arc, Safari, Brave
 
-3. **Audio output activity**
-   - fallback for apps that don't publish now-playing state
-   - debounced so short notification sounds don't pause the timer
-
-4. **Frontmost browser tab URL heuristic**
-   - catches muted frontmost video/meeting pages such as YouTube and Google Meet
-
-Current browser-tab support:
-- Chrome
-- Arc
-- Safari
-- Brave
-
-Current frontmost URL matches:
-- YouTube
-- Google Meet
-- Netflix
-- Vimeo
-- Twitch
-- Disney+
-- Hulu
-- Prime Video
-- Loom share/embed pages
-
-This browser heuristic is currently **frontmost-browser only**. Background muted tabs are not treated as busy yet.
+> Note: Browser detection currently applies to the **frontmost tab only**. Background muted tabs are not treated as busy.
 
 ---
 
 ## Display Modes
 
-### Fullscreen breaks
-- **On**: edge-to-edge overlay panels on the target screen(s)
-- **Off**: centered compact card panels
+| Setting | On | Off |
+|---|---|---|
+| **Fullscreen breaks** | Edge-to-edge overlay on the target screen(s) | Compact centered card |
+| **Show on all monitors** | Every connected screen gets an overlay | Only the screen with the mouse cursor |
 
-### Show on all monitors
-- **On**: every connected screen gets an overlay
-- **Off**: only the screen containing the mouse cursor gets an overlay
-
-The overlay system is native AppKit, not a regular Wails window, so it works on fullscreen-app Spaces.
+The overlay system uses native AppKit panels (not regular Wails windows), so it works reliably on fullscreen Spaces.
 
 ---
 
@@ -346,16 +304,16 @@ pausa/
 ├── ARCHITECTURE.md
 ├── internal/
 │   ├── breakapp/      # Wails-bound app facade
-│   ├── clock/         # clock + fake clock for tests
-│   ├── config/        # config model + persistence
+│   ├── clock/         # Clock abstraction (+ fake clock for tests)
+│   ├── config/        # Config model and persistence
 │   ├── log/           # slog logger setup
 │   ├── macos/         # AppKit / CoreAudio / MediaRemote bridge
-│   ├── scheduler/     # actor-based break scheduler + tests
-│   └── tips/          # wellness tips catalog
+│   ├── scheduler/     # Actor-based break scheduler + tests
+│   └── tips/          # Wellness tips catalog
 ├── frontend/
 │   └── src/
-│       ├── lib/       # api + reactive store
-│       ├── views/     # dashboard, break, preferences, welcome
+│       ├── lib/       # API client + reactive store
+│       ├── views/     # Dashboard, break, preferences, welcome
 │       ├── components/
 │       └── composables/
 └── build/
@@ -366,7 +324,7 @@ pausa/
 
 ## Testing
 
-Backend verification:
+**Backend:**
 
 ```bash
 go build ./...
@@ -374,42 +332,48 @@ go vet ./...
 go test -race ./...
 ```
 
-Frontend build:
+**Frontend:**
 
 ```bash
 cd frontend
 npm run build
 ```
 
-Cross-platform compile sanity:
+**Cross-platform compile check:**
 
 ```bash
 GOOS=linux CGO_ENABLED=0 go build ./...
 ```
 
-The app is macOS-focused, but non-darwin stubs are kept so cross-compilation still works.
+Pausa is macOS-focused, but non-darwin stubs are maintained so cross-compilation continues to work.
 
 ---
 
-## Current Limitations
+## Known Limitations
 
-- Busy browser-video detection for muted tabs is currently **frontmost-tab only**
-- Linux and Windows are not implemented as real targets yet
+- Browser video detection for muted tabs is currently **frontmost-tab only**
+- Linux and Windows are not supported as runtime targets yet
 - Some media detection relies on Apple-private APIs (`MediaRemote`) and browser scripting fallbacks
 
 ---
 
-## Roadmap Ideas
+## Roadmap
 
 - Background browser-tab media detection
-- Firefox browser support for muted-tab detection
-- Richer stats/history view
+- Firefox support for muted-tab detection
+- Richer stats and history view
 - More configurable break styles and sounds
-- Release packaging and codesigning workflow
+- Code signing and notarized distribution
 
 ---
 
-## Repository
+## Contributing
 
-- GitHub: <https://github.com/yuseferi/pausa>
-- Issues: <https://github.com/yuseferi/pausa/issues>
+Contributions, ideas, and bug reports are welcome. Please open an issue or pull request on [GitHub](https://github.com/yuseferi/pausa).
+
+---
+
+## Links
+
+- **Repository:** <https://github.com/yuseferi/pausa>
+- **Issues:** <https://github.com/yuseferi/pausa/issues>
