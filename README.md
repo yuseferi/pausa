@@ -186,6 +186,29 @@ This builds:
 
 and rewrites `Casks/pausa.rb` for you.
 
+### Automatic releases
+
+Pausa now uses **semantic-release** on `main`.
+
+That means:
+- release version is chosen automatically from commit messages
+- git tags are created automatically
+- GitHub releases are created automatically
+- the macOS asset workflow then builds and uploads the release zips for both architectures
+
+Use **Conventional Commits** for anything that should affect releases:
+
+```text
+feat: add muted browser video detection
+fix: pause scheduler while media is playing
+docs: update Homebrew install instructions
+```
+
+Versioning rules:
+- `fix:` -> patch release
+- `feat:` -> minor release
+- `feat!:` or `BREAKING CHANGE:` -> major release
+
 ### Recommended clean restart
 
 Because `wails dev` may keep an old Go/cgo process alive while frontend assets hot-reload, a clean restart is sometimes useful when working on native macOS code:

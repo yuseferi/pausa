@@ -32,6 +32,11 @@ make release VERSION=1.0.2
 This now builds both zip assets and automatically rewrites `Casks/pausa.rb`
 with the new version and SHA256 values.
 
+The repo also uses **semantic-release** on `main`:
+- conventional commits determine the next version
+- semantic-release creates the tag and GitHub release
+- the release workflow reacts to the published release and uploads the dual-arch app zips
+
 ---
 
 ## Goal: one-line install
