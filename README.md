@@ -70,6 +70,21 @@ Architecture details live in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Installation
 
+### Homebrew
+
+Pausa is distributed as a Homebrew **cask** (the correct Homebrew model for a macOS `.app` bundle):
+
+```bash
+brew tap yuseferi/pausa https://github.com/yuseferi/pausa
+brew install --cask pausa
+```
+
+If the tap is already added:
+
+```bash
+brew install --cask pausa
+```
+
 ### Build from source
 
 Prerequisites:
