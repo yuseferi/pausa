@@ -1,0 +1,30 @@
+Makefile
+  b0a9808d68de948e 1-27
+scripts/release.sh
+  b0a9808d68de948e 8-9,15-16,70-97,99,101,103,105,107,109,111-112
+README.md
+  b0a9808d68de948e 151-152,158-163,168
+HOMEBREW.md
+  b0a9808d68de948e 26-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "6bed93c992906e20a552a40f2d73f159cca40bf7",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 108,
+      "total_deletions": 24,
+      "accepted_lines": 176,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/8b2a6f15fe1ae41f799796c2a1f722067e2dabc11d1d82e6041aab155adf0df9"
+    }
+  }
+}
