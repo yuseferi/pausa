@@ -62,3 +62,11 @@ yarn-error.log*
 *.pkg
 *.zip
 *.tar.gz
+
+# Local generated artifacts we don't commit
+/pausa
+/dist/
+/build/darwin/Info.dev.plist
+/build/icons/appicon.icns
+/build/icons/appicon.iconset/
+/build/icons/menubar/
