@@ -148,17 +148,24 @@ wails dev
 
 ### Local release helper
 
-To prepare both macOS release zips locally and print the cask checksums:
+To prepare both macOS release zips locally and automatically update
+`Casks/pausa.rb` with the new version and checksums:
 
 ```bash
 scripts/release.sh 1.0.2
+```
+
+Or via `make`:
+
+```bash
+make release VERSION=1.0.2
 ```
 
 This builds:
 - `dist/pausa-1.0.2-arm64-macos.zip`
 - `dist/pausa-1.0.2-amd64-macos.zip`
 
-and prints the SHA256 values you need for `Casks/pausa.rb`.
+and rewrites `Casks/pausa.rb` for you.
 
 ### Recommended clean restart
 

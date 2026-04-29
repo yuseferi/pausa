@@ -23,7 +23,14 @@ For local release prep, you can use:
 scripts/release.sh 1.0.2
 ```
 
-to build both zip assets and print the SHA256 values needed for the cask.
+or:
+
+```bash
+make release VERSION=1.0.2
+```
+
+This now builds both zip assets and automatically rewrites `Casks/pausa.rb`
+with the new version and SHA256 values.
 
 ---
 
