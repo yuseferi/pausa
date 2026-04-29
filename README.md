@@ -1,287 +1,314 @@
 <p align="center">
-  <img src="build/appicon.png" alt="Pausa Logo" width="128" height="128">
+  <img src="build/appicon.png" alt="Pausa icon" width="128" height="128">
 </p>
 
 <h1 align="center">Pausa</h1>
 
 <p align="center">
-  <strong>Take mindful breaks, protect your health</strong>
-</p>
-
-<p align="center">
-  A modern, beautiful break reminder app for macOS built with Go and Wails.
+  A native-feeling macOS break reminder for developers and knowledge workers.
   <br>
-  Inspired by <a href="https://hovancik.net/stretchly/">Stretchly</a> and <a href="https://www.dejal.com/timeout/">Time Out</a>.
+  Built with Go, Wails, AppKit, and Vue.
 </p>
 
 <p align="center">
   <a href="#features">Features</a> •
+  <a href="#how-it-works">How It Works</a> •
   <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#configuration">Configuration</a> •
-  <a href="#building">Building</a> •
-  <a href="#contributing">Contributing</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/platform-macOS-blue?style=flat-square" alt="Platform">
-  <img src="https://img.shields.io/badge/built%20with-Go%20%2B%20Wails-00ADD8?style=flat-square" alt="Built with Go">
-  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
+  <a href="#development">Development</a> •
+  <a href="#configuration">Configuration</a>
 </p>
 
 ---
 
-## ✨ Why Pausa?
+## Features
 
-As developers and knowledge workers, we spend countless hours staring at screens. This leads to:
+### Break scheduling
+- Short breaks and long breaks with fully configurable intervals and durations
+- Postpone, skip, pause/resume, and take-a-break-now controls
+- Working-hours support so breaks only fire during the days/times you choose
+- Natural-break detection so real away-from-keyboard time can count as a break
 
-- 👁️ **Eye strain** from continuous screen exposure
-- 🪑 **Poor posture** from prolonged sitting
-- 🧠 **Mental fatigue** from lack of breaks
-- 💪 **Physical tension** in neck, shoulders, and back
+### Busy-aware auto-pause
+- Automatically pauses the countdown while you're busy so that time is **not** counted toward break timing
+- Detects:
+  - microphone in use for meetings and calls
+  - system now-playing/media playback
+  - sustained audio output for apps that don't publish now-playing state
+  - frontmost browser video/meeting pages, including muted YouTube and Google Meet
+- Resumes automatically when you're free again
 
-**Pausa** gently reminds you to take regular breaks with beautiful, non-intrusive notifications and calming break screens that guide you through eye exercises, stretches, and breathing techniques.
+### Fullscreen and multi-monitor overlays
+- Native macOS `NSPanel` overlays render on top of fullscreen-app Spaces
+- Can cover every monitor or only the active screen
+- Fullscreen mode or compact centered-card mode
+- Overlay actions: Skip and Postpone
 
----
+### Wellness guidance
+- Eye, stretch, move, and breathing tips during breaks
+- Breathing guide for long breaks
+- Long-break progress indicator and simple daily stats
 
-## 🎯 Features
-
-### 🕐 Smart Break Scheduling
-- **Mini breaks** - Short 20-second breaks every 10 minutes for eye rest
-- **Long breaks** - 5-minute breaks after every 3 mini breaks for stretching and movement
-- Fully customizable intervals and durations
-
-### 🎨 Beautiful Break Screens
-- Stunning gradient backgrounds with floating particles
-- Smooth animations and transitions
-- Different themes for mini and long breaks
-- Circular countdown timer with progress visualization
-
-### 💆 Wellness Tips
-- Curated exercise tips during breaks
-- Categories: 👀 Eyes, 🙆 Stretch, 🚶 Move, 🌬️ Breathe
-- Guided breathing animation for long breaks
-
-### 🖥️ Multi-Monitor Support
-- Overlay screens appear on all connected monitors
-- Never miss a break reminder, no matter which screen you're using
-
-### 📊 Menu Bar Integration
-- Native macOS menu bar app (⏸ icon)
-- Shows countdown to next break
-- Quick access to take breaks, pause, or adjust settings
-
-### ⚙️ Flexible Controls
-- **Skip** - Skip the current break entirely
-- **Postpone** - Delay breaks with configurable postpone times
-- **Pause/Resume** - Temporarily disable break reminders
-- **Take Break Now** - Trigger an immediate break
-
-### 🌓 Theme Support
-- Light, Dark, and System themes
-- Respects your macOS appearance settings
-
-### 🔔 Native Notifications
-- macOS notification before breaks start
-- Configurable notification timing
+### Native macOS integration
+- Menu-bar-first app with native status item and dynamic icon state
+- Native notifications with action buttons
+- Restores focus back to the previous app after breaks, including fullscreen apps
 
 ---
 
-## 🚀 Installation
+## How It Works
 
-### Download Binary
+Pausa is macOS-first.
 
-Download the latest release from the [Releases](https://github.com/yourusername/pausa/releases) page.
+- The **scheduler** is a single-goroutine actor with a tested state machine
+- The **frontend** is Vue, used for the dashboard and preferences
+- The **break UI** shown during active breaks is rendered through native AppKit overlay panels so it can appear above fullscreen-app Spaces
+- The **busy detection** pipeline combines microphone, now-playing, audio-output, and browser-tab heuristics
 
-1. Download `pausa-macos-arm64.zip` (Apple Silicon) or `pausa-macos-amd64.zip` (Intel)
-2. Unzip and drag `Pausa.app` to your Applications folder
-3. Launch Pausa from Applications
-
-### Build from Source
-
-See the [Building](#building) section below.
+Architecture details live in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
 
-## 💡 Usage
+## Installation
 
-### Getting Started
+### Build from source
 
-1. Launch Pausa - it will appear in your menu bar as ⏸
-2. Click the menu bar icon to see break status and options
-3. Wait for your first break, or click "Take a Break Now"
-
-### Menu Bar Options
-
-| Option | Description |
-|--------|-------------|
-| **Next break in** | Shows countdown to next break |
-| **Take a Break Now** | Triggers immediate break |
-| **Pause Breaks** | Temporarily stops all breaks |
-| **Resume Breaks** | Resumes break schedule |
-| **Show Pausa** | Opens the main window |
-| **Preferences** | Opens settings |
-| **Quit Pausa** | Closes the application |
-
-### During a Break
-
-- **Wait** - Let the break complete naturally for full benefit
-- **Postpone** - Delays the break by configured time
-- **Skip** - Skips the break entirely (use sparingly!)
-
----
-
-## ⚙️ Configuration
-
-### Break Timing
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Mini Break Interval | 10 min | Time between mini breaks |
-| Mini Break Duration | 20 sec | Length of mini breaks |
-| Long Break Interval | 3 | Mini breaks before long break |
-| Long Break Duration | 5 min | Length of long breaks |
-| Mini Postpone Time | 2 min | Postpone time for mini breaks |
-| Long Postpone Time | 5 min | Postpone time for long breaks |
-
-### Notifications
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Notify Before Break | ✓ | Show notification before breaks |
-| Mini Break Warning | 10 sec | Seconds before mini break |
-| Long Break Warning | 30 sec | Seconds before long break |
-
-### Display
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Fullscreen Breaks | ✓ | Show breaks in fullscreen mode |
-| Show on All Monitors | ✓ | Display overlay on all screens |
-| Show Exercise Tips | ✓ | Display wellness tips during breaks |
-
-### Configuration File
-
-Settings are stored in `~/.config/pausa/config.json`
-
----
-
-## 🛠️ Building
-
-### Prerequisites
-
-- [Go 1.25+](https://golang.org/dl/)
-- [Wails CLI v2](https://wails.io/docs/gettingstarted/installation)
-- [Node.js 18+](https://nodejs.org/)
+Prerequisites:
+- Go 1.25+
+- Node.js 18+
+- Wails v2 CLI
 - Xcode Command Line Tools
 
-### Build Steps
-
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/pausa.git
+git clone git@github.com:yuseferi/pausa.git
 cd pausa
 
-# Install Wails CLI (if not installed)
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
-# Build the application
 wails build
-
-# The built app will be in build/bin/pausa.app
 ```
 
-### Development
+The built app will be at:
 
 ```bash
-# Run in development mode with hot reload
+build/bin/pausa.app
+```
+
+### Run the built app
+
+```bash
+open build/bin/pausa.app
+```
+
+---
+
+## Development
+
+### Start development mode
+
+```bash
 wails dev
 ```
 
+### Recommended clean restart
+
+Because `wails dev` may keep an old Go/cgo process alive while frontend assets hot-reload, a clean restart is sometimes useful when working on native macOS code:
+
+```bash
+pkill -9 pausa
+go clean -cache
+wails dev
+```
+
+### Debug logging
+
+Pausa supports runtime log levels through `PAUSA_LOG_LEVEL`:
+
+```bash
+PAUSA_LOG_LEVEL=debug wails dev
+```
+
+Useful values:
+- `debug`
+- `info`
+- `warn`
+- `error`
+
+Logs are also written to:
+
+```bash
+~/Library/Logs/Pausa/pausa.log
+```
+
 ---
 
-## 🏗️ Tech Stack
+## Configuration
 
-- **Backend**: [Go](https://golang.org/) - Fast, reliable, and efficient
-- **Frontend**: [Vue 3](https://vuejs.org/) - Progressive JavaScript framework
-- **Framework**: [Wails v2](https://wails.io/) - Build desktop apps with Go and Web technologies
-- **Styling**: Custom CSS with modern features (glassmorphism, animations)
+Configuration is stored at:
 
-### Project Structure
-
+```bash
+~/Library/Application Support/Pausa/config.json
 ```
+
+### Key settings
+
+#### Schedule
+- `shortInterval`
+- `shortDuration`
+- `longEvery`
+- `longDuration`
+- `postponeShort`
+- `postponeLong`
+
+#### Notifications
+- pre-break notifications
+- warning timings for short and long breaks
+- action buttons
+
+#### Display
+- theme
+- fullscreen break overlays
+- all-monitors overlays
+- exercise tips
+- breathing guide
+- accent color
+
+#### Working hours
+- enabled/disabled
+- weekdays
+- start and end time
+
+#### Idle and busy behavior
+- pause when idle
+- idle threshold
+- natural breaks
+- pause during meetings and videos
+- media debounce for audio-output fallback
+
+---
+
+## Busy Detection Details
+
+Pausa currently uses these signals to auto-pause the scheduler:
+
+1. **Microphone active**
+   - catches Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation, etc.
+
+2. **Now Playing**
+   - catches apps/browsers that publish system media state
+
+3. **Audio output activity**
+   - fallback for apps that don't publish now-playing state
+   - debounced so short notification sounds don't pause the timer
+
+4. **Frontmost browser tab URL heuristic**
+   - catches muted frontmost video/meeting pages such as YouTube and Google Meet
+
+Current browser-tab support:
+- Chrome
+- Arc
+- Safari
+- Brave
+
+Current frontmost URL matches:
+- YouTube
+- Google Meet
+- Netflix
+- Vimeo
+- Twitch
+- Disney+
+- Hulu
+- Prime Video
+- Loom share/embed pages
+
+This browser heuristic is currently **frontmost-browser only**. Background muted tabs are not treated as busy yet.
+
+---
+
+## Display Modes
+
+### Fullscreen breaks
+- **On**: edge-to-edge overlay panels on the target screen(s)
+- **Off**: centered compact card panels
+
+### Show on all monitors
+- **On**: every connected screen gets an overlay
+- **Off**: only the screen containing the mouse cursor gets an overlay
+
+The overlay system is native AppKit, not a regular Wails window, so it works on fullscreen-app Spaces.
+
+---
+
+## Project Structure
+
+```text
 pausa/
-├── app.go                    # Main application logic
-├── main.go                   # Entry point
-├── statusbar_darwin.go       # macOS menu bar integration
-├── multimonitor_darwin.go    # Multi-monitor support
+├── main.go
+├── ARCHITECTURE.md
+├── internal/
+│   ├── breakapp/      # Wails-bound app facade
+│   ├── clock/         # clock + fake clock for tests
+│   ├── config/        # config model + persistence
+│   ├── log/           # slog logger setup
+│   ├── macos/         # AppKit / CoreAudio / MediaRemote bridge
+│   ├── scheduler/     # actor-based break scheduler + tests
+│   └── tips/          # wellness tips catalog
 ├── frontend/
-│   ├── src/
-│   │   ├── App.vue          # Root component
-│   │   ├── components/
-│   │   │   ├── BreakWindow.vue      # Break screen UI
-│   │   │   ├── MainView.vue         # Main dashboard
-│   │   │   ├── PreferencesModal.vue # Settings modal
-│   │   │   └── WelcomeScreen.vue    # First-run setup
-│   │   └── style.css        # Global styles
-│   └── package.json
-├── build/
-│   └── appicon.png          # Application icon
-└── README.md
+│   └── src/
+│       ├── lib/       # api + reactive store
+│       ├── views/     # dashboard, break, preferences, welcome
+│       ├── components/
+│       └── composables/
+└── build/
+    └── icons/
 ```
 
 ---
 
-## 🤝 Contributing
+## Testing
 
-Contributions are welcome! Here's how you can help:
+Backend verification:
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+```bash
+go build ./...
+go vet ./...
+go test -race ./...
+```
 
-### Ideas for Contributions
+Frontend build:
 
-- [ ] Linux support
-- [ ] Windows support
-- [ ] Custom break sounds
-- [ ] Break statistics and analytics
-- [ ] Pomodoro mode integration
-- [ ] iCloud sync for settings
-- [ ] Localization (i18n)
-- [ ] Custom exercise tips
-- [ ] Idle time detection
-- [ ] Do Not Disturb integration
+```bash
+cd frontend
+npm run build
+```
 
----
+Cross-platform compile sanity:
 
-## 📝 License
+```bash
+GOOS=linux CGO_ENABLED=0 go build ./...
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+The app is macOS-focused, but non-darwin stubs are kept so cross-compilation still works.
 
 ---
 
-## 🙏 Acknowledgments
+## Current Limitations
 
-- Inspired by [Stretchly](https://hovancik.net/stretchly/) and [Time Out](https://www.dejal.com/timeout/)
-- Built with the amazing [Wails](https://wails.io/) framework
-- Icons from native emoji for universal compatibility
-
----
-
-## ⭐ Star History
-
-If you find Pausa helpful, please consider giving it a ⭐ on GitHub!
+- Busy browser-video detection for muted tabs is currently **frontmost-tab only**
+- Linux and Windows are not implemented as real targets yet
+- Some media detection relies on Apple-private APIs (`MediaRemote`) and browser scripting fallbacks
 
 ---
 
-<p align="center">
-  Made with ❤️ for your health and wellbeing
-</p>
+## Roadmap Ideas
 
-<p align="center">
-  <a href="https://github.com/yourusername/pausa/issues">Report Bug</a> •
-  <a href="https://github.com/yourusername/pausa/issues">Request Feature</a>
-</p>
+- Background browser-tab media detection
+- Firefox browser support for muted-tab detection
+- Richer stats/history view
+- More configurable break styles and sounds
+- Release packaging and codesigning workflow
+
+---
+
+## Repository
+
+- GitHub: <https://github.com/yuseferi/pausa>
+- Issues: <https://github.com/yuseferi/pausa/issues>

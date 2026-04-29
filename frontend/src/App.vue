@@ -1,199 +1,75 @@
+<script setup>
+// Root view router. Picks one of three primary surfaces based on store
+// state: WelcomeView (first run), BreakView (during break), DashboardView
+// (idle / scheduled / paused).
+//
+// PreferencesView is a modal overlay shown on top of any other surface.
+
+import { computed } from 'vue'
+import { state, onBreak } from './lib/store'
+import WelcomeView from './views/WelcomeView.vue'
+import DashboardView from './views/DashboardView.vue'
+import BreakView from './views/BreakView.vue'
+import PreferencesView from './views/PreferencesView.vue'
+
+const view = computed(() => {
+  if (!state.ready)        return 'loading'
+  if (state.firstLaunch)   return 'welcome'
+  if (onBreak.value)       return 'break'
+  return 'dashboard'
+})
+</script>
+
 <template>
-  <div class="app-container" :data-theme="theme">
-    <WelcomeScreen v-if="showWelcome" @complete="onWelcomeComplete" />
-    <BreakWindow 
-      v-else-if="isOnBreak" 
-      :breakType="currentBreakType"
-      :duration="breakDuration"
-      :tip="currentTip"
-      :fullscreen="config.fullScreenBreak"
-      @skip="skipBreak"
-      @postpone="postponeBreak"
-    />
-    <MainView 
-      v-else 
-      :state="state"
-      :config="config"
-      @openPreferences="showPreferences = true"
-      @pauseBreaks="pauseBreaks"
-      @resumeBreaks="resumeBreaks"
-      @resetBreaks="resetBreaks"
-    />
-    <PreferencesModal 
-      v-if="showPreferences" 
-      :config="config"
-      @close="showPreferences = false"
-      @save="saveConfig"
-    />
+  <div class="app-root">
+    <Transition name="fade" mode="out-in">
+      <WelcomeView    v-if="view === 'welcome'"    key="welcome" />
+      <BreakView      v-else-if="view === 'break'" key="break" />
+      <DashboardView  v-else-if="view === 'dashboard'" key="dashboard" />
+      <div v-else class="loading" key="loading">
+        <div class="titlebar-drag" />
+        <div class="loading__inner">
+          <div class="spinner" />
+          <div class="loading__text">Pausa</div>
+        </div>
+      </div>
+    </Transition>
+
+    <PreferencesView v-if="state.ui.preferencesOpen" />
   </div>
 </template>
 
-<script>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import WelcomeScreen from './components/WelcomeScreen.vue'
-import BreakWindow from './components/BreakWindow.vue'
-import MainView from './components/MainView.vue'
-import PreferencesModal from './components/PreferencesModal.vue'
-
-export default {
-  name: 'App',
-  components: {
-    WelcomeScreen,
-    BreakWindow,
-    MainView,
-    PreferencesModal
-  },
-  setup() {
-    const showWelcome = ref(false)
-    const showPreferences = ref(false)
-    const isOnBreak = ref(false)
-    const currentBreakType = ref('mini')
-    const breakDuration = ref(20)
-    const currentTip = ref({ text: '', category: '' })
-    const state = ref({
-      nextBreakTime: new Date(),
-      nextBreakType: 'mini',
-      miniBreakCount: 0,
-      isOnBreak: false,
-      isPaused: false
-    })
-    const config = ref({
-      miniBreakInterval: 10,
-      miniBreakDuration: 20,
-      longBreakInterval: 3,
-      longBreakDuration: 300,
-      theme: 'system',
-      language: 'en'
-    })
-
-    const theme = computed(() => {
-      if (config.value.theme === 'system') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      }
-      return config.value.theme
-    })
-
-    const loadState = async () => {
-      try {
-        if (window.go?.main?.App?.GetState) {
-          state.value = await window.go.main.App.GetState()
-          isOnBreak.value = state.value.isOnBreak
-        }
-      } catch (e) { console.error(e) }
-    }
-
-    const loadConfig = async () => {
-      try {
-        if (window.go?.main?.App?.GetConfig) {
-          config.value = await window.go.main.App.GetConfig()
-        }
-      } catch (e) { console.error(e) }
-    }
-
-    const saveConfig = async (newConfig) => {
-      try {
-        if (window.go?.main?.App?.SaveConfig) {
-          await window.go.main.App.SaveConfig(newConfig)
-          config.value = newConfig
-        }
-        showPreferences.value = false
-      } catch (e) { console.error(e) }
-    }
-
-    const pauseBreaks = async () => {
-      if (window.go?.main?.App?.PauseBreaks) {
-        await window.go.main.App.PauseBreaks()
-        state.value.isPaused = true
-      }
-    }
-
-    const resumeBreaks = async () => {
-      if (window.go?.main?.App?.ResumeBreaks) {
-        await window.go.main.App.ResumeBreaks()
-        state.value.isPaused = false
-        loadState()
-      }
-    }
-
-    const resetBreaks = async () => {
-      if (window.go?.main?.App?.ResetBreaks) {
-        await window.go.main.App.ResetBreaks()
-        loadState()
-      }
-    }
-
-    const skipBreak = async () => {
-      if (window.go?.main?.App?.SkipBreak) {
-        await window.go.main.App.SkipBreak()
-        isOnBreak.value = false
-        loadState()
-      }
-    }
-
-    const postponeBreak = async () => {
-      if (window.go?.main?.App?.PostponeBreak) {
-        await window.go.main.App.PostponeBreak()
-        isOnBreak.value = false
-        loadState()
-      }
-    }
-
-    const loadTip = async () => {
-      if (window.go?.main?.App?.GetExerciseTip) {
-        currentTip.value = await window.go.main.App.GetExerciseTip('')
-      }
-    }
-
-    const onWelcomeComplete = async () => {
-      if (window.go?.main?.App?.MarkFirstLaunchComplete) {
-        await window.go.main.App.MarkFirstLaunchComplete()
-      }
-      showWelcome.value = false
-    }
-
-    let stateInterval
-
-    onMounted(async () => {
-      await loadConfig()
-      await loadState()
-      
-      if (window.go?.main?.App?.IsFirstLaunch) {
-        showWelcome.value = await window.go.main.App.IsFirstLaunch()
-      }
-
-      if (window.runtime?.EventsOn) {
-        window.runtime.EventsOn('breakStarted', (data) => {
-          isOnBreak.value = true
-          currentBreakType.value = data.type
-          breakDuration.value = data.duration
-          loadTip()
-        })
-        window.runtime.EventsOn('breakEnded', () => {
-          isOnBreak.value = false
-          loadState()
-        })
-      }
-      
-      stateInterval = setInterval(loadState, 1000)
-    })
-
-    onUnmounted(() => {
-      if (stateInterval) clearInterval(stateInterval)
-    })
-
-    return {
-      showWelcome, showPreferences, isOnBreak, currentBreakType,
-      breakDuration, currentTip, state, config, theme,
-      onWelcomeComplete, saveConfig, pauseBreaks, resumeBreaks,
-      resetBreaks, skipBreak, postponeBreak
-    }
-  }
-}
-</script>
-
 <style scoped>
-.app-container {
+.app-root { height: 100%; width: 100%; }
+.loading {
   height: 100%;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
 }
+.loading__inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.loading__text {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

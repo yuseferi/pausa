@@ -1,7 +1,11 @@
+// Command pausa is the macOS break-reminder application. It is a thin
+// entry-point that wires together the configuration store, scheduler,
+// macOS bridge, and Wails runtime.
 package main
 
 import (
 	"embed"
+	"log/slog"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -9,100 +13,124 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"pausa/internal/breakapp"
+	"pausa/internal/clock"
+	"pausa/internal/config"
+	plog "pausa/internal/log"
+	"pausa/internal/macos"
+	"pausa/internal/scheduler"
+	"pausa/internal/tips"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
+	logFile := plog.Init(slog.LevelInfo)
+	if logFile != nil {
+		defer logFile.Close()
+	}
 
-	// Create menu for the menu bar
-	appMenu := menu.NewMenu()
+	cfgPath, err := config.DefaultPath()
+	if err != nil {
+		slog.Error("locate config", "err", err)
+		return
+	}
+	cfgStore, err := config.Open(cfgPath)
+	if err != nil {
+		// Non-fatal; defaults are in use.
+		slog.Warn("open config", "err", err, "path", cfgPath)
+	}
 
-	// App Menu (Pausa)
-	appMenu.Append(menu.AppMenu())
+	cfgSub := cfgStore.Subscribe()
+	catalog := tips.NewCatalog()
+	busySrc := macos.NewBusySource(cfgStore.Get().Idle.BusyMediaDebounce.AsDuration())
+	sched := scheduler.New(
+		clock.New(),
+		cfgStore.Get(),
+		cfgSub,
+		macos.IdleSource{},
+		busySrc,
+	)
+	app := breakapp.New(cfgStore, sched, catalog, cfgSub, busySrc)
 
-	// File Menu
-	fileMenu := appMenu.AddSubmenu("File")
-	fileMenu.AddText("Preferences...", keys.CmdOrCtrl(","), func(_ *menu.CallbackData) {
-		runtime.EventsEmit(app.ctx, "openPreferences", nil)
-	})
-	fileMenu.AddSeparator()
-	fileMenu.AddText("Quit Pausa", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		runtime.Quit(app.ctx)
-	})
+	appMenu := buildAppMenu(app)
 
-	// Breaks Menu
-	breaksMenu := appMenu.AddSubmenu("Breaks")
-	breaksMenu.AddText("Take a Break Now", keys.CmdOrCtrl("b"), func(_ *menu.CallbackData) {
-		app.TakeBreakNow()
-	})
-	breaksMenu.AddSeparator()
-	breaksMenu.AddText("Pause Breaks", keys.CmdOrCtrl("p"), func(_ *menu.CallbackData) {
-		app.PauseBreaks()
-	})
-	breaksMenu.AddText("Resume Breaks", keys.CmdOrCtrl("r"), func(_ *menu.CallbackData) {
-		app.ResumeBreaks()
-	})
-	breaksMenu.AddSeparator()
-	breaksMenu.AddText("Reset Breaks", nil, func(_ *menu.CallbackData) {
-		app.ResetBreaks()
-	})
-
-	// Help Menu
-	appMenu.Append(menu.EditMenu())
-
-	// Create application with options
-	err := wails.Run(&options.App{
-		Title:            "Pausa",
-		Width:            400,
-		Height:           300,
-		MinWidth:         400,
-		MinHeight:        300,
-		DisableResize:    false,
-		Fullscreen:       false,
-		StartHidden:      false,
+	err = wails.Run(&options.App{
+		Title:             "Pausa",
+		Width:             640,
+		Height:            720,
+		MinWidth:          560,
+		MinHeight:         640,
 		HideWindowOnClose: true,
-		AlwaysOnTop:      false,
+		StartHidden:       false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		Menu:             appMenu,
-		BackgroundColour: &options.RGBA{R: 45, G: 45, B: 45, A: 1},
-		OnStartup:        app.startup,
-		OnShutdown:       app.shutdown,
-		OnDomReady:       app.domReady,
-		Bind: []interface{}{
-			app,
-		},
-		Frameless: true,
+		BackgroundColour: &options.RGBA{R: 17, G: 24, B: 39, A: 1},
+		OnStartup:        app.Startup,
+		OnDomReady:       app.DomReady,
+		OnShutdown:       app.Shutdown,
+		Bind:             []interface{}{app},
+		Frameless:        true,
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
 				TitlebarAppearsTransparent: true,
 				HideTitle:                  true,
 				HideTitleBar:               true,
 				FullSizeContent:            true,
-				UseToolbar:                 false,
-				HideToolbarSeparator:       true,
 			},
-			WindowIsTranslucent: false,
 			About: &mac.AboutInfo{
 				Title:   "Pausa",
-				Message: "The break time reminder app\n\nTake regular breaks to stay healthy and productive.",
+				Message: "A mindful break reminder for macOS.",
 			},
 		},
-		Windows: &windows.Options{
-			WebviewIsTransparent: false,
-			WindowIsTranslucent:  false,
-			DisableWindowIcon:    false,
-		},
+	})
+	if err != nil {
+		slog.Error("wails run", "err", err)
+	}
+}
+
+// buildAppMenu constructs the macOS menu bar (the one at the top of the
+// screen, not the status item). Most operations live in the status bar; this
+// menu provides standard shortcuts.
+func buildAppMenu(app *breakapp.App) *menu.Menu {
+	m := menu.NewMenu()
+	m.Append(menu.AppMenu())
+
+	file := m.AddSubmenu("File")
+	file.AddText("Preferences…", keys.CmdOrCtrl(","), func(_ *menu.CallbackData) {
+		app.OpenPreferences()
+	})
+	file.AddSeparator()
+	file.AddText("Quit Pausa", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+		app.QuitApp()
 	})
 
-	if err != nil {
-		println("Error:", err.Error())
-	}
+	br := m.AddSubmenu("Breaks")
+	br.AddText("Take a Break Now", keys.CmdOrCtrl("b"), func(_ *menu.CallbackData) {
+		app.TakeBreakNow()
+	})
+	br.AddText("Skip Break", keys.Combo("s", keys.CmdOrCtrlKey, keys.ShiftKey), func(_ *menu.CallbackData) {
+		app.SkipBreak()
+	})
+	br.AddText("Postpone Break", keys.Combo("p", keys.CmdOrCtrlKey, keys.ShiftKey), func(_ *menu.CallbackData) {
+		app.PostponeBreak()
+	})
+	br.AddSeparator()
+	br.AddText("Pause Breaks", keys.CmdOrCtrl("p"), func(_ *menu.CallbackData) {
+		app.PauseBreaks()
+	})
+	br.AddText("Resume Breaks", keys.CmdOrCtrl("r"), func(_ *menu.CallbackData) {
+		app.ResumeBreaks()
+	})
+	br.AddSeparator()
+	br.AddText("Reset Schedule", nil, func(_ *menu.CallbackData) {
+		app.ResetBreaks()
+	})
+
+	m.Append(menu.EditMenu())
+	return m
 }

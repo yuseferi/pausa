@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pausa menu-bar (status item) icon. 22x22 logical, designed at higher
+  resolution for crisp downsampling.
+
+  IMPORTANT: macOS renders this as a "template image" — only the alpha
+  channel matters. macOS will tint the shape with the system-appropriate
+  color (white in dark mode, black in light, blue when highlighted).
+
+  So everything must be solid black on transparent. No gradients, no
+  colors. Just opaque shapes.
+
+  Design:
+  - Two pause bars matching the app icon's silhouette but simplified
+    for tiny sizes (no inner shadows, slightly chunkier proportions).
+  - Bars are 4 logical units wide each, with a 3-unit gap, centered in
+    the 22x22 bounds with ~3-unit horizontal padding and ~3-unit
+    vertical padding. This matches Apple's HIG for menu-bar glyphs.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <g fill="#000000">
+    <rect x="6"  y="3" width="4" height="16" rx="1.6" ry="1.6"/>
+    <rect x="12" y="3" width="4" height="16" rx="1.6" ry="1.6"/>
+  </g>
+</svg>
