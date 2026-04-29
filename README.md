@@ -18,6 +18,11 @@
   <a href="#configuration">Configuration</a>
 </p>
 
+```bash
+brew tap yuseferi/pausa https://github.com/yuseferi/pausa
+brew install --cask pausa
+```
+
 ---
 
 ## Features
@@ -140,6 +145,20 @@ open build/bin/pausa.app
 ```bash
 wails dev
 ```
+
+### Local release helper
+
+To prepare both macOS release zips locally and print the cask checksums:
+
+```bash
+scripts/release.sh 1.0.2
+```
+
+This builds:
+- `dist/pausa-1.0.2-arm64-macos.zip`
+- `dist/pausa-1.0.2-amd64-macos.zip`
+
+and prints the SHA256 values you need for `Casks/pausa.rb`.
 
 ### Recommended clean restart
 

@@ -17,6 +17,14 @@ Pausa now ships both:
 
 so the repo-tap cask works on both modern Mac architectures.
 
+For local release prep, you can use:
+
+```bash
+scripts/release.sh 1.0.2
+```
+
+to build both zip assets and print the SHA256 values needed for the cask.
+
 ---
 
 ## Goal: one-line install
