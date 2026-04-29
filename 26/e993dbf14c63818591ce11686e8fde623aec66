@@ -1,0 +1,26 @@
+.github/workflows/release.yml
+  b0a9808d68de948e 1-59
+.gitignore
+  b0a9808d68de948e 64-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "26e993dbf14c63818591ce11686e8fde623aec66",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 68,
+      "total_deletions": 1,
+      "accepted_lines": 136,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/37954d5d6a74347d1ae70c32cd0320cb7ef29fa1019531e486d4b9e0ea785d65"
+    }
+  }
+}
