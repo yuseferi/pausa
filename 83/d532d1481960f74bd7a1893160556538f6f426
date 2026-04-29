@@ -1,0 +1,26 @@
+Makefile
+  b0a9808d68de948e 1,28-33
+README.md
+  b0a9808d68de948e 139-157
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "83d532d1481960f74bd7a1893160556538f6f426",
+  "prompts": {
+    "b0a9808d68de948e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_22a5076a7ffeMqJeFvoiUEqYaM",
+        "model": "litellm/claude-opus-4-7"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 1,
+      "accepted_lines": 118,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/9f32c2a22bf1d335b1fb094708a8117a7e9ccc59f06db444f3420abd8983f3ef"
+    }
+  }
+}
