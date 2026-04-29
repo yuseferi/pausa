@@ -1,0 +1,24 @@
+.github/workflows/ci.yml
+  2fcbcfe612f2a344 32-38,73-75,97-101,125-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "49277c0df0daa5c3d43502b8aea2697a769a6c39",
+  "prompts": {
+    "2fcbcfe612f2a344": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_2248f3454ffedebVnj0FFCEeh3",
+        "model": "vg_litellm/claude-opus-4-6"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 19,
+      "total_deletions": 17,
+      "accepted_lines": 19,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/59e53615055174727f71f932858510449d9b92a3dd7491f472f73edcb93bcf02"
+    }
+  }
+}
