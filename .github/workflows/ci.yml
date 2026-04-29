@@ -20,6 +20,22 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Generate bindings and build frontend
+        run: wails generate module
+
+      - name: Install frontend dependencies and build
+        run: npm ci && npm run build
+        working-directory: frontend
+
       - name: Build
         run: go build ./...
 
@@ -31,12 +47,13 @@ jobs:
 
   frontend:
     name: Frontend build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
 
       - uses: actions/setup-node@v4
         with:
@@ -44,11 +61,19 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Generate Wails bindings
+        run: wails generate module
+
       - name: Install dependencies
         run: npm ci
+        working-directory: frontend
 
       - name: Build
         run: npm run build
+        working-directory: frontend
 
   cross-compile:
     name: Cross-compile (Linux)
@@ -59,6 +84,22 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Generate bindings and build frontend
+        run: wails generate module
+
+      - name: Install frontend dependencies and build
+        run: npm ci && npm run build
+        working-directory: frontend
 
       - name: Build (GOOS=linux, CGO_ENABLED=0)
         run: GOOS=linux CGO_ENABLED=0 go build ./...
@@ -73,6 +114,22 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Generate bindings and build frontend
+        run: wails generate module
+
+      - name: Install frontend dependencies and build
+        run: npm ci && npm run build
+        working-directory: frontend
+
       - uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v2.1.6
