@@ -355,7 +355,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		}
 
 		tip := a.pickTip(ev.BreakKind)
-		dur := ev.Snapshot.BreakEndsAt.Sub(time.Now())
+		dur := time.Until(ev.Snapshot.BreakEndsAt)
 		if dur < 0 {
 			dur = 0
 		}
