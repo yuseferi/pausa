@@ -1,0 +1,26 @@
+internal/breakapp/app.go
+  2fcbcfe612f2a344 358
+main.go
+  2fcbcfe612f2a344 32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "aa40835b236dddc1c132153715b4beafaddb423f",
+  "prompts": {
+    "2fcbcfe612f2a344": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_2248f3454ffedebVnj0FFCEeh3",
+        "model": "vg_litellm/claude-opus-4-6"
+      },
+      "human_author": "Yusef Mohamadi",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 15,
+      "accepted_lines": 2,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/131132c73624f20b713f628b7e44a7850ad874bc3bf2b1a082da26c13da5cb4b"
+    }
+  }
+}
