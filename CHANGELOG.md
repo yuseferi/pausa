@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/yuseferi/pausa/compare/v1.0.1...v1.0.2) (2026-04-30)
+
+### Bug Fixes
+
+* resolve golangci-lint errors (errcheck, staticcheck, unused) ([aa40835](https://github.com/yuseferi/pausa/commit/aa40835b236dddc1c132153715b4beafaddb423f))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
