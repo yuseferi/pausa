@@ -29,7 +29,7 @@ var assets embed.FS
 func main() {
 	logFile := plog.Init(slog.LevelInfo)
 	if logFile != nil {
-		defer logFile.Close()
+		defer func() { _ = logFile.Close() }()
 	}
 
 	cfgPath, err := config.DefaultPath()
