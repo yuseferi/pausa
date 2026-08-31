@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/yuseferi/pausa/compare/v1.0.3...v1.0.4) (2026-08-31)
+
+### Bug Fixes
+
+* wire up dormant settings and fix scheduler pause bugs ([5302779](https://github.com/yuseferi/pausa/commit/5302779c53003c2f0620360d79190161e6b28c85)), closes [#3](https://github.com/yuseferi/pausa/issues/3)
+
 ## [1.0.3](https://github.com/yuseferi/pausa/compare/v1.0.2...v1.0.3) (2026-08-31)
 
 ### Bug Fixes
