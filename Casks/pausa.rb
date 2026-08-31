@@ -2,7 +2,7 @@ cask "pausa" do
   version "1.0.1"
 
   on_arm do
-    sha256 "16220b2e70dc9abff51c5e2f3cf01cace6b18e88a2fe14d1c889f046e477ad6b"
+    sha256 "2273ffb8501cf0508400816c8c4806d0eb94a7967ff69d01995c6854dcf41e5c"
     url "https://github.com/yuseferi/pausa/releases/download/v#{version}/pausa-#{version}-arm64-macos.zip"
   end
 
