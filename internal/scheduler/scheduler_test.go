@@ -761,6 +761,75 @@ func TestIdlePauseDisabledKeepsCounting(t *testing.T) {
 	}
 }
 
+func TestAutoPauseSettlesAfterWorkingHoursEnd(t *testing.T) {
+	// Wednesday 16:59:50 — busy pause starts inside the window but the
+	// signal clears only after closing time. The scheduler must settle the
+	// pause and defer the next break to Thursday 09:00, not stay
+	// auto-paused until the next window.
+	start := time.Date(2025, 6, 4, 16, 59, 50, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+
+	h.busy.set(true, "in a meeting")
+	h.advance(BusyPollInterval)
+	if h.sched.Snapshot().Phase != PhaseAutoPaused {
+		t.Fatalf("setup: expected auto-paused, got %s", h.sched.Snapshot().Phase)
+	}
+
+	h.busy.set(false, "")
+	h.clearEvents()
+	h.advance(BusyPollInterval) // now past 17:00
+
+	if !h.hasKind(EventAutoResume) {
+		t.Fatalf("expected EventAutoResume after busy cleared post-closing, got %v", h.kinds())
+	}
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseScheduled {
+		t.Fatalf("phase=%s, want scheduled", snap.Phase)
+	}
+	want := time.Date(2025, 6, 5, 9, 0, 0, 0, time.Local)
+	if !snap.NextBreakAt.Equal(want) {
+		t.Errorf("nextBreakAt=%v, want %v", snap.NextBreakAt, want)
+	}
+}
+
+func TestIdlePauseConvertsToBusyPause(t *testing.T) {
+	h := newHarness(t)
+	h.idle.d = 3 * time.Minute
+	h.advance(BusyPollInterval) // idle-pause kicks in
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused || snap.AutoPauseReason != "away" {
+		t.Fatalf("setup: phase=%s reason=%q, want away idle-pause", snap.Phase, snap.AutoPauseReason)
+	}
+
+	// User returns but is immediately in a meeting.
+	h.idle.d = 0
+	h.busy.set(true, "in a meeting")
+	h.clearEvents()
+	h.advance(BusyPollInterval)
+
+	snap = h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused {
+		t.Fatalf("phase=%s, want still auto-paused (converted to busy)", snap.Phase)
+	}
+	if snap.AutoPauseReason != "in a meeting" {
+		t.Errorf("reason=%q, want converted busy label", snap.AutoPauseReason)
+	}
+	if h.hasKind(EventAutoResume) {
+		t.Errorf("resumed mid-conversion: %v", h.kinds())
+	}
+
+	// Meeting ends; countdown resumes.
+	h.busy.set(false, "")
+	h.clearEvents()
+	h.advance(BusyPollInterval)
+	if !h.hasKind(EventAutoResume) {
+		t.Fatalf("expected EventAutoResume after meeting ended, got %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Phase; got != PhaseScheduled {
+		t.Errorf("phase=%s, want scheduled", got)
+	}
+}
+
 // ---------- Misc regression tests ----------
 
 func TestManualPauseSurvivesManualBreak(t *testing.T) {

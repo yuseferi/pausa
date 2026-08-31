@@ -686,17 +686,12 @@ func (s *Scheduler) handleConfigChange(st *actorState) {
 // PhaseAutoPaused based on the busy source and user idleness, each gated by
 // its own config flag.
 func (s *Scheduler) onBusyPoll(st *actorState) {
-	// Outside working hours no breaks will fire anyway, so auto-pausing
-	// would only produce confusing menu-bar state overnight.
-	if s.cfg.WorkingHours.Enabled && !s.cfg.IsWorkingNow(s.clk.Now()) {
-		return
-	}
-
 	// Only poll the (relatively expensive) busy source when it can change
-	// something this tick.
+	// something this tick: entry is possible, or an active auto-pause needs
+	// settling (including one whose signal clears outside working hours).
 	var label string
 	var busy bool
-	if s.cfg.Idle.PauseWhenBusy || (st.phase == PhaseAutoPaused && !st.pausedByIdle) {
+	if s.cfg.Idle.PauseWhenBusy || st.phase == PhaseAutoPaused {
 		label, busy = s.busy.BusyState()
 	}
 	slog.Debug("scheduler busy poll", "phase", st.phase, "busy", busy, "label", label)
@@ -705,6 +700,11 @@ func (s *Scheduler) onBusyPoll(st *actorState) {
 
 	switch st.phase {
 	case PhaseScheduled, PhaseNotifying, PhaseOnBreak:
+		// Outside working hours no breaks will fire anyway, so auto-pausing
+		// would only produce confusing menu-bar state overnight.
+		if s.cfg.WorkingHours.Enabled && !s.cfg.IsWorkingNow(s.clk.Now()) {
+			return
+		}
 		switch {
 		case s.cfg.Idle.PauseWhenBusy && busy:
 			s.enterAutoPause(st, label)
@@ -716,10 +716,18 @@ func (s *Scheduler) onBusyPoll(st *actorState) {
 		}
 	case PhaseAutoPaused:
 		if st.pausedByIdle {
-			// Resume when the user returns (idle drops) or the feature
-			// was switched off.
 			if !s.cfg.Idle.PauseWhenIdle || s.idle.IdleFor() < idleThreshold {
-				s.exitAutoPause(st)
+				if s.cfg.Idle.PauseWhenBusy && busy {
+					// User returned but jumped straight into a meeting;
+					// convert to a busy-pause instead of resuming and
+					// re-pausing on the next poll.
+					st.pausedByIdle = false
+					st.pausedIdleFor = 0
+					st.autoPauseReason = label
+					s.publish(EventAutoPaused, st)
+				} else {
+					s.exitAutoPause(st)
+				}
 			}
 		} else if !busy {
 			s.exitAutoPause(st)

@@ -476,7 +476,11 @@ func formatTimer(secs int) string {
 
 // formatCountdown renders a time-until-break for the menu bar. Waits over an
 // hour (e.g. deferred to the next working window) render as "16h05m".
+// Negative durations clamp to zero.
 func formatCountdown(d time.Duration) string {
+	if d < 0 {
+		d = 0
+	}
 	total := int(d.Seconds())
 	h := total / 3600
 	m := (total % 3600) / 60

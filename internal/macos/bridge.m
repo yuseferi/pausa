@@ -97,7 +97,11 @@ static BOOL isBundledApp(void) {
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    completionHandler(UNNotificationPresentationOptionBanner);
+    UNNotificationPresentationOptions opts = UNNotificationPresentationOptionBanner;
+    if (notification.request.content.sound != nil) {
+        opts |= UNNotificationPresentationOptionSound;
+    }
+    completionHandler(opts);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center

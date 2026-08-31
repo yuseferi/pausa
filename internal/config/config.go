@@ -227,11 +227,14 @@ func (c *Config) NextWorkingStart(from time.Time) time.Time {
 		return from.Add(time.Hour)
 	}
 	for i := 0; i < 8; i++ {
-		day := time.Date(from.Year(), from.Month(), from.Day()+i, 0, 0, 0, 0, from.Location())
-		if !c.WorkingHours.Days[int(day.Weekday())] {
+		// Wall-clock arithmetic via time.Date so DST transitions between
+		// midnight and the window start don't shift the configured time.
+		start := time.Date(from.Year(), from.Month(), from.Day()+i,
+			c.WorkingHours.StartMinute/60, c.WorkingHours.StartMinute%60,
+			0, 0, from.Location())
+		if !c.WorkingHours.Days[int(start.Weekday())] {
 			continue
 		}
-		start := day.Add(time.Duration(c.WorkingHours.StartMinute) * time.Minute)
 		if start.After(from) {
 			return start
 		}
