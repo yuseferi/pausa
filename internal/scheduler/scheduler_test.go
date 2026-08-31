@@ -48,6 +48,12 @@ func (f *fakeBusy) set(busy bool, label string) {
 }
 
 func newHarness(t *testing.T) *testHarness {
+	return newHarnessAt(t, time.Unix(1_700_000_000, 0), nil)
+}
+
+// newHarnessAt is like newHarness but anchors the fake clock at a specific
+// instant and lets the test tweak the config before the scheduler starts.
+func newHarnessAt(t *testing.T, start time.Time, modify func(*config.Config)) *testHarness {
 	t.Helper()
 	cfg := config.Default()
 	// Squash everything to seconds for fast tests
@@ -61,10 +67,13 @@ func newHarness(t *testing.T) *testHarness {
 	cfg.Notification.WarnLong = config.Duration(2 * time.Second)
 	cfg.Idle.NaturalBreaks = false
 	cfg.Idle.PauseWhenBusy = true
+	if modify != nil {
+		modify(&cfg)
+	}
 
 	h := &testHarness{
 		t:     t,
-		clk:   clock.NewFake(time.Unix(1_700_000_000, 0)),
+		clk:   clock.NewFake(start),
 		cfg:   cfg,
 		cfgCh: make(chan config.Config, 1),
 		idle:  &fakeIdle{},
@@ -614,5 +623,255 @@ func TestBusyReasonChangeUpdatesLabel(t *testing.T) {
 	h.advance(BusyPollInterval + time.Second)
 	if got := h.sched.Snapshot().AutoPauseReason; got != "media playing" {
 		t.Errorf("after change, label=%q, want media playing", got)
+	}
+}
+
+// ---------- Working-hours tests ----------
+
+// whConfig enables a Mon–Fri 09:00–17:00 working window.
+func whConfig(c *config.Config) {
+	c.WorkingHours.Enabled = true
+	c.WorkingHours.Days = [7]bool{false, true, true, true, true, true, false}
+	c.WorkingHours.StartMinute = 9 * 60
+	c.WorkingHours.EndMinute = 17 * 60
+}
+
+func TestWorkingHoursInsideWindowSchedulesNormally(t *testing.T) {
+	// Wednesday 2025-06-04 10:00 local — inside the window.
+	start := time.Date(2025, 6, 4, 10, 0, 0, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+	snap := h.sched.Snapshot()
+	if delta := snap.NextBreakAt.Sub(h.clk.Now()); delta != 10*time.Second {
+		t.Errorf("next break in %v, want 10s (normal interval inside working hours)", delta)
+	}
+}
+
+func TestWorkingHoursDefersBreakOutsideWindow(t *testing.T) {
+	// Wednesday 2025-06-04 22:00 local — outside the window.
+	start := time.Date(2025, 6, 4, 22, 0, 0, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+	snap := h.sched.Snapshot()
+	want := time.Date(2025, 6, 5, 9, 0, 0, 0, time.Local)
+	if !snap.NextBreakAt.Equal(want) {
+		t.Errorf("nextBreakAt=%v, want %v (next working-window start)", snap.NextBreakAt, want)
+	}
+}
+
+func TestWorkingHoursPushesBreakLandingOutsideWindow(t *testing.T) {
+	// Wednesday 16:59:55 — the 10s interval would land at 17:00:05, one
+	// tick past the window end. Expect deferral to Thursday 09:00.
+	start := time.Date(2025, 6, 4, 16, 59, 55, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+	snap := h.sched.Snapshot()
+	want := time.Date(2025, 6, 5, 9, 0, 0, 0, time.Local)
+	if !snap.NextBreakAt.Equal(want) {
+		t.Errorf("nextBreakAt=%v, want %v", snap.NextBreakAt, want)
+	}
+}
+
+func TestWorkingHoursNoBreakFiresOutsideWindow(t *testing.T) {
+	start := time.Date(2025, 6, 4, 22, 0, 0, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+	h.clearEvents()
+	h.advance(4 * time.Hour) // deep into the night — nothing should fire
+	if h.hasKind(EventBreakStart) {
+		t.Errorf("break fired outside working hours: %v", h.kinds())
+	}
+}
+
+// ---------- Idle auto-pause tests ----------
+
+func TestIdlePausesCountdown(t *testing.T) {
+	h := newHarness(t)
+	h.idle.d = 3 * time.Minute // >= IdleThreshold (2m default)
+	h.advance(BusyPollInterval + time.Second)
+
+	if !h.hasKind(EventAutoPaused) {
+		t.Fatalf("expected EventAutoPaused in %v", h.kinds())
+	}
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused {
+		t.Errorf("phase=%s, want auto_paused", snap.Phase)
+	}
+	if snap.AutoPauseReason != "away" {
+		t.Errorf("autoPauseReason=%q, want %q", snap.AutoPauseReason, "away")
+	}
+}
+
+func TestIdleResumeKeepsRemainingTime(t *testing.T) {
+	h := newHarness(t)
+	h.advance(2 * time.Second) // 8s left of the interval
+	h.idle.d = 3 * time.Minute
+	h.advance(BusyPollInterval) // poll pauses the countdown
+	if h.sched.Snapshot().Phase != PhaseAutoPaused {
+		t.Fatalf("setup: expected auto-paused")
+	}
+
+	h.idle.d = 0 // user returns
+	h.clearEvents()
+	h.advance(BusyPollInterval) // next poll resumes
+
+	if !h.hasKind(EventAutoResume) {
+		t.Fatalf("expected EventAutoResume in %v", h.kinds())
+	}
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseScheduled {
+		t.Fatalf("phase=%s, want scheduled", snap.Phase)
+	}
+	delta := snap.NextBreakAt.Sub(h.clk.Now())
+	if delta <= 0 || delta >= h.cfg.Schedule.ShortInterval.AsDuration() {
+		t.Errorf("after idle-resume, time-to-break=%v, want (0, full interval)", delta)
+	}
+}
+
+func TestIdleAwayLongEnoughCreditsNaturalBreak(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.NaturalBreaks = true
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 3 * time.Minute
+	h.advance(BusyPollInterval + time.Second) // pause as "away"
+	h.idle.d = 0                              // user returns
+	h.clearEvents()
+	h.advance(BusyPollInterval)
+
+	if !h.hasKind(EventNatural) {
+		t.Fatalf("expected EventNatural (away time covers the break) in %v", h.kinds())
+	}
+	if h.hasKind(EventBreakStart) {
+		t.Errorf("break started despite away-time credit: %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Stats.NaturalBreaks; got != 1 {
+		t.Errorf("NaturalBreaks=%d, want 1", got)
+	}
+}
+
+func TestIdlePauseDisabledKeepsCounting(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.PauseWhenIdle = false
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 3 * time.Minute
+	h.clearEvents()
+	h.advance(BusyPollInterval + time.Second)
+	if h.hasKind(EventAutoPaused) {
+		t.Errorf("EventAutoPaused fired despite PauseWhenIdle=false")
+	}
+}
+
+func TestAutoPauseSettlesAfterWorkingHoursEnd(t *testing.T) {
+	// Wednesday 16:59:50 — busy pause starts inside the window but the
+	// signal clears only after closing time. The scheduler must settle the
+	// pause and defer the next break to Thursday 09:00, not stay
+	// auto-paused until the next window.
+	start := time.Date(2025, 6, 4, 16, 59, 50, 0, time.Local)
+	h := newHarnessAt(t, start, whConfig)
+
+	h.busy.set(true, "in a meeting")
+	h.advance(BusyPollInterval)
+	if h.sched.Snapshot().Phase != PhaseAutoPaused {
+		t.Fatalf("setup: expected auto-paused, got %s", h.sched.Snapshot().Phase)
+	}
+
+	h.busy.set(false, "")
+	h.clearEvents()
+	h.advance(BusyPollInterval) // now past 17:00
+
+	if !h.hasKind(EventAutoResume) {
+		t.Fatalf("expected EventAutoResume after busy cleared post-closing, got %v", h.kinds())
+	}
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseScheduled {
+		t.Fatalf("phase=%s, want scheduled", snap.Phase)
+	}
+	want := time.Date(2025, 6, 5, 9, 0, 0, 0, time.Local)
+	if !snap.NextBreakAt.Equal(want) {
+		t.Errorf("nextBreakAt=%v, want %v", snap.NextBreakAt, want)
+	}
+}
+
+func TestIdlePauseConvertsToBusyPause(t *testing.T) {
+	h := newHarness(t)
+	h.idle.d = 3 * time.Minute
+	h.advance(BusyPollInterval) // idle-pause kicks in
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused || snap.AutoPauseReason != "away" {
+		t.Fatalf("setup: phase=%s reason=%q, want away idle-pause", snap.Phase, snap.AutoPauseReason)
+	}
+
+	// User returns but is immediately in a meeting.
+	h.idle.d = 0
+	h.busy.set(true, "in a meeting")
+	h.clearEvents()
+	h.advance(BusyPollInterval)
+
+	snap = h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused {
+		t.Fatalf("phase=%s, want still auto-paused (converted to busy)", snap.Phase)
+	}
+	if snap.AutoPauseReason != "in a meeting" {
+		t.Errorf("reason=%q, want converted busy label", snap.AutoPauseReason)
+	}
+	if h.hasKind(EventAutoResume) {
+		t.Errorf("resumed mid-conversion: %v", h.kinds())
+	}
+
+	// Meeting ends; countdown resumes.
+	h.busy.set(false, "")
+	h.clearEvents()
+	h.advance(BusyPollInterval)
+	if !h.hasKind(EventAutoResume) {
+		t.Fatalf("expected EventAutoResume after meeting ended, got %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Phase; got != PhaseScheduled {
+		t.Errorf("phase=%s, want scheduled", got)
+	}
+}
+
+// ---------- Misc regression tests ----------
+
+func TestManualPauseSurvivesManualBreak(t *testing.T) {
+	h := newHarness(t)
+	h.sched.Pause()
+	h.drain()
+	h.sched.TakeBreakNow()
+	h.drain()
+	if got := h.sched.Snapshot().Phase; got != PhaseOnBreak {
+		t.Fatalf("phase=%s, want on_break", got)
+	}
+
+	h.clearEvents()
+	h.advance(2 * time.Second) // let the break finish
+
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhasePaused {
+		t.Errorf("phase=%s, want paused (manual pause must survive a manual break)", snap.Phase)
+	}
+	if !h.hasKind(EventPaused) {
+		t.Errorf("expected EventPaused in %v", h.kinds())
+	}
+
+	// And the schedule must stay dormant afterwards.
+	h.clearEvents()
+	h.advance(60 * time.Second)
+	if h.hasKind(EventBreakStart) {
+		t.Errorf("break fired after manually-paused manual break: %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Phase; got != PhasePaused {
+		t.Errorf("phase drifted to %s, want paused", got)
+	}
+}
+
+func TestSnapshotReportsShortsUntilLong(t *testing.T) {
+	h := newHarness(t)
+	if got := h.sched.Snapshot().ShortsUntilLong; got != 3 {
+		t.Errorf("initial ShortsUntilLong=%d, want 3", got)
+	}
+	h.advance(10 * time.Second) // break starts
+	h.advance(2 * time.Second)  // break ends
+	if got := h.sched.Snapshot().ShortsUntilLong; got != 2 {
+		t.Errorf("after one short, ShortsUntilLong=%d, want 2", got)
 	}
 }

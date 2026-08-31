@@ -45,8 +45,8 @@ func (System) NewTimer(d time.Duration) Timer {
 
 type systemTimer struct{ t *time.Timer }
 
-func (s *systemTimer) C() <-chan time.Time   { return s.t.C }
-func (s *systemTimer) Stop() bool            { return s.t.Stop() }
+func (s *systemTimer) C() <-chan time.Time { return s.t.C }
+func (s *systemTimer) Stop() bool          { return s.t.Stop() }
 func (s *systemTimer) Reset(d time.Duration) bool {
 	if !s.t.Stop() {
 		select {

@@ -53,7 +53,7 @@ func main() {
 		macos.IdleSource{},
 		busySrc,
 	)
-	app := breakapp.New(cfgStore, sched, catalog, cfgSub, busySrc)
+	app := breakapp.New(cfgStore, sched, catalog, busySrc)
 
 	appMenu := buildAppMenu(app)
 

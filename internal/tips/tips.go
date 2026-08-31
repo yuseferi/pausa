@@ -31,15 +31,11 @@ type Tip struct {
 type Catalog struct {
 	mu   sync.RWMutex
 	tips []Tip
-	rng  *rand.Rand
 }
 
 // NewCatalog returns a catalog seeded with the built-in tip set.
 func NewCatalog() *Catalog {
-	return &Catalog{
-		tips: builtin(),
-		rng:  rand.New(rand.NewSource(seed())),
-	}
+	return &Catalog{tips: builtin()}
 }
 
 // All returns a copy of every tip.
@@ -65,7 +61,7 @@ func (c *Catalog) Pick(cat Category) Tip {
 	if len(pool) == 0 {
 		return Tip{Text: "Take a moment to relax.", Category: Breathe}
 	}
-	return pool[c.rng.Intn(len(pool))]
+	return pool[rand.Intn(len(pool))]
 }
 
 // PickForShort returns a tip tailored for a short break (eye-focused).
@@ -73,11 +69,8 @@ func (c *Catalog) PickForShort() Tip { return c.Pick(Eyes) }
 
 // PickForLong returns a tip from a randomly-chosen long-break category.
 func (c *Catalog) PickForLong() Tip {
-	c.mu.RLock()
 	cats := []Category{Stretch, Move, Breathe}
-	cat := cats[c.rng.Intn(len(cats))]
-	c.mu.RUnlock()
-	return c.Pick(cat)
+	return c.Pick(cats[rand.Intn(len(cats))])
 }
 
 // Add appends a custom tip. Returns the assigned ID.
@@ -144,6 +137,3 @@ func builtin() []Tip {
 		{42, "Adjust your screen so the top is at eye level.", Posture},
 	}
 }
-
-// seed returns a deterministic-ish seed; replaced in tests.
-var seed = defaultSeed

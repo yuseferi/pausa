@@ -18,6 +18,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreAudio/CoreAudio.h>
 #import <UserNotifications/UserNotifications.h>
+#import <ServiceManagement/ServiceManagement.h>
 
 #include "bridge.h"
 #include <stdlib.h>
@@ -96,7 +97,11 @@ static BOOL isBundledApp(void) {
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    completionHandler(UNNotificationPresentationOptionBanner);
+    UNNotificationPresentationOptions opts = UNNotificationPresentationOptionBanner;
+    if (notification.request.content.sound != nil) {
+        opts |= UNNotificationPresentationOptionSound;
+    }
+    completionHandler(opts);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -148,7 +153,11 @@ void pausa_statusbar_init(const char *title) {
 void pausa_statusbar_set_title(const char *title) {
     NSString *t = NSStr(title);
     onMain(^{
-        if (gStatusItem) gStatusItem.button.title = t;
+        if (gStatusItem == nil) return;
+        gStatusItem.button.title = t;
+        // Show icon+text when a title is present, icon-only otherwise.
+        gStatusItem.button.imagePosition =
+            t.length > 0 ? NSImageLeading : NSImageOnly;
     });
 }
 
@@ -161,12 +170,19 @@ static NSImage *makeFallbackStatusIcon(NSInteger state) {
     [[NSColor blackColor] setFill];
 
     switch (state) {
-        case 1: { // manual paused: pause bars in a circle
+        case 1: { // manual paused: pause bars inside a circle
             NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(1.5, 1.5, 15, 15)];
             [circle setLineWidth:2.0];
             [[NSColor blackColor] setStroke];
             [circle stroke];
-        } break;
+            NSBezierPath *left = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(6.5, 5.5, 2, 7) xRadius:0.8 yRadius:0.8];
+            NSBezierPath *right = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(9.5, 5.5, 2, 7) xRadius:0.8 yRadius:0.8];
+            [left fill];
+            [right fill];
+            img.template = YES;
+            [img unlockFocus];
+            return img;
+        }
         case 2: { // busy: simple video camera-ish shape
             NSBezierPath *body = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(3, 5, 8, 8) xRadius:1.5 yRadius:1.5];
             [body fill];
@@ -234,8 +250,10 @@ void pausa_statusbar_set_builtin_icon(int state) {
                 img = makeFallbackStatusIcon(st);
             }
             gStatusItem.button.image = img;
-            gStatusItem.button.title = @"";
-            gStatusItem.button.imagePosition = NSImageOnly;
+            // Keep any countdown title the Go side set; just lay out
+            // correctly for with/without text.
+            gStatusItem.button.imagePosition =
+                gStatusItem.button.title.length > 0 ? NSImageLeading : NSImageOnly;
         } @catch (NSException *e) {
             NSLog(@"pausa: set_builtin_icon exception: %@", e);
         }
@@ -338,6 +356,12 @@ char *pausa_workspace_frontmost_app(void) {
     @try {
         NSRunningApplication *app = [[NSWorkspace sharedWorkspace] frontmostApplication];
         if (app == nil) return NULL;
+        // Never report ourselves: callers use this to restore focus to the
+        // user's *previous* app after a break.
+        NSString *selfID = [NSBundle mainBundle].bundleIdentifier;
+        if (selfID.length > 0 && [app.bundleIdentifier isEqualToString:selfID]) {
+            return NULL;
+        }
         NSString *name = app.bundleIdentifier;
         if (name.length == 0) name = app.localizedName;
         if (name.length == 0) return NULL;
@@ -483,11 +507,12 @@ void pausa_notify_request_auth(void) {
     });
 }
 
-void pausa_notify_post(const char *title, const char *body, int withActions) {
+void pausa_notify_post(const char *title, const char *body, int withActions, int withSound) {
     if (!isBundledApp()) return;
     NSString *t = NSStr(title);
     NSString *b = NSStr(body);
     BOOL actions = (withActions != 0);
+    BOOL sound = (withSound != 0);
     onMain(^{
         @try {
             UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -501,6 +526,7 @@ void pausa_notify_post(const char *title, const char *body, int withActions) {
             content.title = t;
             content.body = b;
             if (actions) content.categoryIdentifier = @"PAUSA_BREAK";
+            if (sound) content.sound = [UNNotificationSound defaultSound];
 
             UNNotificationRequest *req =
                 [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString]
@@ -1132,6 +1158,57 @@ void pausa_overlays_close(void) {
             [gOverlays removeAllObjects];
         } @catch (NSException *e) {
             NSLog(@"pausa: overlays close exception: %@", e);
+        }
+    });
+}
+
+// Login item -----------------------------------------------------------------
+//
+// SMAppService.mainAppService registers the running .app bundle as a login
+// item (macOS 13+). Requires a bundled app; in `wails dev` it's a no-op.
+
+int pausa_login_item_set_enabled(int enabled) {
+    if (!isBundledApp()) return 0;
+    __block int ok = 0;
+    @try {
+        if (@available(macOS 13.0, *)) {
+            SMAppService *svc = [SMAppService mainAppService];
+            BOOL registered = (svc.status == SMAppServiceStatusEnabled);
+            NSError *err = nil;
+            if (enabled) {
+                if (registered) {
+                    ok = 1; // already in the requested state
+                } else {
+                    ok = [svc registerAndReturnError:&err] ? 1 : 0;
+                }
+            } else {
+                if (!registered) {
+                    ok = 1;
+                } else {
+                    ok = [svc unregisterAndReturnError:&err] ? 1 : 0;
+                }
+            }
+            if (!ok) NSLog(@"pausa: login item %@ failed: %@",
+                           enabled ? @"register" : @"unregister", err);
+        }
+    } @catch (NSException *e) {
+        NSLog(@"pausa: login item exception: %@", e);
+    }
+    return ok;
+}
+
+// Activation policy -----------------------------------------------------------
+
+void pausa_app_set_regular_policy(void) {
+    onMain(^{
+        if (NSApp == nil) return;
+        @try {
+            if ([NSApp activationPolicy] != NSApplicationActivationPolicyRegular) {
+                [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+                NSLog(@"pausa: switched to regular activation policy (Dock icon on)");
+            }
+        } @catch (NSException *e) {
+            NSLog(@"pausa: set_regular_policy exception: %@", e);
         }
     });
 }
