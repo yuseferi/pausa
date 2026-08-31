@@ -22,8 +22,8 @@ import (
 type BusyKind uint8
 
 const (
-	BusyMicrophone BusyKind = 1 << iota // a meeting / call / dictation
-	BusyMediaPlaying                    // YouTube / Spotify / video tab playing
+	BusyMicrophone   BusyKind = 1 << iota // a meeting / call / dictation
+	BusyMediaPlaying                      // YouTube / Spotify / video tab playing
 )
 
 // BusyState reports which busy signals are currently active. Returns 0
@@ -54,10 +54,10 @@ func (s BusyState) String() string {
 
 // BusySource implements scheduler.BusySource by polling a few macOS-native
 // signals:
-//   1. microphone in use (strong meeting/call signal)
-//   2. system Now Playing API (when browsers/apps publish there)
-//   3. sustained output-device activity (fallback for apps that don't)
-//   4. frontmost-browser URL heuristic (muted YouTube/Meet/Netflix tabs)
+//  1. microphone in use (strong meeting/call signal)
+//  2. system Now Playing API (when browsers/apps publish there)
+//  3. sustained output-device activity (fallback for apps that don't)
+//  4. frontmost-browser URL heuristic (muted YouTube/Meet/Netflix tabs)
 //
 // The output-device activity is debounced to avoid short notification sounds
 // from auto-pausing the schedule.
@@ -67,7 +67,7 @@ type BusySource struct {
 	// been continuously true. Once it has been true for >= mediaDebounce, we
 	// treat it as real media playback.
 	outputActiveSince time.Time
-	mediaDebounce    time.Duration
+	mediaDebounce     time.Duration
 
 	// change-only logging latch
 	havePrev    bool

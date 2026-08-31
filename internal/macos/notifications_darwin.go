@@ -41,8 +41,8 @@ func SetNotificationHandler(h func(NotifAction)) {
 
 // Notify posts a notification. If withActions is true, the notification
 // includes "Postpone" and "Skip" buttons that route to the registered
-// handler.
-func Notify(title, body string, withActions bool) {
+// handler. If withSound is true, the system notification sound plays.
+func Notify(title, body string, withActions, withSound bool) {
 	cT := C.CString(title)
 	cB := C.CString(body)
 	defer C.free(unsafe.Pointer(cT))
@@ -51,7 +51,11 @@ func Notify(title, body string, withActions bool) {
 	if withActions {
 		wa = 1
 	}
-	C.pausa_notify_post(cT, cB, wa)
+	ws := C.int(0)
+	if withSound {
+		ws = 1
+	}
+	C.pausa_notify_post(cT, cB, wa, ws)
 }
 
 //export pausaNotificationAction

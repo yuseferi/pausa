@@ -78,10 +78,10 @@ int pausa_workspace_activate_url(const char *bundleIdentifier);
 // Requests notification authorization. Asynchronous; safe to call any time.
 void pausa_notify_request_auth(void);
 
-// Posts a notification with optional Skip/Postpone action buttons. When the
-// user clicks an action, the registered Go callback is invoked with one of
-// the PAUSA_NOTIFY_ACTION_* tags.
-void pausa_notify_post(const char *title, const char *body, int withActions);
+// Posts a notification with optional Skip/Postpone action buttons and an
+// optional sound. When the user clicks an action, the registered Go
+// callback is invoked with one of the PAUSA_NOTIFY_ACTION_* tags.
+void pausa_notify_post(const char *title, const char *body, int withActions, int withSound);
 
 #define PAUSA_NOTIFY_ACTION_DEFAULT  1
 #define PAUSA_NOTIFY_ACTION_SKIP     2
@@ -129,6 +129,18 @@ void pausa_window_bring_to_current_space(void);
 // fullscreen apps — regular apps cannot float over fullscreen Spaces.
 // Idempotent.
 void pausa_app_set_accessory(void);
+
+// Sets the app's activation policy to "regular" (shows a Dock icon).
+// Idempotent. Used when the user opts into Show-in-Dock; note that overlay
+// panels may no longer cover fullscreen-app Spaces in that mode.
+void pausa_app_set_regular_policy(void);
+
+// Login item -----------------------------------------------------------------
+
+// Registers or unregisters the running app bundle as a login item via
+// SMAppService (macOS 13+). No-op when unbundled or on older systems.
+// Returns 1 on success (including already-in-requested-state), 0 on failure.
+int pausa_login_item_set_enabled(int enabled);
 
 // Creates an NSPanel-based break overlay. Panels use
 // NSWindowStyleMaskNonactivatingPanel + a high window level + the right

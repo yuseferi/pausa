@@ -21,15 +21,15 @@ type StatusBar struct{}
 
 func SetupStatusBar(title string) *StatusBar { return &StatusBar{} }
 
-func (s *StatusBar) SetTitle(string)                          {}
-func (s *StatusBar) SetBuiltinIcon(StatusIconState)           {}
-func (s *StatusBar) SetImage([]byte)                          {}
-func (s *StatusBar) AddItem(MenuTag, string, func())          {}
-func (s *StatusBar) AddDisabled(MenuTag, string)              {}
-func (s *StatusBar) AddSeparator()                            {}
-func (s *StatusBar) UpdateItem(MenuTag, string)               {}
-func (s *StatusBar) SetItemHidden(MenuTag, bool)              {}
-func (s *StatusBar) Teardown()                                {}
+func (s *StatusBar) SetTitle(string)                 {}
+func (s *StatusBar) SetBuiltinIcon(StatusIconState)  {}
+func (s *StatusBar) SetImage([]byte)                 {}
+func (s *StatusBar) AddItem(MenuTag, string, func()) {}
+func (s *StatusBar) AddDisabled(MenuTag, string)     {}
+func (s *StatusBar) AddSeparator()                   {}
+func (s *StatusBar) UpdateItem(MenuTag, string)      {}
+func (s *StatusBar) SetItemHidden(MenuTag, bool)     {}
+func (s *StatusBar) Teardown()                       {}
 
 type NotifAction int
 
@@ -40,11 +40,11 @@ const (
 )
 
 func SetNotificationHandler(func(NotifAction)) {}
-func Notify(string, string, bool)              {}
+func Notify(string, string, bool, bool)        {}
 
-func FrontmostApp() string                  { return "" }
-func ActivateApp(string) bool               { return false }
-func HideSelfAndActivate(bundleID string)   {}
+func FrontmostApp() string                { return "" }
+func ActivateApp(string) bool             { return false }
+func HideSelfAndActivate(bundleID string) {}
 
 type IdleSource struct{}
 
@@ -66,7 +66,7 @@ func CurrentBusyState() BusyState       { return 0 }
 
 type BusySource struct{}
 
-func (BusySource) BusyState() (string, bool) { return "", false }
+func (BusySource) BusyState() (string, bool)                { return "", false }
 func NewBusySource(mediaDebounce time.Duration) *BusySource { return &BusySource{} }
 func (b *BusySource) SetMediaDebounce(d time.Duration)      {}
 
@@ -78,13 +78,15 @@ const (
 )
 
 type OverlayOptions struct {
-	Kind, Title, Timer, Tip, HexAccent      string
+	Kind, Title, Timer, Tip, HexAccent         string
 	ShowActions, Fullscreen, CurrentScreenOnly bool
 }
 
 func ScreenCount() int                            { return 1 }
 func BringMainWindowForward()                     {}
 func SetAccessoryActivationPolicy()               {}
+func SetRegularActivationPolicy()                 {}
+func SetLoginItemEnabled(enabled bool) bool       { return false }
 func SetOverlayActionHandler(func(OverlayAction)) {}
 func CreateOverlays(opts OverlayOptions)          {}
 func UpdateOverlayTimer(timer string)             {}

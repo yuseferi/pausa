@@ -33,8 +33,10 @@ export function useCountdown(targetIso) {
 
 export function formatHMS(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds))
-  const m = Math.floor(s / 60)
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
   const sec = s % 60
+  if (h > 0) return `${h}h ${m.toString().padStart(2, '0')}m`
   if (m === 0) return `0:${sec.toString().padStart(2, '0')}`
   return `${m}:${sec.toString().padStart(2, '0')}`
 }

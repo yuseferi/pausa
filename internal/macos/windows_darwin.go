@@ -29,6 +29,13 @@ func SetAccessoryActivationPolicy() {
 	C.pausa_app_set_accessory()
 }
 
+// SetRegularActivationPolicy switches the app back to "regular" mode,
+// showing a Dock icon. Overlays may lose the ability to cover
+// fullscreen-app Spaces while in this mode. Idempotent.
+func SetRegularActivationPolicy() {
+	C.pausa_app_set_regular_policy()
+}
+
 // OverlayAction enumerates the user actions exposed on the overlay UI.
 type OverlayAction int
 

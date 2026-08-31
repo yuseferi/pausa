@@ -177,6 +177,16 @@ type actorState struct {
 	// rather than the full interval.
 	pausedRemaining time.Duration
 	autoPauseReason string
+	// pausedByIdle marks an auto-pause caused by user idleness (as opposed
+	// to a busy signal). pausedIdleFor is how long the user was already idle
+	// when the pause started, and pausedAt when the pause started; together
+	// they approximate total away time for natural-break credit on resume.
+	pausedByIdle  bool
+	pausedIdleFor time.Duration
+	pausedAt      time.Time
+	// manualPaused remembers an explicit user pause so that a manual "take
+	// a break now" during pause doesn't silently re-arm the schedule.
+	manualPaused bool
 }
 
 func (s *Scheduler) run(ctx context.Context) {
@@ -271,6 +281,9 @@ func (*cmdTakeBreak) apply(s *Scheduler, st *actorState) {
 	if st.phase == PhaseAutoPaused {
 		st.autoPauseReason = ""
 		st.pausedRemaining = 0
+		st.pausedByIdle = false
+		st.pausedIdleFor = 0
+		st.pausedAt = time.Time{}
 	}
 	s.startBreak(st, st.nextKind)
 }
@@ -303,6 +316,11 @@ func (c *cmdEndBreak) apply(s *Scheduler, st *actorState) {
 	}
 
 	s.advanceCounters(st, completed)
+	if st.manualPaused {
+		st.phase = PhasePaused
+		s.publish(EventPaused, st)
+		return
+	}
 	s.scheduleNext(st)
 }
 
@@ -335,6 +353,13 @@ func (*cmdPostpone) apply(s *Scheduler, st *actorState) {
 	st.stats.BreaksPostponed++
 	st.nextKind = kind
 	st.nextAt = s.clk.Now().Add(delay)
+	// Postponing always lands in PhaseScheduled; drop any auto-pause
+	// bookkeeping so stale state can't leak into a future pause/resume.
+	st.autoPauseReason = ""
+	st.pausedRemaining = 0
+	st.pausedByIdle = false
+	st.pausedIdleFor = 0
+	st.pausedAt = time.Time{}
 	s.armBreakTimer(st, delay)
 	s.armNotifyTimer(st, delay, kind)
 	st.phase = PhaseScheduled
@@ -357,6 +382,10 @@ func (*cmdPause) apply(s *Scheduler, st *actorState) {
 	// time so a future Resume restarts cleanly from a full interval.
 	st.autoPauseReason = ""
 	st.pausedRemaining = 0
+	st.pausedByIdle = false
+	st.pausedIdleFor = 0
+	st.pausedAt = time.Time{}
+	st.manualPaused = true
 	s.stopAllTimers(st)
 	st.phase = PhasePaused
 	s.publish(EventPaused, st)
@@ -371,6 +400,10 @@ func (*cmdResume) apply(s *Scheduler, st *actorState) {
 	}
 	st.autoPauseReason = ""
 	st.pausedRemaining = 0
+	st.pausedByIdle = false
+	st.pausedIdleFor = 0
+	st.pausedAt = time.Time{}
+	st.manualPaused = false
 	st.phase = PhaseIdle
 	s.scheduleNext(st)
 	s.publish(EventResumed, st)
@@ -384,6 +417,7 @@ func (*cmdReset) apply(s *Scheduler, st *actorState) {
 	st.nextKind = BreakShort
 	st.currentKind = ""
 	st.breakEndsAt = time.Time{}
+	st.manualPaused = false
 	st.phase = PhaseIdle
 	s.scheduleNext(st)
 }
@@ -391,7 +425,10 @@ func (*cmdReset) apply(s *Scheduler, st *actorState) {
 // ---------- Internal helpers (run on actor goroutine only) ----------
 
 func (s *Scheduler) snapshot(st *actorState) Snapshot {
-	until := st.shortsRemainingUntilLong()
+	until := s.cfg.Schedule.LongEvery - st.shortsCompleted
+	if until < 0 {
+		until = 0
+	}
 	return Snapshot{
 		Phase:           st.phase,
 		NextKind:        st.nextKind,
@@ -403,10 +440,6 @@ func (s *Scheduler) snapshot(st *actorState) Snapshot {
 		Stats:           st.stats,
 		AutoPauseReason: st.autoPauseReason,
 	}
-}
-
-func (st *actorState) shortsRemainingUntilLong() int {
-	return 0 // computed by caller using cfg; populated in scheduleNext
 }
 
 type eventOpt func(*Event)
@@ -421,11 +454,6 @@ func withSecondsUntil(n int) eventOpt {
 
 func (s *Scheduler) publish(kind EventKind, st *actorState, opts ...eventOpt) {
 	ev := Event{Kind: kind, Snapshot: s.snapshot(st)}
-	// Populate ShortsUntilLong since snapshot can't see cfg.
-	ev.Snapshot.ShortsUntilLong = s.cfg.Schedule.LongEvery - st.shortsCompleted
-	if ev.Snapshot.ShortsUntilLong < 0 {
-		ev.Snapshot.ShortsUntilLong = 0
-	}
 	for _, o := range opts {
 		o(&ev)
 	}
@@ -441,10 +469,19 @@ func (s *Scheduler) scheduleNext(st *actorState) {
 		return
 	}
 	st.phase = PhaseScheduled
-	delay := s.cfg.Schedule.ShortInterval.AsDuration()
-	st.nextAt = s.clk.Now().Add(delay)
-	s.armBreakTimer(st, delay)
-	s.armNotifyTimer(st, delay, st.nextKind)
+	now := s.clk.Now()
+	next := now.Add(s.cfg.Schedule.ShortInterval.AsDuration())
+	// Working hours: breaks only fire inside the configured window. If we
+	// are currently outside it, or the interval would land outside it,
+	// defer to the next window start.
+	if s.cfg.WorkingHours.Enabled {
+		if !s.cfg.IsWorkingNow(now) || !s.cfg.IsWorkingNow(next) {
+			next = s.cfg.NextWorkingStart(now)
+		}
+	}
+	st.nextAt = next
+	s.armBreakTimer(st, next.Sub(now))
+	s.armNotifyTimer(st, next.Sub(now), st.nextKind)
 	s.publish(EventScheduled, st)
 }
 
@@ -571,6 +608,11 @@ func (s *Scheduler) naturalBreakEnd(st *actorState) {
 	st.stats.BreaksTaken++
 	s.publish(EventBreakEnd, st, withKind(completed))
 	s.advanceCounters(st, completed)
+	if st.manualPaused {
+		st.phase = PhasePaused
+		s.publish(EventPaused, st)
+		return
+	}
 	s.scheduleNext(st)
 }
 
@@ -629,8 +671,9 @@ func (s *Scheduler) handleConfigChange(st *actorState) {
 		s.scheduleNext(st)
 	case PhaseAutoPaused:
 		// If the user disabled busy-pause while we were auto-paused,
-		// resume immediately.
-		if !s.cfg.Idle.PauseWhenBusy {
+		// resume immediately. Same for idle-pause with PauseWhenIdle off.
+		if (st.pausedByIdle && !s.cfg.Idle.PauseWhenIdle) ||
+			(!st.pausedByIdle && !s.cfg.Idle.PauseWhenBusy) {
 			s.exitAutoPause(st)
 		}
 	default:
@@ -640,22 +683,45 @@ func (s *Scheduler) handleConfigChange(st *actorState) {
 }
 
 // onBusyPoll runs every BusyPollInterval. It transitions us into or out of
-// PhaseAutoPaused based on the busy source.
+// PhaseAutoPaused based on the busy source and user idleness, each gated by
+// its own config flag.
 func (s *Scheduler) onBusyPoll(st *actorState) {
-	if !s.cfg.Idle.PauseWhenBusy {
-		slog.Debug("busy poll skipped", "reason", "config disabled", "phase", st.phase)
+	// Outside working hours no breaks will fire anyway, so auto-pausing
+	// would only produce confusing menu-bar state overnight.
+	if s.cfg.WorkingHours.Enabled && !s.cfg.IsWorkingNow(s.clk.Now()) {
 		return
 	}
-	label, busy := s.busy.BusyState()
+
+	// Only poll the (relatively expensive) busy source when it can change
+	// something this tick.
+	var label string
+	var busy bool
+	if s.cfg.Idle.PauseWhenBusy || (st.phase == PhaseAutoPaused && !st.pausedByIdle) {
+		label, busy = s.busy.BusyState()
+	}
 	slog.Debug("scheduler busy poll", "phase", st.phase, "busy", busy, "label", label)
+
+	idleThreshold := s.cfg.Idle.IdleThreshold.AsDuration()
 
 	switch st.phase {
 	case PhaseScheduled, PhaseNotifying, PhaseOnBreak:
-		if busy {
+		switch {
+		case s.cfg.Idle.PauseWhenBusy && busy:
 			s.enterAutoPause(st, label)
+		case st.phase != PhaseOnBreak && s.cfg.Idle.PauseWhenIdle &&
+			s.idle.IdleFor() >= idleThreshold:
+			// User walked away mid-countdown. Pause so away time isn't
+			// charged against the break timer.
+			s.enterIdlePause(st)
 		}
 	case PhaseAutoPaused:
-		if !busy {
+		if st.pausedByIdle {
+			// Resume when the user returns (idle drops) or the feature
+			// was switched off.
+			if !s.cfg.Idle.PauseWhenIdle || s.idle.IdleFor() < idleThreshold {
+				s.exitAutoPause(st)
+			}
+		} else if !busy {
 			s.exitAutoPause(st)
 		} else if label != st.autoPauseReason {
 			// Reason changed (e.g. mic dropped but media still playing);
@@ -700,21 +766,58 @@ func (s *Scheduler) enterAutoPause(st *actorState, reason string) {
 	}
 	s.stopAllTimers(st)
 	st.autoPauseReason = reason
+	st.pausedAt = s.clk.Now()
 	st.phase = PhaseAutoPaused
 	slog.Info("auto-paused", "reason", reason, "remaining", st.pausedRemaining.Round(time.Second).String())
 	s.publish(EventAutoPaused, st)
 }
 
-// exitAutoPause leaves PhaseAutoPaused, re-arming the next break with the
-// remaining time captured at pause-time.
+// enterIdlePause auto-pauses because the user has been away from the
+// keyboard for at least IdleThreshold. Away time may later be credited as
+// a natural break (see exitAutoPause).
+func (s *Scheduler) enterIdlePause(st *actorState) {
+	st.pausedByIdle = true
+	st.pausedIdleFor = s.idle.IdleFor()
+	s.enterAutoPause(st, "away")
+}
+
+// exitAutoPause leaves PhaseAutoPaused. Idle-caused pauses that covered at
+// least a full break are credited as natural breaks; otherwise the next
+// break is re-armed with the remaining time captured at pause-time.
 func (s *Scheduler) exitAutoPause(st *actorState) {
 	slog.Info("exiting auto-pause", "reason", st.autoPauseReason, "remaining", st.pausedRemaining.Round(time.Second).String())
-	st.autoPauseReason = ""
+	wasIdle := st.pausedByIdle
+	idleAtEntry := st.pausedIdleFor
+	awayTime := idleAtEntry + s.clk.Now().Sub(st.pausedAt)
 	remaining := st.pausedRemaining
+	st.autoPauseReason = ""
 	st.pausedRemaining = 0
+	st.pausedByIdle = false
+	st.pausedIdleFor = 0
+	st.pausedAt = time.Time{}
+
+	// Working hours may have ended while we were paused; defer everything
+	// to the next window (scheduleNext handles the deferral).
+	if s.cfg.WorkingHours.Enabled && !s.cfg.IsWorkingNow(s.clk.Now()) {
+		st.phase = PhaseIdle
+		s.scheduleNext(st)
+		s.publish(EventAutoResume, st)
+		return
+	}
+
+	// Away long enough to cover the upcoming break? Count it as taken.
+	if wasIdle && s.cfg.Idle.NaturalBreaks && awayTime >= s.breakDuration(st.nextKind) {
+		slog.Info("away time credited as natural break", "away", awayTime.Round(time.Second).String())
+		st.stats.NaturalBreaks++
+		s.publish(EventNatural, st, withKind(st.nextKind))
+		s.advanceCounters(st, st.nextKind)
+		s.scheduleNext(st)
+		return
+	}
 
 	if remaining <= 0 {
-		// The break was already due when we paused; fire it immediately.
+		// Nothing was preserved (e.g. paused mid-break); start a fresh
+		// full-interval countdown.
 		st.phase = PhaseIdle
 		s.scheduleNext(st)
 		s.publish(EventAutoResume, st)

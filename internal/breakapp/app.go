@@ -30,8 +30,6 @@ const (
 	tagQuit      macos.MenuTag = 7
 )
 
-
-
 // App is the Wails-bound application object. It owns the scheduler,
 // configuration store, and tip catalog; coordinates UI updates; and
 // translates native macOS events (status-bar clicks, notification actions)
@@ -41,7 +39,6 @@ type App struct {
 	cancelCtx context.CancelFunc
 
 	cfg    *config.Store
-	cfgSub <-chan config.Config
 	sched  *scheduler.Scheduler
 	tips   *tips.Catalog
 	busy   *macos.BusySource
@@ -56,16 +53,19 @@ type App struct {
 	mu              sync.RWMutex
 	currentBreakDur time.Duration
 	currentTip      tips.Tip
+
+	// lastBarTitle dedupes menu-bar title updates. Only touched by the
+	// eventPump goroutine.
+	lastBarTitle string
 }
 
 // New constructs an App. Call Startup from the Wails OnStartup callback.
-func New(cfg *config.Store, sched *scheduler.Scheduler, catalog *tips.Catalog, cfgSub <-chan config.Config, busy *macos.BusySource) *App {
+func New(cfg *config.Store, sched *scheduler.Scheduler, catalog *tips.Catalog, busy *macos.BusySource) *App {
 	return &App{
-		cfg:    cfg,
-		cfgSub: cfgSub,
-		sched:  sched,
-		tips:   catalog,
-		busy:   busy,
+		cfg:   cfg,
+		sched: sched,
+		tips:  catalog,
+		busy:  busy,
 	}
 }
 
@@ -92,8 +92,13 @@ func (a *App) DomReady(ctx context.Context) {
 		// fires. Without this, macOS treats Pausa as a regular app and
 		// refuses to render its windows on top of fullscreen-app Spaces.
 		// As a side effect, this also removes the Dock icon — Pausa is
-		// menu-bar-driven anyway.
-		macos.SetAccessoryActivationPolicy()
+		// menu-bar-driven anyway. Users who opted into ShowInDock keep
+		// the regular policy (Dock icon) at the cost of that capability.
+		if a.cfg.Get().General.ShowInDock {
+			macos.SetRegularActivationPolicy()
+		} else {
+			macos.SetAccessoryActivationPolicy()
+		}
 		a.setupStatusBar()
 		a.setupNotifications()
 		a.setupOverlayHandlers()
@@ -122,6 +127,7 @@ func (a *App) GetConfig() config.Config { return a.cfg.Get() }
 // SaveConfig validates and persists a new configuration. Returns the
 // (possibly clamped) config that was saved.
 func (a *App) SaveConfig(c config.Config) (config.Config, error) {
+	prev := a.cfg.Get()
 	saved, err := a.cfg.Set(c)
 	if err != nil {
 		slog.Error("save config", "err", err)
@@ -129,6 +135,18 @@ func (a *App) SaveConfig(c config.Config) (config.Config, error) {
 	}
 	if a.busy != nil {
 		a.busy.SetMediaDebounce(saved.Idle.BusyMediaDebounce.AsDuration())
+	}
+	if saved.General.StartAtLogin != prev.General.StartAtLogin {
+		if ok := macos.SetLoginItemEnabled(saved.General.StartAtLogin); !ok {
+			slog.Warn("login item change failed", "enabled", saved.General.StartAtLogin)
+		}
+	}
+	if saved.General.ShowInDock != prev.General.ShowInDock {
+		if saved.General.ShowInDock {
+			macos.SetRegularActivationPolicy()
+		} else {
+			macos.SetAccessoryActivationPolicy()
+		}
 	}
 	wailsruntime.EventsEmit(a.ctx, "config:updated", saved)
 	return saved, nil
@@ -219,6 +237,9 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 	if a.status == nil {
 		return
 	}
+	cfg := a.cfg.Get()
+	title := "" // menu-bar countdown text (only while scheduled)
+
 	switch snap.Phase {
 	case scheduler.PhasePaused:
 		a.status.SetBuiltinIcon(macos.StatusIconPaused)
@@ -249,15 +270,22 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 		if left < 0 {
 			left = 0
 		}
-		mins := int(left.Seconds()) / 60
-		secs := int(left.Seconds()) % 60
 		kind := "Short"
 		if snap.NextKind == scheduler.BreakLong {
 			kind = "Long"
 		}
-		a.status.UpdateItem(tagNextBreak, fmt.Sprintf("%s break in %02d:%02d", kind, mins, secs))
+		a.status.UpdateItem(tagNextBreak, fmt.Sprintf("%s break in %s", kind, formatCountdown(left)))
 		a.status.SetItemHidden(tagPause, false)
 		a.status.SetItemHidden(tagResume, true)
+		if cfg.General.StatusBarTitle {
+			title = formatCountdown(left)
+		}
+	}
+
+	// Only touch the title when it actually changed; this runs every second.
+	if title != a.lastBarTitle {
+		a.status.SetTitle(title)
+		a.lastBarTitle = title
 	}
 }
 
@@ -340,6 +368,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 				fmt.Sprintf("Your %s break starts soon", label),
 				fmt.Sprintf("In %d seconds. Tap to start now.", ev.SecondsUntil),
 				cfg.Notification.ShowActions,
+				cfg.Notification.PlaySound,
 			)
 		}
 
@@ -442,5 +471,18 @@ func formatTimer(secs int) string {
 	}
 	m := secs / 60
 	s := secs % 60
+	return fmt.Sprintf("%02d:%02d", m, s)
+}
+
+// formatCountdown renders a time-until-break for the menu bar. Waits over an
+// hour (e.g. deferred to the next working window) render as "16h05m".
+func formatCountdown(d time.Duration) string {
+	total := int(d.Seconds())
+	h := total / 3600
+	m := (total % 3600) / 60
+	s := total % 60
+	if h > 0 {
+		return fmt.Sprintf("%dh%02dm", h, m)
+	}
 	return fmt.Sprintf("%02d:%02d", m, s)
 }

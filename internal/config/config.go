@@ -37,11 +37,11 @@ type ScheduleConfig struct {
 
 // NotificationConfig controls the pre-break warning notification.
 type NotificationConfig struct {
-	Enabled        bool     `json:"enabled"`
-	WarnShort      Duration `json:"warnShort"` // how long before a short break to warn
-	WarnLong       Duration `json:"warnLong"`
-	PlaySound      bool     `json:"playSound"`
-	ShowActions    bool     `json:"showActions"` // Skip / Postpone buttons in notification
+	Enabled     bool     `json:"enabled"`
+	WarnShort   Duration `json:"warnShort"` // how long before a short break to warn
+	WarnLong    Duration `json:"warnLong"`
+	PlaySound   bool     `json:"playSound"`
+	ShowActions bool     `json:"showActions"` // Skip / Postpone buttons in notification
 }
 
 // DisplayConfig controls how break screens look.
@@ -87,9 +87,9 @@ type IdleConfig struct {
 
 // GeneralConfig holds miscellaneous settings.
 type GeneralConfig struct {
-	StartAtLogin    bool `json:"startAtLogin"`
-	ShowInDock      bool `json:"showInDock"`
-	StatusBarTitle  bool `json:"statusBarTitle"` // show countdown text in menu bar
+	StartAtLogin   bool `json:"startAtLogin"`
+	ShowInDock     bool `json:"showInDock"`
+	StatusBarTitle bool `json:"statusBarTitle"` // show countdown text in menu bar
 }
 
 // Default returns a sensible default configuration.
@@ -126,10 +126,10 @@ func Default() Config {
 			EndMinute:   17 * 60,
 		},
 		Idle: IdleConfig{
-			PauseWhenIdle: true,
-			IdleThreshold: Duration(2 * time.Minute),
-			NaturalBreaks: true,
-			PauseWhenBusy: true,
+			PauseWhenIdle:     true,
+			IdleThreshold:     Duration(2 * time.Minute),
+			NaturalBreaks:     true,
+			PauseWhenBusy:     true,
 			BusyMediaDebounce: Duration(15 * time.Second),
 		},
 		General: GeneralConfig{
@@ -210,4 +210,31 @@ func (c *Config) IsWorkingNow(t time.Time) bool {
 	}
 	mins := t.Hour()*60 + t.Minute()
 	return mins >= c.WorkingHours.StartMinute && mins < c.WorkingHours.EndMinute
+}
+
+// NextWorkingStart returns the first future working-window start strictly
+// after from. It assumes working hours are enabled; if no days are selected
+// it falls back to from+1h so callers never receive a zero time.
+func (c *Config) NextWorkingStart(from time.Time) time.Time {
+	anyDay := false
+	for _, d := range c.WorkingHours.Days {
+		if d {
+			anyDay = true
+			break
+		}
+	}
+	if !anyDay {
+		return from.Add(time.Hour)
+	}
+	for i := 0; i < 8; i++ {
+		day := time.Date(from.Year(), from.Month(), from.Day()+i, 0, 0, 0, 0, from.Location())
+		if !c.WorkingHours.Days[int(day.Weekday())] {
+			continue
+		}
+		start := day.Add(time.Duration(c.WorkingHours.StartMinute) * time.Minute)
+		if start.After(from) {
+			return start
+		}
+	}
+	return from.Add(24 * time.Hour)
 }

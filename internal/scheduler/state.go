@@ -40,8 +40,8 @@ type Snapshot struct {
 	NextBreakAt     time.Time `json:"nextBreakAt"`
 	CurrentKind     BreakKind `json:"currentKind"`
 	BreakEndsAt     time.Time `json:"breakEndsAt"`
-	ShortsCompleted int       `json:"shortsCompleted"`   // since last long break
-	ShortsUntilLong int       `json:"shortsUntilLong"`   // remaining shorts before next long
+	ShortsCompleted int       `json:"shortsCompleted"` // since last long break
+	ShortsUntilLong int       `json:"shortsUntilLong"` // remaining shorts before next long
 	Stats           Stats     `json:"stats"`
 	// AutoPauseReason is a human-readable label for why the scheduler is
 	// auto-paused (e.g. "in a meeting"). Empty when not auto-paused.
@@ -67,11 +67,11 @@ const (
 	EventBreakEnd   EventKind = "breakEnd"   // break completed normally
 	EventSkipped    EventKind = "skipped"
 	EventPostponed  EventKind = "postponed"
-	EventPaused     EventKind = "paused"      // user-initiated pause
-	EventResumed    EventKind = "resumed"     // user-initiated resume
-	EventAutoPaused EventKind = "autoPaused"  // busy signal triggered pause
-	EventAutoResume EventKind = "autoResume"  // busy signal cleared
-	EventNatural    EventKind = "natural"     // a break was satisfied by idle time
+	EventPaused     EventKind = "paused"     // user-initiated pause
+	EventResumed    EventKind = "resumed"    // user-initiated resume
+	EventAutoPaused EventKind = "autoPaused" // busy signal triggered pause
+	EventAutoResume EventKind = "autoResume" // busy signal cleared
+	EventNatural    EventKind = "natural"    // a break was satisfied by idle time
 )
 
 // Event is published on the scheduler's Events channel.

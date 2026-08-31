@@ -40,11 +40,11 @@ func ActivateApp(identifier string) bool {
 
 // HideSelfAndActivate is the correct way to return focus to a previous app
 // after a break ends. The order is:
-//   1. Activate the previous app via NSWorkspace.openApplicationAtURL —
-//      this lets macOS switch Spaces to follow the app, which is the only
-//      reliable way to return to an app that lives in a fullscreen Space.
-//   2. Then hide the Pausa app, removing it from view without forcing
-//      another Space switch.
+//  1. Activate the previous app via NSWorkspace.openApplicationAtURL —
+//     this lets macOS switch Spaces to follow the app, which is the only
+//     reliable way to return to an app that lives in a fullscreen Space.
+//  2. Then hide the Pausa app, removing it from view without forcing
+//     another Space switch.
 //
 // Reversing the order (hide first, activate second) causes macOS to pick
 // whatever app is next in the activation stack — usually Finder on
@@ -63,4 +63,14 @@ func HideSelfAndActivate(bundleIdentifier string) {
 	// time pausa_app_hide_self runs, openApplicationAtURL has already
 	// dispatched its underlying request.
 	C.pausa_app_hide_self()
+}
+
+// SetLoginItemEnabled registers or unregisters Pausa as a login item
+// (macOS 13+, bundled app only). Returns true on success.
+func SetLoginItemEnabled(enabled bool) bool {
+	v := C.int(0)
+	if enabled {
+		v = 1
+	}
+	return C.pausa_login_item_set_enabled(v) != 0
 }
