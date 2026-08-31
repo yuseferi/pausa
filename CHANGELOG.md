@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/yuseferi/pausa/compare/v1.0.2...v1.0.3) (2026-08-31)
+
+### Bug Fixes
+
+* **cask:** update arm64 sha256 for v1.0.1 ([6d4da18](https://github.com/yuseferi/pausa/commit/6d4da1814d6c02bbb9ab4a5f7cfb67237834184f))
+
 ## [1.0.2](https://github.com/yuseferi/pausa/compare/v1.0.1...v1.0.2) (2026-04-30)
 
 ### Bug Fixes
