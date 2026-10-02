@@ -1,37 +1,104 @@
 <p align="center">
-  <img src="build/appicon.png" alt="Pausa icon" width="128" height="128">
+  <img src="build/appicon.png" alt="Pausa app icon" width="128" height="128">
 </p>
 
 <h1 align="center">Pausa</h1>
 
 <p align="center">
-  <strong>A thoughtful, native macOS break reminder for developers and knowledge workers.</strong>
-  <br>
-  Take better breaks. Stay focused in between.
-  <br><br>
-  Built with Go, Wails, AppKit, and Vue.
+  <strong>Break reminders that stay out of your way during meetings — and take over the whole screen when it's time to rest.</strong>
 </p>
 
 <p align="center">
+  <a href="https://github.com/yuseferi/pausa/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/yuseferi/pausa?color=0ea5e9&label=release"></a>
+  <a href="https://github.com/yuseferi/pausa/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/yuseferi/pausa?color=0ea5e9"></a>
+  <img alt="Platform: macOS" src="https://img.shields.io/badge/platform-macOS-111111?logo=apple&logoColor=white">
+  <a href="https://github.com/yuseferi/pausa/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/yuseferi/pausa/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/yuseferi/pausa/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/yuseferi/pausa?style=social"></a>
+</p>
+
+<p align="center">
+  Native macOS menu-bar app · Built with Go, Wails, AppKit &amp; Vue · No account, no telemetry, everything local
+</p>
+
+<p align="center">
+  <a href="#install">Install</a> &middot;
+  <a href="#why-pausa">Why Pausa</a> &middot;
+  <a href="#screenshots">Screenshots</a> &middot;
   <a href="#features">Features</a> &middot;
-  <a href="#how-it-works">How It Works</a> &middot;
-  <a href="#installation">Installation</a> &middot;
-  <a href="#development">Development</a> &middot;
-  <a href="#configuration">Configuration</a>
+  <a href="#busy-detection-in-detail">Busy detection</a> &middot;
+  <a href="#configuration">Configuration</a> &middot;
+  <a href="#development">Development</a>
 </p>
 
 <p align="center">
-  <img src="screenshots/break-overlay.png" alt="Pausa break overlay" width="760">
+  <img src="screenshots/break-overlay.png" alt="Pausa fullscreen break overlay with countdown and breathing guide" width="820">
 </p>
 
-## Quick Start
+## Install
+
+Homebrew is the recommended path:
 
 ```bash
 brew tap yuseferi/pausa https://github.com/yuseferi/pausa
 brew install --cask pausa
 ```
 
-That's it. Pausa lives in your menu bar and gently reminds you to take breaks throughout the day.
+Already tapped?
+
+```bash
+brew install --cask pausa
+```
+
+Prefer a direct download? Grab the latest `.zip` — Apple silicon and Intel builds are both published:
+
+**<https://github.com/yuseferi/pausa/releases/latest>**
+
+> **First launch:** Pausa is not notarized yet, so macOS may show a Gatekeeper warning. Right-click the app → **Open**, or clear the quarantine flag:
+>
+> ```bash
+> xattr -dr com.apple.quarantine /Applications/pausa.app
+> open /Applications/pausa.app
+> ```
+>
+> Notarized builds need a paid Apple Developer account — it's on the roadmap.
+
+That's it. Pausa lives in your menu bar and quietly keeps you on a healthy break rhythm.
+
+---
+
+## Why Pausa
+
+Most break reminders fire at the wrong moment and are easy to ignore. Pausa is built around two ideas:
+
+1. **Don't interrupt real work.** When you're in a call, playing media, or on a muted video tab, Pausa pauses the countdown automatically and resumes when you're free. Meeting time never counts toward your next break.
+2. **Make breaks impossible to miss — and easy to take.** A native fullscreen panel covers fullscreen Spaces and every monitor, then returns focus to exactly where you were.
+
+On top of that:
+
+- **Respects your hours** — breaks only fire on the days and times you choose.
+- **Counts natural breaks** — real away-from-keyboard time is credited, so you aren't nagged right after a walk.
+- **Private by default** — no account, no telemetry, no network calls (see [Privacy](#privacy)).
+- **Menu-bar native** — a small, responsive status item; it stays out of your Dock and out of your way.
+
+---
+
+## Screenshots
+
+### Dashboard
+
+<p align="center">
+  <img src="screenshots/dashboard.png" alt="Pausa dashboard showing the next break countdown and stats" width="760">
+</p>
+
+### Preferences
+
+<p align="center">
+  <img src="screenshots/preferences-1.png" alt="Pausa preferences — general settings" width="760">
+</p>
+
+<p align="center">
+  <img src="screenshots/preferences-2.png" alt="Pausa preferences — display and idle settings" width="760">
+</p>
 
 ---
 
@@ -40,7 +107,7 @@ That's it. Pausa lives in your menu bar and gently reminds you to take breaks th
 ### Break Scheduling
 
 - **Short and long breaks** with fully configurable intervals and durations
-- **Flexible controls** -- postpone, skip, pause/resume, or take a break right now
+- **Flexible controls** — postpone, skip, pause/resume, or take a break right now
 - **Working-hours support** so breaks only fire during the days and times you choose
 - **Natural-break detection** so real away-from-keyboard time counts as a break
 
@@ -53,7 +120,7 @@ Pausa automatically pauses the countdown while you're busy, so meeting time is n
 - Sustained audio output for apps that don't publish media state
 - Frontmost browser video and meeting pages, including muted YouTube and Google Meet
 
-The timer resumes automatically when you're free again.
+The timer resumes automatically when you're free again. See [Busy Detection in Detail](#busy-detection-in-detail).
 
 ### Fullscreen and Multi-Monitor Overlays
 
@@ -89,91 +156,108 @@ For a deeper look at the architecture, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
 
-## Screenshots
+## Busy Detection in Detail
 
-### Dashboard
+Pausa uses multiple signals to automatically pause the break timer while you're occupied:
 
-<p align="center">
-  <img src="screenshots/dashboard.png" alt="Pausa dashboard" width="760">
-</p>
+| Signal | What It Catches |
+|---|---|
+| **Microphone active** | Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation |
+| **Now Playing** | Apps and browsers that publish system media state |
+| **Audio output activity** | Fallback for apps that don't publish Now Playing (debounced to ignore short sounds) |
+| **Browser tab URL heuristic** | Muted frontmost video/meeting pages (YouTube, Google Meet, Netflix, Vimeo, Twitch, Disney+, Hulu, Prime Video, Loom) |
 
-### Preferences
+**Supported browsers:** Chrome, Arc, Safari, Brave
 
-<p align="center">
-  <img src="screenshots/preferences-1.png" alt="Pausa preferences -- general settings" width="760">
-</p>
-
-<p align="center">
-  <img src="screenshots/preferences-2.png" alt="Pausa preferences -- display and idle settings" width="760">
-</p>
+> Note: Browser detection currently applies to the **frontmost tab only**. Background muted tabs are not treated as busy.
 
 ---
 
-## Installation
+## Display Modes
 
-### Homebrew (Recommended)
+| Setting | On | Off |
+|---|---|---|
+| **Fullscreen breaks** | Edge-to-edge overlay on the target screen(s) | Compact centered card |
+| **Show on all monitors** | Every connected screen gets an overlay | Only the screen with the mouse cursor |
 
-Pausa is distributed as a Homebrew **cask**, which is the standard Homebrew model for macOS `.app` bundles:
+The overlay system uses native AppKit panels (not regular Wails windows), so it works reliably on fullscreen Spaces.
 
-```bash
-brew tap yuseferi/pausa https://github.com/yuseferi/pausa
-brew install --cask pausa
+---
+
+## Configuration
+
+Configuration is stored at:
+
+```
+~/Library/Application Support/Pausa/config.json
 ```
 
-If the tap is already added:
+All settings are editable through the Preferences UI. Key options include:
 
-```bash
-brew install --cask pausa
-```
+| Category | Settings |
+|---|---|
+| **Schedule** | Short/long break intervals and durations, postpone durations |
+| **Notifications** | Pre-break warnings, timing, action buttons |
+| **Display** | Theme, fullscreen overlays, all-monitors mode, exercise tips, breathing guide, accent color |
+| **Working Hours** | Enable/disable, weekday selection, start and end times |
+| **Idle & Busy** | Pause when idle, idle threshold, natural breaks, meeting/video detection, media debounce |
 
-### Gatekeeper Note
+---
 
-Pausa is currently distributed as an **unsigned / non-notarized** app. macOS may show a Gatekeeper warning on first launch.
+## Privacy
 
-To resolve this, either:
+Pausa runs entirely on your Mac:
 
-1. Right-click the app in Finder and choose **Open**, or
-2. Remove the quarantine attribute from the terminal:
+- **No account** and no sign-in
+- **No analytics or telemetry**
+- **No network requests at runtime** — configuration and logs stay on disk
+- **Busy detection is local** — it checks whether the microphone is *in use* (not the audio itself), system media state, and (only for the frontmost browser) the active tab URL. None of it leaves your machine.
 
-```bash
-xattr -dr com.apple.quarantine /Applications/pausa.app
-open /Applications/pausa.app
-```
+---
 
-> A properly notarized build requires a paid Apple Developer account. This is planned for a future release.
+## Requirements
 
-### Build from Source
+- macOS (Apple silicon and Intel builds both published)
+- Break overlays work best with the default accessory activation policy. If you enable **Show in Dock**, Pausa uses the regular activation policy, which can reduce its ability to cover fullscreen-app Spaces.
 
-**Prerequisites:**
+---
 
-- Go 1.25+
-- Node.js 18+
-- [Wails v2 CLI](https://wails.io/)
-- Xcode Command Line Tools
+## FAQ
 
-```bash
-git clone https://github.com/yuseferi/pausa.git
-cd pausa
+**Does Pausa need Accessibility or Screen Recording permission?**
+No. It uses public system APIs plus a short, read-only AppleScript lookup for the frontmost browser's active tab URL. It never records your screen or keystrokes.
 
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
-wails build
-```
+**Does it collect any data?**
+No. There is no telemetry and no runtime network access — see [Privacy](#privacy).
 
-The built app will be at `build/bin/pausa.app`.
+**Will it interrupt me during a call?**
+No. Microphone use auto-pauses the schedule, and the countdown resumes when the call ends.
 
-**Run it:**
+**Why does macOS warn me on first launch?**
+The build isn't notarized yet. Use the right-click → **Open** steps above; notarization is on the roadmap.
 
-```bash
-open build/bin/pausa.app
-```
+**Does it work with fullscreen apps?**
+Yes. Break overlays are native panels that render above fullscreen Spaces, and can cover every monitor.
 
-**Install locally to `/Applications`:**
+---
 
-```bash
-make install-local
-```
+## Known Limitations
 
-This runs a fresh production build and replaces `/Applications/pausa.app`. If macOS blocks the first launch, use the `xattr` command shown above.
+- Browser video detection for muted tabs is currently **frontmost-tab only**
+- Linux and Windows are not supported as runtime targets yet
+- Some media detection relies on Apple-private APIs (`MediaRemote`) and browser scripting fallbacks
+
+---
+
+## Roadmap
+
+- Background browser-tab media detection
+- Firefox support for muted-tab detection
+- Richer stats and history view
+- More configurable break styles and sounds
+- Code signing and notarized distribution
+
+Have an idea or a bug to report? [Open an issue](https://github.com/yuseferi/pausa/issues) — feature requests are welcome.
 
 ---
 
@@ -211,92 +295,40 @@ go clean -cache
 wails dev
 ```
 
-### Local Release Helper
+### Build from Source
 
-To prepare both macOS release zips locally and automatically update `Casks/pausa.rb` with the new version and checksums:
+**Prerequisites:**
+
+- Go 1.25+
+- Node.js 18+
+- [Wails v2 CLI](https://wails.io/)
+- Xcode Command Line Tools
 
 ```bash
-scripts/release.sh 1.0.2
-# or
-make release VERSION=1.0.2
+git clone https://github.com/yuseferi/pausa.git
+cd pausa
+
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+wails build
 ```
 
-This builds:
+The built app will be at `build/bin/pausa.app`.
 
-- `dist/pausa-1.0.2-arm64-macos.zip`
-- `dist/pausa-1.0.2-amd64-macos.zip`
+**Run it:**
 
-and rewrites `Casks/pausa.rb` for you.
-
-### Automatic Releases
-
-Pausa uses **semantic-release** on the `main` branch. Release versions, git tags, and GitHub releases are created automatically from commit messages. The macOS asset workflow then builds and uploads release zips for both architectures.
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) for anything that should trigger a release:
-
-| Prefix | Release Type |
-|---|---|
-| `fix:` | Patch |
-| `feat:` | Minor |
-| `feat!:` or `BREAKING CHANGE:` | Major |
-
-```text
-feat: add muted browser video detection
-fix: pause scheduler while media is playing
-docs: update Homebrew install instructions
+```bash
+open build/bin/pausa.app
 ```
 
----
+**Install locally to `/Applications`:**
 
-## Configuration
-
-Configuration is stored at:
-
-```
-~/Library/Application Support/Pausa/config.json
+```bash
+make install-local
 ```
 
-All settings are editable through the Preferences UI. Key options include:
+This runs a fresh production build and replaces `/Applications/pausa.app`. If macOS blocks the first launch, use the `xattr` command from [Install](#install).
 
-| Category | Settings |
-|---|---|
-| **Schedule** | Short/long break intervals and durations, postpone durations |
-| **Notifications** | Pre-break warnings, timing, action buttons |
-| **Display** | Theme, fullscreen overlays, all-monitors mode, exercise tips, breathing guide, accent color |
-| **Working Hours** | Enable/disable, weekday selection, start and end times |
-| **Idle & Busy** | Pause when idle, idle threshold, natural breaks, meeting/video detection, media debounce |
-
----
-
-## Busy Detection in Detail
-
-Pausa uses multiple signals to automatically pause the break timer while you're occupied:
-
-| Signal | What It Catches |
-|---|---|
-| **Microphone active** | Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation |
-| **Now Playing** | Apps and browsers that publish system media state |
-| **Audio output activity** | Fallback for apps that don't publish Now Playing (debounced to ignore short sounds) |
-| **Browser tab URL heuristic** | Muted frontmost video/meeting pages (YouTube, Google Meet, Netflix, Vimeo, Twitch, Disney+, Hulu, Prime Video, Loom) |
-
-**Supported browsers:** Chrome, Arc, Safari, Brave
-
-> Note: Browser detection currently applies to the **frontmost tab only**. Background muted tabs are not treated as busy.
-
----
-
-## Display Modes
-
-| Setting | On | Off |
-|---|---|---|
-| **Fullscreen breaks** | Edge-to-edge overlay on the target screen(s) | Compact centered card |
-| **Show on all monitors** | Every connected screen gets an overlay | Only the screen with the mouse cursor |
-
-The overlay system uses native AppKit panels (not regular Wails windows), so it works reliably on fullscreen Spaces.
-
----
-
-## Project Structure
+### Project Structure
 
 ```text
 pausa/
@@ -320,9 +352,7 @@ pausa/
     └── icons/
 ```
 
----
-
-## Testing
+### Testing
 
 **Backend:**
 
@@ -356,23 +386,31 @@ GOOS=linux CGO_ENABLED=0 go build ./internal/... .
 
 Pausa is macOS-focused, but non-darwin stubs are maintained so cross-compilation continues to work.
 
----
+### Releases
 
-## Known Limitations
+**Local release helper** — build both macOS zips and update `Casks/pausa.rb` with the new version and checksums:
 
-- Browser video detection for muted tabs is currently **frontmost-tab only**
-- Linux and Windows are not supported as runtime targets yet
-- Some media detection relies on Apple-private APIs (`MediaRemote`) and browser scripting fallbacks
+```bash
+scripts/release.sh 1.0.2
+# or
+make release VERSION=1.0.2
+```
 
----
+This produces `dist/pausa-1.0.2-arm64-macos.zip` and `dist/pausa-1.0.2-amd64-macos.zip`.
 
-## Roadmap
+**Automatic releases** — Pausa uses **semantic-release** on `main`. Versions, tags, and GitHub releases are created from commit messages, then the asset workflow uploads zips for both architectures. Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-- Background browser-tab media detection
-- Firefox support for muted-tab detection
-- Richer stats and history view
-- More configurable break styles and sounds
-- Code signing and notarized distribution
+| Prefix | Release Type |
+|---|---|
+| `fix:` | Patch |
+| `feat:` | Minor |
+| `feat!:` or `BREAKING CHANGE:` | Major |
+
+```text
+feat: add muted browser video detection
+fix: pause scheduler while media is playing
+docs: update Homebrew install instructions
+```
 
 ---
 
@@ -382,7 +420,19 @@ Contributions, ideas, and bug reports are welcome. Please open an issue or pull 
 
 ---
 
+## License
+
+[MIT](LICENSE) © Pausa Contributors
+
+---
+
 ## Links
 
 - **Repository:** <https://github.com/yuseferi/pausa>
 - **Issues:** <https://github.com/yuseferi/pausa/issues>
+- **Releases:** <https://github.com/yuseferi/pausa/releases>
+
+<p align="center">
+  <br>
+  If Pausa helps you take better breaks, a ⭐ on GitHub helps other people find it.
+</p>
