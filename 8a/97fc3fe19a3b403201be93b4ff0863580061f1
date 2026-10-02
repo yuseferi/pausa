@@ -1,0 +1,36 @@
+Makefile
+  s_8adbb88475ff81::t_126e69fe454033 19-24
+  s_8adbb88475ff81::t_503204293fd231 1
+frontend/src/composables/useCountdown.js
+  s_8adbb88475ff81::t_34e7095b846272 28-37
+internal/scheduler/scheduler_test.go
+  s_8adbb88475ff81::t_5825fcf5740f90 968-979,985-995
+  s_8adbb88475ff81::t_be319eafe9cf80 996
+internal/scheduler/scheduler.go
+  s_8adbb88475ff81::t_23760ba15ca9b1 406-410,420-423
+internal/breakapp/app.go
+  s_8adbb88475ff81::t_ef0b063bb4f679 480-483,486-489,491-493
+internal/macos/busy_darwin.go
+  s_8adbb88475ff81::t_d7d0780dabc3ca 237,248-249,259-267
+README.md
+  s_8adbb88475ff81::t_0a776d31cdfc2b 329-333
+frontend/src/lib/api.js
+  s_8adbb88475ff81::t_8382db9fbcc82e 83-86,93
+  s_8adbb88475ff81::t_81472b78c4f01e 36-39,45,47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "8a97fc3fe19a3b403201be93b4ff0863580061f1",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
