@@ -1,0 +1,44 @@
+internal/config/config_test.go
+  s_8adbb88475ff81::t_3d5f886493a510 131-200
+  s_8adbb88475ff81::t_0ec12c2aa5b9ea 6
+internal/config/config.go
+  s_8adbb88475ff81::t_414cc4d5f26187 191-201
+internal/scheduler/scheduler.go
+  s_8adbb88475ff81::t_6bf4888d99a63a 356-357,360-363
+  s_8adbb88475ff81::t_25c09600681dcd 824
+  s_8adbb88475ff81::t_1a875ce8b96e12 856-860,862-865
+  s_8adbb88475ff81::t_c5d0ab6a333d21 396,407,415-417
+  s_8adbb88475ff81::t_bf467ceb6fbe29 282
+  s_8adbb88475ff81::t_b9afb8b51cbf58 382
+  s_8adbb88475ff81::t_6185560cdc3660 468,475-490
+  s_8adbb88475ff81::t_092bc498d2314e 326-330
+  s_8adbb88475ff81::t_bd176bc993fd69 491,678-688
+  s_8adbb88475ff81::t_dc2826cc1487c6 576-582
+  s_8adbb88475ff81::t_a8288b5479289d 492
+internal/scheduler/state.go
+  s_8adbb88475ff81::t_cfc5309c24fa78 75
+internal/config/store.go
+  s_8adbb88475ff81::t_faef1931af3ff5 98-99,102-107,112,116-119
+  s_8adbb88475ff81::t_010d54f35a23f8 36-39
+  s_8adbb88475ff81::t_eb83341daaa56d 22
+  s_8adbb88475ff81::t_44981b43d9e2ed 77,80-87
+internal/scheduler/scheduler_test.go
+  s_8adbb88475ff81::t_276680d709cd73 891
+  s_8adbb88475ff81::t_edb8654ec4d42e 878-890,892-974
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "5f2eec5c296855c8b908d03c6d39c9ad3e57f178",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
