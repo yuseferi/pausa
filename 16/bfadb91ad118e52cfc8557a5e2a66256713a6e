@@ -1,0 +1,38 @@
+NOTARIZATION.md
+  s_8adbb88475ff81::t_2a4fb542784d71 1-108
+README.md
+  s_8adbb88475ff81::t_5bad54f1444aa0 416-421
+build/darwin/entitlements.plist
+  s_8adbb88475ff81::t_4096a2f3c1c516 1-13
+build/darwin/Info.plist
+  s_8adbb88475ff81::t_4ac4920620efd1 26-27
+scripts/sign-notarize.sh
+  s_8adbb88475ff81::t_2372a6319f8fa8 1-115
+scripts/release.sh
+  s_8adbb88475ff81::t_cf1a30427766e6 60-66
+  s_8adbb88475ff81::t_24757de97c5e18 15-19
+  s_8adbb88475ff81::t_ba14921b0fc8ec 98
+.github/workflows/release.yml
+  s_8adbb88475ff81::t_2dec581f507698 85-116,122-133,140-142
+  s_8adbb88475ff81::t_34d7fc3a268fa9 32-44
+  s_8adbb88475ff81::t_5cfc30db0b8719 221
+  s_8adbb88475ff81::t_9d98e0397d0036 143
+Casks/pausa.rb
+  s_8adbb88475ff81::t_eeb41ff5e9d959 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "16bfadb91ad118e52cfc8557a5e2a66256713a6e",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
