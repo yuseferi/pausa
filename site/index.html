@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pausa — macOS break reminders that respect your focus</title>
+  <meta name="description" content="Pausa is a native macOS break reminder that auto-pauses during meetings and media, then takes over every screen when it's time to rest. Free, open source, local-only.">
+  <link rel="canonical" href="https://yuseferi.github.io/pausa/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pausa — macOS break reminders that respect your focus">
+  <meta property="og:description" content="Auto-pauses during calls and media. Covers every screen when it's time to rest. Free, open source, local-only.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/yuseferi/pausa/main/screenshots/break-overlay.png">
+  <meta property="og:url" content="https://yuseferi.github.io/pausa/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="https://raw.githubusercontent.com/yuseferi/pausa/main/build/appicon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="hero__icon" src="https://raw.githubusercontent.com/yuseferi/pausa/main/build/appicon.png" alt="Pausa app icon" width="112" height="112">
+    <h1 class="hero__title">Pausa</h1>
+    <p class="hero__tagline">
+      Break reminders that stay out of your way during meetings —
+      <br class="br-desktop">and take over the whole screen when it’s time to rest.
+    </p>
+
+    <div class="hero__badges">
+      <a href="https://github.com/yuseferi/pausa/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/yuseferi/pausa?color=0ea5e9&label=release"></a>
+      <img alt="Platform: macOS" src="https://img.shields.io/badge/platform-macOS-111111?logo=apple&logoColor=white">
+      <a href="https://github.com/yuseferi/pausa/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/yuseferi/pausa?color=0ea5e9"></a>
+      <a href="https://github.com/yuseferi/pausa/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/yuseferi/pausa?style=social"></a>
+    </div>
+
+    <div class="hero__cta">
+      <button class="btn btn--primary" id="copy-brew" type="button" data-cmd="brew install --cask yuseferi/pausa/pausa">
+        Copy install command
+      </button>
+      <a class="btn btn--ghost" href="https://github.com/yuseferi/pausa/releases/latest">Download .zip</a>
+    </div>
+    <code class="hero__cmd">$ brew install --cask yuseferi/pausa/pausa</code>
+    <p class="hero__note">Free &amp; open source · Apple silicon &amp; Intel · no account, no telemetry</p>
+  </div>
+</header>
+
+<!-- ============================================================
+     DEMO — replace the placeholder below with a short (20–30s) GIF
+     or muted looping MP4. Drop the file in site/assets/ and use:
+
+     <video class="demo" autoplay muted loop playsinline>
+       <source src="assets/demo.mp4" type="video/mp4">
+     </video>
+
+     Suggested clip: meeting starts → countdown auto-pauses →
+     fullscreen break appears → focus returns to the previous app.
+     ============================================================ -->
+<section class="section" id="demo">
+  <div class="wrap">
+    <div class="demo demo--placeholder" role="img" aria-label="Demo video placeholder">
+      <div class="demo__inner">
+        <span class="demo__badge">Demo</span>
+        <p class="demo__title">30-second demo coming soon</p>
+        <p class="demo__hint">Add <code>assets/demo.mp4</code> or <code>assets/demo.gif</code> — see the comment in <code>index.html</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="why">
+  <div class="wrap">
+    <h2 class="section__title">Why Pausa</h2>
+    <p class="section__lead">Most break reminders fire at the wrong moment and are easy to ignore. Pausa fixes both.</p>
+    <div class="grid grid--2">
+      <div class="card">
+        <h3>It knows when you’re busy</h3>
+        <p>In a call, playing media, or on a muted video tab? The countdown pauses automatically and resumes when you’re free — meeting time never counts toward your next break.</p>
+      </div>
+      <div class="card">
+        <h3>Impossible to miss</h3>
+        <p>A native fullscreen panel covers fullscreen Spaces and every monitor, then returns focus to exactly where you were. No fragile “always on top” windows.</p>
+      </div>
+      <div class="card">
+        <h3>Respects your hours</h3>
+        <p>Breaks only fire on the days and times you choose, and real away-from-keyboard time counts as a natural break so you aren’t nagged after a walk.</p>
+      </div>
+      <div class="card">
+        <h3>Private by default</h3>
+        <p>No account, no telemetry, no network calls at runtime. Busy detection runs locally on your Mac. <a href="#privacy">Read more</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <h2 class="section__title">Features</h2>
+    <div class="grid grid--3">
+      <div class="card card--compact">
+        <h3>Smart busy detection</h3>
+        <p>Microphone, Now Playing, audio output, and frontmost browser video/meeting pages — including muted YouTube and Google Meet.</p>
+      </div>
+      <div class="card card--compact">
+        <h3>Fullscreen overlays</h3>
+        <p>Native <code>NSPanel</code> breaks above fullscreen apps, on all monitors or just the active one, fullscreen or compact.</p>
+      </div>
+      <div class="card card--compact">
+        <h3>Working hours</h3>
+        <p>Pick the days and times breaks may fire. Outside them, Pausa stays quiet.</p>
+      </div>
+      <div class="card card--compact">
+        <h3>Natural breaks</h3>
+        <p>Time away from the keyboard is credited, so stepping out doesn’t leave you “behind schedule”.</p>
+      </div>
+      <div class="card card--compact">
+        <h3>Wellness tips &amp; breathing</h3>
+        <p>Eye, stretch, movement and breathing prompts, with a guided breathing exercise on long breaks.</p>
+      </div>
+      <div class="card card--compact">
+        <h3>Menu-bar native</h3>
+        <p>A small, responsive status item with a live countdown. Stays out of your Dock and out of your way.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="screenshots">
+  <div class="wrap">
+    <h2 class="section__title">Screenshots</h2>
+    <div class="shots">
+      <figure class="shot">
+        <img src="https://raw.githubusercontent.com/yuseferi/pausa/main/screenshots/dashboard.png" alt="Pausa dashboard with next-break countdown and stats" loading="lazy">
+        <figcaption>Dashboard</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="https://raw.githubusercontent.com/yuseferi/pausa/main/screenshots/preferences-1.png" alt="Pausa preferences — general settings" loading="lazy">
+        <figcaption>Preferences</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="https://raw.githubusercontent.com/yuseferi/pausa/main/screenshots/break-overlay.png" alt="Pausa fullscreen break overlay" loading="lazy">
+        <figcaption>Break overlay</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="privacy">
+  <div class="wrap">
+    <h2 class="section__title">Privacy</h2>
+    <div class="panel">
+      <ul class="checklist">
+        <li><strong>No account</strong> and no sign-in.</li>
+        <li><strong>No analytics or telemetry.</strong></li>
+        <li><strong>No network requests at runtime</strong> — configuration and logs stay on disk.</li>
+        <li><strong>Local busy detection</strong> — it checks whether the microphone is <em>in use</em> (not the audio itself), system media state, and only the frontmost browser’s active tab URL. None of it leaves your machine.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="wrap">
+    <h2 class="section__title">FAQ</h2>
+    <details class="faq">
+      <summary>Does Pausa need Accessibility or Screen Recording permission?</summary>
+      <p>No. It uses public system APIs plus a short, read-only AppleScript lookup for the frontmost browser’s active tab URL. It never records your screen or keystrokes.</p>
+    </details>
+    <details class="faq">
+      <summary>Does it collect any data?</summary>
+      <p>No. There is no telemetry and no runtime network access.</p>
+    </details>
+    <details class="faq">
+      <summary>Will it interrupt me during a call?</summary>
+      <p>No. Microphone use auto-pauses the schedule, and the countdown resumes when the call ends.</p>
+    </details>
+    <details class="faq">
+      <summary>Why does macOS warn me on first launch?</summary>
+      <p>Pausa isn’t notarized yet. Right-click the app → <strong>Open</strong>, or run <code>xattr -dr com.apple.quarantine /Applications/pausa.app</code>. Notarization is on the roadmap.</p>
+    </details>
+    <details class="faq">
+      <summary>Does it work with fullscreen apps?</summary>
+      <p>Yes. Break overlays are native panels rendered above fullscreen Spaces, and can cover every monitor.</p>
+    </details>
+  </div>
+</section>
+
+<section class="section section--cta" id="install">
+  <div class="wrap">
+    <h2 class="section__title">Install</h2>
+    <p class="section__lead">Homebrew is recommended. Prefer a direct download? Grab the latest release.</p>
+    <div class="install">
+      <code class="install__cmd">brew install --cask yuseferi/pausa/pausa</code>
+      <button class="btn btn--primary" data-copy="brew install --cask yuseferi/pausa/pausa" type="button">Copy</button>
+    </div>
+    <p class="section__lead">
+      <a class="btn btn--ghost" href="https://github.com/yuseferi/pausa/releases/latest">Download the latest .zip</a>
+      <a class="btn btn--ghost" href="https://github.com/yuseferi/pausa">View source on GitHub</a>
+    </p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      <a href="https://github.com/yuseferi/pausa">Repository</a> ·
+      <a href="https://github.com/yuseferi/pausa/issues">Issues</a> ·
+      <a href="https://github.com/yuseferi/pausa/releases">Releases</a> ·
+      <a href="https://github.com/yuseferi/pausa/blob/main/LICENSE">MIT License</a>
+    </p>
+    <p class="footer__star">If Pausa helps you take better breaks, a ⭐ on GitHub helps other people find it.</p>
+  </div>
+</footer>
+
+<script>
+  // Copy-to-clipboard for install commands.
+  document.addEventListener('click', function (event) {
+    var el = event.target.closest('[data-copy],#copy-brew');
+    if (!el) return;
+    var text = el.getAttribute('data-copy') ||
+      (el.id === 'copy-brew' ? el.getAttribute('data-cmd') : '');
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function () {
+      var original = el.textContent;
+      el.textContent = 'Copied ✓';
+      setTimeout(function () { el.textContent = original; }, 1500);
+    });
+  });
+</script>
+
+<!--
+  Privacy-friendly analytics (optional). Enable only if you want it; Pausa's
+  own app remains telemetry-free. Example with GoatCounter:
+
+  <script data-goatcounter="https://YOURCODE.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+-->
+
+</body>
+</html>
