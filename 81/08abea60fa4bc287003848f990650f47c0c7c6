@@ -1,0 +1,35 @@
+frontend/src/views/PreferencesView.vue
+  s_8adbb88475ff81::t_4ed3b47267bb4d 9
+  s_8adbb88475ff81::t_00b332b36bb1b6 47
+  s_8adbb88475ff81::t_373613f5a330bd 28-33
+frontend/src/lib/api.js
+  s_8adbb88475ff81::t_2d402c514f209c 35-51
+  s_8adbb88475ff81::t_03cd41b9806ea1 76-99
+frontend/src/lib/store.js
+  s_8adbb88475ff81::t_b863b2242bcddf 61
+  s_8adbb88475ff81::t_36280ea2416dae 124-125
+  s_8adbb88475ff81::t_d57dfead0cd355 81-94
+  s_8adbb88475ff81::t_ba689100a2aa21 126-127
+frontend/src/views/BreakView.vue
+  s_8adbb88475ff81::t_bc031825517001 10
+frontend/src/lib/duration.js
+  s_8adbb88475ff81::t_22f4e34ee17aed 7,10-12,15-24
+frontend/src/composables/useCountdown.js
+  s_8adbb88475ff81::t_fa820bb1cf9b28 13,16-23,28,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "8108abea60fa4bc287003848f990650f47c0c7c6",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
