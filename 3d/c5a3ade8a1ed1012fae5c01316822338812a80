@@ -1,0 +1,49 @@
+.github/pull_request_template.md
+  s_8adbb88475ff81::t_5c3369356a2dbc 7-9
+.github/workflows/ci.yml
+  s_8adbb88475ff81::t_ca81f1e9888c35 108
+  s_8adbb88475ff81::t_45ee492d71001c 46,49,52
+  s_8adbb88475ff81::t_97333d6c12523f 87-90
+  s_8adbb88475ff81::t_fe695a7dd5634a 143-145
+README.md
+  s_8adbb88475ff81::t_8d0ff9a5119319 330-332,335-337,342,349
+ARCHITECTURE.md
+  s_8adbb88475ff81::t_4f6ef5876111d6 89
+  s_8adbb88475ff81::t_60d8dc555c0622 13-17
+  s_8adbb88475ff81::t_f51cc887491b44 206-208
+  s_8adbb88475ff81::t_eaa0704e4b5786 210,215,217-218
+  s_8adbb88475ff81::t_462d18b9bd311d 25,35,43
+  s_8adbb88475ff81::t_2da0f84865280c 209
+  s_8adbb88475ff81::t_3ad0da8eb08746 199-200
+  s_8adbb88475ff81::t_56e729fb65b626 163,174-178
+  s_8adbb88475ff81::t_d6a947ac11d3b8 149-150
+Makefile
+  s_8adbb88475ff81::t_ef775383f2281d 5-9
+  s_8adbb88475ff81::t_65ca4a2e61598e 26
+  s_8adbb88475ff81::t_3f4a23e88c2791 1
+  s_8adbb88475ff81::t_7583b125a49bec 20-22,25
+  s_8adbb88475ff81::t_8741847ad97398 23-24,27
+frontend/package.json
+  s_8adbb88475ff81::t_49171a605a00f7 9-10
+  s_8adbb88475ff81::t_4773dcd14a4e93 16,18-20,23
+frontend/eslint.config.js
+  s_8adbb88475ff81::t_fe501c9e070a16 1-23
+frontend/package-lock.json
+  s_8adbb88475ff81::t_76782fd3b312ca 14,16-18,68-91,483-676,683-706,1057-1063,1071-1077,1192-1303,1310-1334,1386-1397,1399-1402,1405-1406,1408-1442,1444-1455,1458-1462,1465-1487,1490-1500,1503-1961,1998-2051,2097-2132,2142-2171,2252-2325
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "3dc5a3ade8a1ed1012fae5c01316822338812a80",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
