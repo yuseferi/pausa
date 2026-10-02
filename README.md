@@ -21,6 +21,7 @@
 </p>
 
 <p align="center">
+  <a href="https://yuseferi.github.io/pausa/">Website</a> &middot;
   <a href="#install">Install</a> &middot;
   <a href="#why-pausa">Why Pausa</a> &middot;
   <a href="#screenshots">Screenshots</a> &middot;
@@ -428,6 +429,7 @@ Contributions, ideas, and bug reports are welcome. Please open an issue or pull 
 
 ## Links
 
+- **Website:** <https://yuseferi.github.io/pausa/>
 - **Repository:** <https://github.com/yuseferi/pausa>
 - **Issues:** <https://github.com/yuseferi/pausa/issues>
 - **Releases:** <https://github.com/yuseferi/pausa/releases>
