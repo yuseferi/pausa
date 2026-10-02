@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Pausa's busy detection drives Safari/Chrome/Brave/Arc via
+         /usr/bin/osascript to read the frontmost tab URL. Under the Hardened
+         Runtime, sending Apple events to apps not signed with our Team ID
+         requires this entitlement (paired with NSAppleEventsUsageDescription
+         in the Info.plist for the one-time consent prompt). -->
+    <key>com.apple.security.automation.apple-events</key>
+    <true/>
+</dict>
+</plist>

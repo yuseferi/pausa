@@ -13,7 +13,7 @@ cask "pausa" do
 
   name "Pausa"
   desc "Native-feeling macOS break reminder with fullscreen-space overlays"
-  homepage "https://github.com/yuseferi/pausa"
+  homepage "https://yuseferi.github.io/pausa/"
 
   app "pausa.app"
 

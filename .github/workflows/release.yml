@@ -29,6 +29,19 @@ jobs:
             platform: darwin/amd64
             asset_suffix: amd64-macos
 
+    # Signing / notarization secrets are optional. When absent (e.g. on forks)
+    # the job falls back to producing an unsigned build.
+    env:
+      APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      NOTARY_KEY_P8_BASE64: ${{ secrets.NOTARY_KEY_P8_BASE64 }}
+      NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+      NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -69,17 +82,64 @@ jobs:
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
 
+      - name: Detect signing configuration
+        id: signing
+        run: |
+          enabled=false
+          if [ -n "$APPLE_CERTIFICATE_P12_BASE64" ] && [ -n "$APPLE_CERTIFICATE_PASSWORD" ]; then
+            if [ -n "$NOTARY_KEY_P8_BASE64" ] || [ -n "$APPLE_ID" ]; then
+              enabled=true
+            fi
+          fi
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          if [ "$enabled" = "false" ]; then
+            echo "::warning::Signing/notarization secrets are not configured - producing an UNSIGNED build."
+          fi
+
+      - name: Import Developer ID certificate
+        if: steps.signing.outputs.enabled == 'true'
+        run: |
+          KEYCHAIN="build.keychain"
+          KEYCHAIN_PW="$(openssl rand -hex 16)"
+          printf '%s' "$APPLE_CERTIFICATE_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          rm -f "$RUNNER_TEMP/cert.p12"
+          # The keychain password (not the .p12 password) unlocks codesign access.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PW" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning
+
       - name: Build app bundle
         run: |
           export PATH="$(go env GOPATH)/bin:$PATH"
           wails build -platform "${{ matrix.platform }}"
 
-      - name: Package app bundle
+      - name: Sign, notarize & package
+        if: steps.signing.outputs.enabled == 'true'
+        run: |
+          ASSET="dist/pausa-${{ steps.version.outputs.version }}-${{ matrix.asset_suffix }}.zip"
+          if [ -n "$NOTARY_KEY_P8_BASE64" ]; then
+            printf '%s' "$NOTARY_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+            export NOTARY_KEY_PATH="$RUNNER_TEMP/AuthKey.p8"
+          fi
+          scripts/sign-notarize.sh build/bin/pausa.app "$ASSET" "$APPLE_SIGNING_IDENTITY"
+
+      - name: Package app bundle (unsigned)
+        if: steps.signing.outputs.enabled != 'true'
         run: |
           mkdir -p dist
           ASSET="dist/pausa-${{ steps.version.outputs.version }}-${{ matrix.asset_suffix }}.zip"
           ditto -c -k --keepParent build/bin/pausa.app "$ASSET"
           shasum -a 256 "$ASSET" | awk '{print $1}' > "$ASSET.sha256"
+
+      - name: Clean up signing keychain
+        if: always()
+        run: security delete-keychain build.keychain 2>/dev/null || true
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -158,7 +218,7 @@ jobs:
 
             name "Pausa"
             desc "Native-feeling macOS break reminder with fullscreen-space overlays"
-            homepage "https://github.com/yuseferi/pausa"
+            homepage "https://yuseferi.github.io/pausa/"
 
             app "pausa.app"
 

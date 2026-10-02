@@ -12,6 +12,11 @@
 #   - commit version bumps
 #   - create the GitHub release
 #
+# Signing/notarization is opt-in: set SIGN_NOTARIZE=1 and provide either
+# NOTARY_KEY_PATH/NOTARY_KEY_ID[/NOTARY_ISSUER] or
+# APPLE_ID/APPLE_APP_PASSWORD/APPLE_TEAM_ID. The Developer ID Application
+# certificate must already be in your login keychain (or pass IDENTITY).
+#
 # Those steps are intentionally left explicit so you can inspect the assets,
 # checksums, and cask diff before publishing.
 
@@ -52,8 +57,13 @@ build_and_zip() {
   wails build -platform "${platform}"
 
   local zip="dist/pausa-${VERSION}-${suffix}.zip"
-  echo "==> Packaging ${zip}"
-  ditto -c -k --keepParent build/bin/pausa.app "$zip"
+  if [[ "${SIGN_NOTARIZE:-0}" == "1" ]]; then
+    echo "==> Signing, notarizing and packaging ${zip}"
+    scripts/sign-notarize.sh build/bin/pausa.app "$zip"
+  else
+    echo "==> Packaging ${zip} (unsigned)"
+    ditto -c -k --keepParent build/bin/pausa.app "$zip"
+  fi
 }
 
 build_and_zip "darwin/arm64" "arm64-macos"
@@ -85,7 +95,7 @@ cask "pausa" do
 
   name "Pausa"
   desc "Native-feeling macOS break reminder with fullscreen-space overlays"
-  homepage "https://github.com/yuseferi/pausa"
+  homepage "https://yuseferi.github.io/pausa/"
 
   app "pausa.app"
 

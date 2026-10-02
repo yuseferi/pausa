@@ -413,6 +413,12 @@ fix: pause scheduler while media is playing
 docs: update Homebrew install instructions
 ```
 
+### Signing & notarization
+
+Release builds are codesigned and notarized when the Apple secrets are
+configured, so users no longer hit the Gatekeeper warning. Setup and the full
+secret list are documented in [`NOTARIZATION.md`](NOTARIZATION.md).
+
 ---
 
 ## Contributing

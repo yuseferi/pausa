@@ -23,6 +23,8 @@
         <string>true</string>
         <key>NSHumanReadableCopyright</key>
         <string>{{.Info.Copyright}}</string>
+        <key>NSAppleEventsUsageDescription</key>
+        <string>Pausa checks the active tab URL of your browser to pause breaks while you are in a meeting or watching a video.</string>
         {{if .Info.FileAssociations}}
         <key>CFBundleDocumentTypes</key>
         <array>
