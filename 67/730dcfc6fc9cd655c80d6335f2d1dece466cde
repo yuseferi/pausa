@@ -1,0 +1,27 @@
+site/index.html
+  s_8adbb88475ff81::t_6fc0f07fc7c066 1-241
+.github/workflows/pages.yml
+  s_8adbb88475ff81::t_1de14ba627e513 1-41
+site/assets/.gitkeep
+  s_8adbb88475ff81::t_e41683d87efba3 1
+site/styles.css
+  s_8adbb88475ff81::t_df3ad56b5df44c 1-146
+site/README.md
+  s_8adbb88475ff81::t_a80724e6a85216 1-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "67730dcfc6fc9cd655c80d6335f2d1dece466cde",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
