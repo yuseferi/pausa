@@ -1,0 +1,20 @@
+README.md
+  s_8adbb88475ff81::t_fa33092b900e8b 432
+  s_8adbb88475ff81::t_2c4d5021191e7c 24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "a26aa4119910620da96d254c4ae3d58b497c7e7a",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
