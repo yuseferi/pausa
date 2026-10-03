@@ -1,0 +1,32 @@
+internal/config/config.go
+  s_8adbb88475ff81::t_e9f8c93a7a3313 86-92,136-141
+internal/scheduler/scheduler_test.go
+  s_8adbb88475ff81::t_e9f8c93a7a3313 1122-1131
+  s_8adbb88475ff81::t_78d5a901c97730 1072-1121,1132
+frontend/src/components/preferences/SectionIdle.vue
+  s_8adbb88475ff81::t_e9f8c93a7a3313 65-75
+internal/config/store.go
+  s_8adbb88475ff81::t_e9f8c93a7a3313 46-54,135-152
+  s_8adbb88475ff81::t_999766be0f13cf 153-154
+internal/scheduler/scheduler.go
+  s_8adbb88475ff81::t_e9f8c93a7a3313 724-726,729,747,750-752
+  s_8adbb88475ff81::t_8ca8471ca98354 748
+internal/config/config_test.go
+  s_8adbb88475ff81::t_e9f8c93a7a3313 5,202-260
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "311b501099773d4dae662ea30507e774460124fd",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": null
+    }
+  }
+}
