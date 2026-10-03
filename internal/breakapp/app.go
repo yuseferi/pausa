@@ -289,14 +289,22 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 		status.SetItemHidden(tagPause, true)
 		status.SetItemHidden(tagResume, false)
 	case scheduler.PhaseAutoPaused:
-		status.SetBuiltinIcon(macos.StatusIconBusy)
-		// Auto-paused (busy detection). Show why so the user doesn't
-		// wonder why their break didn't fire.
 		label := snap.AutoPauseReason
 		if label == "" {
 			label = "busy"
 		}
-		status.UpdateItem(tagNextBreak, "Paused — "+label)
+		if label == "away" {
+			// Idle-away gets its own icon and wording so users can tell
+			// "you walked away" apart from "meeting / media playing".
+			// Media playback always reports as busy, never as away.
+			status.SetBuiltinIcon(macos.StatusIconPaused)
+			status.UpdateItem(tagNextBreak, "Away — timer paused")
+		} else {
+			status.SetBuiltinIcon(macos.StatusIconBusy)
+			// Auto-paused (busy detection). Show why so the user doesn't
+			// wonder why their break didn't fire.
+			status.UpdateItem(tagNextBreak, "Paused — "+label)
+		}
 		// Allow manual pause/resume even while auto-paused; manual pause
 		// takes precedence and survives busy-clear.
 		status.SetItemHidden(tagPause, false)

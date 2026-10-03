@@ -549,15 +549,20 @@ func (s *Scheduler) onBreakFire(st *actorState) {
 	st.notifyTimer = nil
 
 	// Natural-break detection: if the user has been idle ≥ break duration,
-	// consider it taken.
+	// consider it taken. Media playing (meetings, videos, music) never
+	// counts as rest — if the busy signal is active we start the break
+	// normally instead of crediting a natural break.
 	if s.cfg.Idle.NaturalBreaks {
 		dur := s.breakDuration(st.nextKind)
 		if s.idle.IdleFor() >= dur {
-			st.stats.NaturalBreaks++
-			s.publish(EventNatural, st, withKind(st.nextKind))
-			s.advanceCounters(st, st.nextKind)
-			s.scheduleNext(st)
-			return
+			if _, isBusy := s.busy.BusyState(); !isBusy {
+				st.stats.NaturalBreaks++
+				s.publish(EventNatural, st, withKind(st.nextKind))
+				s.advanceCounters(st, st.nextKind)
+				s.scheduleNext(st)
+				return
+			}
+			slog.Info("not crediting natural break while busy (media playing)")
 		}
 	}
 	s.startBreak(st, st.nextKind)
@@ -838,14 +843,20 @@ func (s *Scheduler) exitAutoPause(st *actorState) {
 		return
 	}
 
-	// Away long enough to cover the upcoming break? Count it as taken.
+	// Away long enough to cover the upcoming break? Count it as taken —
+	// but only if no media is playing. A movie or stream running while the
+	// user is away from keyboard/mouse is not rest, so it must not be
+	// credited as a natural break.
 	if wasIdle && s.cfg.Idle.NaturalBreaks && awayTime >= s.breakDuration(st.nextKind) {
-		slog.Info("away time credited as natural break", "away", awayTime.Round(time.Second).String())
-		st.stats.NaturalBreaks++
-		s.publish(EventNatural, st, withKind(st.nextKind))
-		s.advanceCounters(st, st.nextKind)
-		s.scheduleNext(st)
-		return
+		if _, isBusy := s.busy.BusyState(); !isBusy {
+			slog.Info("away time credited as natural break", "away", awayTime.Round(time.Second).String())
+			st.stats.NaturalBreaks++
+			s.publish(EventNatural, st, withKind(st.nextKind))
+			s.advanceCounters(st, st.nextKind)
+			s.scheduleNext(st)
+			return
+		}
+		slog.Info("not crediting natural break: media playing while away", "away", awayTime.Round(time.Second).String())
 	}
 
 	if remaining <= 0 {

@@ -16,10 +16,15 @@ const nextKindLabel = computed(() =>
 )
 
 const statusLabel = computed(() => {
-  if (isAutoPaused.value) return 'Paused — ' + (autoPauseReason.value || 'busy')
+  if (isAutoPaused.value) {
+    if (autoPauseReason.value === 'away') return 'Away — timer paused'
+    return 'Paused — ' + (autoPauseReason.value || 'busy')
+  }
   if (isPaused.value) return 'Paused'
   return 'Up next'
 })
+
+const isAway = computed(() => isAutoPaused.value && autoPauseReason.value === 'away')
 </script>
 
 <template>
@@ -53,12 +58,19 @@ const statusLabel = computed(() => {
       :total="state.config?.schedule?.longEvery || 3"
     />
 
-    <div v-if="isAutoPaused" class="busy-note card">
-      <div class="busy-note__title">Auto-paused</div>
+    <div v-if="isAutoPaused" class="busy-note card" :class="{ 'busy-note--away': isAway }">
+      <div class="busy-note__title">{{ isAway ? 'Away' : 'Auto-paused' }}</div>
       <div class="busy-note__text">
-        Break timer is paused because Pausa detected
-        <strong>{{ autoPauseReason || 'busy activity' }}</strong>.
-        The countdown will resume automatically when you're free.
+        <template v-if="isAway">
+          No keyboard or mouse input detected, so the break countdown is paused.
+          Media playing (meetings, videos, music) keeps the timer in
+          <strong>busy</strong> mode instead — it never counts as idle rest.
+        </template>
+        <template v-else>
+          Break timer is paused because Pausa detected
+          <strong>{{ autoPauseReason || 'busy activity' }}</strong>.
+          The countdown will resume automatically when you're free.
+        </template>
       </div>
     </div>
 
@@ -155,6 +167,13 @@ const statusLabel = computed(() => {
   text-transform: uppercase;
   color: color-mix(in srgb, var(--warning) 70%, var(--fg));
   margin-bottom: 4px;
+}
+.busy-note--away {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+}
+.busy-note--away .busy-note__title {
+  color: color-mix(in srgb, var(--accent) 70%, var(--fg));
 }
 .busy-note__text {
   font-size: 13px;

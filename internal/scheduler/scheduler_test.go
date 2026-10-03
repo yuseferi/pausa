@@ -994,3 +994,78 @@ func TestResetFromScheduledHasNoBreakKind(t *testing.T) {
 		}
 	}
 }
+
+// ---------- Idle vs media regression tests ----------
+
+// Media playing must never count as rest: with PauseWhenBusy disabled (so no
+// auto-pause preempts the break), a break firing while idle AND busy must
+// start normally instead of being credited as a natural break.
+func TestNaturalBreakNotCreditedWhenBusy(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.NaturalBreaks = true
+	h.cfg.Idle.PauseWhenBusy = false
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 30 * time.Second
+	h.busy.set(true, "media playing")
+	h.clearEvents()
+	h.advance(10 * time.Second) // break interval elapses
+
+	if h.hasKind(EventNatural) {
+		t.Errorf("EventNatural credited despite media playing: %v", h.kinds())
+	}
+	if !h.hasKind(EventBreakStart) {
+		t.Errorf("expected EventBreakStart (not a natural credit) in %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Stats.NaturalBreaks; got != 0 {
+		t.Errorf("NaturalBreaks=%d, want 0 while busy", got)
+	}
+}
+
+// Away time covered by media playback must not be credited on resume: user
+// goes away (idle-pause), media starts while away, user returns straight
+// into playback — the pause converts to busy instead of crediting natural.
+func TestIdleAwayWithMediaDoesNotCreditNatural(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.NaturalBreaks = true
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 3 * time.Minute
+	h.advance(BusyPollInterval + time.Second) // idle auto-pause as "away"
+	if got := h.sched.Snapshot().AutoPauseReason; got != "away" {
+		t.Fatalf("setup: reason=%q, want away", got)
+	}
+
+	// Media starts while away; user returns straight into playback.
+	h.busy.set(true, "media playing")
+	h.idle.d = 0
+	h.clearEvents()
+	h.advance(BusyPollInterval + time.Second)
+
+	if h.hasKind(EventNatural) {
+		t.Errorf("EventNatural credited despite media playing on return: %v", h.kinds())
+	}
+	snap := h.sched.Snapshot()
+	if snap.Phase != PhaseAutoPaused {
+		t.Fatalf("phase=%s, want auto-paused (converted to busy)", snap.Phase)
+	}
+	if snap.AutoPauseReason != "media playing" {
+		t.Errorf("reason=%q, want media playing", snap.AutoPauseReason)
+	}
+	if got := snap.Stats.NaturalBreaks; got != 0 {
+		t.Errorf("NaturalBreaks=%d, want 0", got)
+	}
+
+	// Playback ends; countdown resumes with no natural credit either.
+	h.busy.set(false, "")
+	h.clearEvents()
+	h.advance(BusyPollInterval + time.Second)
+	if h.hasKind(EventNatural) {
+		t.Errorf("EventNatural credited after busy cleared: %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Stats.NaturalBreaks; got != 0 {
+		t.Errorf("NaturalBreaks=%d, want 0", got)
+	}
+}

@@ -20,7 +20,7 @@ const mediaDebounceSec = computed({
     <label class="field">
       <span class="field__label">
         Pause when idle
-        <small class="field__hint">If you stop interacting with your Mac, breaks pause automatically.</small>
+        <small class="field__hint">If you stop interacting with your Mac, breaks pause automatically and show as "Away". Media playing (meetings, videos, music) always shows as busy instead — it never counts as idle rest.</small>
       </span>
       <span class="toggle">
         <input type="checkbox" v-model="model.pauseWhenIdle" />
@@ -36,7 +36,7 @@ const mediaDebounceSec = computed({
     <label class="field">
       <span class="field__label">
         Count natural breaks
-        <small class="field__hint">If you've been idle for the upcoming break's duration, count it as taken.</small>
+        <small class="field__hint">If you've been away (no input, no media playing) for the upcoming break's duration, count it as taken. Movies, streams, and calls never count as natural breaks.</small>
       </span>
       <span class="toggle">
         <input type="checkbox" v-model="model.naturalBreaks" />
