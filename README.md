@@ -78,7 +78,7 @@ On top of that:
 
 - **Respects your hours** — breaks only fire on the days and times you choose.
 - **Counts natural breaks** — real away-from-keyboard time is credited, so you aren't nagged right after a walk.
-- **Private by default** — no account, no telemetry, no network calls (see [Privacy](#privacy)).
+- **Private by default** — no account, no telemetry, and no automatic network calls; the only request is the update check you trigger (see [Privacy](#privacy)).
 - **Menu-bar native** — a small, responsive status item; it stays out of your Dock and out of your way.
 
 ---
@@ -211,7 +211,7 @@ Pausa runs entirely on your Mac:
 
 - **No account** and no sign-in
 - **No analytics or telemetry**
-- **No network requests at runtime** — configuration and logs stay on disk
+- **No automatic network requests** — configuration and logs stay on disk. The only network call is the optional "Check for updates" action, which runs once, only when you click it.
 - **Busy detection is local** — it checks whether the microphone is *in use* (not the audio itself), system media state, and (only for the frontmost browser) the active tab URL. None of it leaves your machine.
 
 ---
@@ -229,7 +229,7 @@ Pausa runs entirely on your Mac:
 No. It uses public system APIs plus a short, read-only AppleScript lookup for the frontmost browser's active tab URL. It never records your screen or keystrokes.
 
 **Does it collect any data?**
-No. There is no telemetry and no runtime network access — see [Privacy](#privacy).
+No. There is no telemetry. Pausa makes no automatic network requests; the only one is the update check you trigger — see [Privacy](#privacy).
 
 **Will it interrupt me during a call?**
 No. Microphone use auto-pauses the schedule, and the countdown resumes when the call ends.
