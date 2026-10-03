@@ -17,6 +17,8 @@ import (
 	"pausa/internal/macos"
 	"pausa/internal/scheduler"
 	"pausa/internal/tips"
+	"pausa/internal/update"
+	"pausa/internal/version"
 )
 
 // Status-bar menu item tags. Negative numbers reserved for internal use.
@@ -220,6 +222,20 @@ func (a *App) ResumeBreaks() { a.sched.Resume() }
 
 // ResetBreaks resets the schedule.
 func (a *App) ResetBreaks() { a.sched.Reset() }
+
+// GetVersion returns the built-in application version.
+func (a *App) GetVersion() string { return version.Version }
+
+// CheckForUpdates queries GitHub releases for a newer version. It only runs
+// when the user clicks the update button — never automatically — so Pausa
+// stays network-silent otherwise.
+func (a *App) CheckForUpdates() update.Info {
+	ctx := a.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	return update.Check(ctx)
+}
 
 // ShowMainWindow brings the main window into the foreground.
 func (a *App) ShowMainWindow() { wailsruntime.WindowShow(a.ctx) }

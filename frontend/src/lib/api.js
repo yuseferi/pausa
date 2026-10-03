@@ -3,10 +3,12 @@
 // each binding is a function that resolves once the runtime is ready.
 
 import {
+  CheckForUpdates,
   EndBreak,
   GetConfig,
   GetSnapshot,
   GetTips,
+  GetVersion,
   IsFirstLaunch,
   MarkFirstLaunchComplete,
   PauseBreaks,
@@ -57,6 +59,8 @@ export const api = {
   getSnapshot:      safe('getSnapshot', GetSnapshot),
   getTips:          safe('getTips', GetTips),
   isFirstLaunch:    safe('isFirstLaunch', IsFirstLaunch),
+  getVersion:       safe('getVersion', GetVersion),
+  checkForUpdates:  safe('checkForUpdates', CheckForUpdates),
 
   // Write
   saveConfig:               safe('saveConfig', SaveConfig),
