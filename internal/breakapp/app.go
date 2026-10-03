@@ -28,6 +28,7 @@ const (
 	tagShow      macos.MenuTag = 5
 	tagPrefs     macos.MenuTag = 6
 	tagQuit      macos.MenuTag = 7
+	tagReset     macos.MenuTag = 8
 )
 
 // App is the Wails-bound application object. It owns the scheduler,
@@ -262,6 +263,7 @@ func (a *App) setupStatusBar() {
 	sb.AddItem(tagPause, "Pause Breaks", a.sched.Pause)
 	sb.AddItem(tagResume, "Resume Breaks", a.sched.Resume)
 	sb.SetItemHidden(tagResume, true)
+	sb.AddItem(tagReset, "Reset Schedule", a.sched.Reset)
 	sb.AddSeparator()
 	sb.AddItem(tagShow, "Show Pausa", func() {
 		wailsruntime.WindowShow(a.ctx)

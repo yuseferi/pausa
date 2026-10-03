@@ -72,6 +72,13 @@ const statusLabel = computed(() => {
       <button v-else class="btn btn--soft" @click="api.pauseBreaks">
         Pause
       </button>
+      <button
+        class="btn btn--ghost actions__reset"
+        @click="api.resetBreaks"
+        title="Restart the break cycle from scratch"
+      >
+        Reset schedule
+      </button>
     </div>
 
     <StatsRow :stats="state.snapshot.stats" />
@@ -141,6 +148,9 @@ const statusLabel = computed(() => {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 10px;
+}
+.actions__reset {
+  grid-column: 1 / -1;
 }
 
 .busy-note {
