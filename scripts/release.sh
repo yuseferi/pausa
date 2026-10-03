@@ -54,7 +54,8 @@ build_and_zip() {
 
   echo
   echo "==> Building ${platform}"
-  wails build -platform "${platform}"
+  wails build -platform "${platform}" \
+    -ldflags "-X pausa/internal/version.Version=${VERSION}"
 
   local zip="dist/pausa-${VERSION}-${suffix}.zip"
   if [[ "${SIGN_NOTARIZE:-0}" == "1" ]]; then
