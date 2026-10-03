@@ -721,11 +721,12 @@ func (s *Scheduler) handleConfigChange(st *actorState) {
 // its own config flag.
 func (s *Scheduler) onBusyPoll(st *actorState) {
 	// Only poll the (relatively expensive) busy source when it can change
-	// something this tick: entry is possible, or an active auto-pause needs
-	// settling (including one whose signal clears outside working hours).
+	// something this tick: entry is possible, media-as-activity gating is
+	// on, or an active auto-pause needs settling (including one whose signal
+	// clears outside working hours).
 	var label string
 	var busy bool
-	if s.cfg.Idle.PauseWhenBusy || st.phase == PhaseAutoPaused {
+	if s.cfg.Idle.PauseWhenBusy || s.cfg.Idle.MediaCountsAsActivity || st.phase == PhaseAutoPaused {
 		label, busy = s.busy.BusyState()
 	}
 	slog.Debug("scheduler busy poll", "phase", st.phase, "busy", busy, "label", label)
@@ -743,9 +744,12 @@ func (s *Scheduler) onBusyPoll(st *actorState) {
 		case s.cfg.Idle.PauseWhenBusy && busy:
 			s.enterAutoPause(st, label)
 		case st.phase != PhaseOnBreak && s.cfg.Idle.PauseWhenIdle &&
-			s.idle.IdleFor() >= idleThreshold:
+			s.idle.IdleFor() >= idleThreshold &&
+			(!s.cfg.Idle.MediaCountsAsActivity || !busy):
 			// User walked away mid-countdown. Pause so away time isn't
-			// charged against the break timer.
+			// charged against the break timer. Active media playback counts
+			// as activity (watching, not away) when MediaCountsAsActivity
+			// is set, so movies and calls never trigger the Away pause.
 			s.enterIdlePause(st)
 		}
 	case PhaseAutoPaused:

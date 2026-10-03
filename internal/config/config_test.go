@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -196,5 +197,64 @@ func TestStoreConcurrentSetAndClose(t *testing.T) {
 		}
 	case <-time.After(time.Second):
 		t.Error("subscriber channel was not closed after Close")
+	}
+}
+
+func TestDefaultEnablesMediaCountsAsActivity(t *testing.T) {
+	if !Default().Idle.MediaCountsAsActivity {
+		t.Error("Default().Idle.MediaCountsAsActivity should be true")
+	}
+	if c := Default(); c.Validate() {
+		t.Fatal("Default() should already be valid")
+	}
+}
+
+// Config files written before mediaCountsAsActivity existed must migrate to
+// true (the fix); an explicitly saved false must be preserved.
+func TestStoreOpenMigratesMissingMediaCountsAsActivity(t *testing.T) {
+	legacy := Default()
+	legacy.Idle.MediaCountsAsActivity = false // value is irrelevant; key will be stripped
+	raw, err := json.Marshal(legacy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	idle, ok := doc["idle"].(map[string]any)
+	if !ok {
+		t.Fatal("expected idle object in marshalled config")
+	}
+	delete(idle, "mediaCountsAsActivity")
+	stripped, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	path := filepath.Join(t.TempDir(), "cfg.json")
+	if err := os.WriteFile(path, stripped, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !s.Get().Idle.MediaCountsAsActivity {
+		t.Error("legacy config without the key should migrate to true")
+	}
+
+	// Explicit false survives a round-trip.
+	c := s.Get()
+	c.Idle.MediaCountsAsActivity = false
+	if _, err := s.Set(c); err != nil {
+		t.Fatal(err)
+	}
+	s2, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s2.Get().Idle.MediaCountsAsActivity {
+		t.Error("explicitly saved false must be preserved, not re-migrated")
 	}
 }

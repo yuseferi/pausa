@@ -83,6 +83,13 @@ type IdleConfig struct {
 	// (YouTube, Meet, Netflix, etc.) is immediate and does not wait for the
 	// debounce window.
 	BusyMediaDebounce Duration `json:"busyMediaDebounce"`
+	// MediaCountsAsActivity means active media playback (meetings, videos,
+	// music) prevents the idle "Away" pause: lack of keyboard/mouse input
+	// while something is playing is treated as watching, not being away.
+	// Whether media pauses the countdown as *busy* is still controlled by
+	// PauseWhenBusy — with PauseWhenBusy off and this on, breaks keep
+	// counting down during movies.
+	MediaCountsAsActivity bool `json:"mediaCountsAsActivity"`
 }
 
 // GeneralConfig holds miscellaneous settings.
@@ -126,11 +133,12 @@ func Default() Config {
 			EndMinute:   17 * 60,
 		},
 		Idle: IdleConfig{
-			PauseWhenIdle:     true,
-			IdleThreshold:     Duration(2 * time.Minute),
-			NaturalBreaks:     true,
-			PauseWhenBusy:     true,
-			BusyMediaDebounce: Duration(15 * time.Second),
+			PauseWhenIdle:         true,
+			IdleThreshold:         Duration(2 * time.Minute),
+			NaturalBreaks:         true,
+			PauseWhenBusy:         true,
+			BusyMediaDebounce:     Duration(15 * time.Second),
+			MediaCountsAsActivity: true,
 		},
 		General: GeneralConfig{
 			StartAtLogin:   false,

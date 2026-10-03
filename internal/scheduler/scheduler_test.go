@@ -1069,3 +1069,64 @@ func TestIdleAwayWithMediaDoesNotCreditNatural(t *testing.T) {
 		t.Errorf("NaturalBreaks=%d, want 0", got)
 	}
 }
+
+// ---------- Media-counts-as-activity tests ----------
+
+// With PauseWhenBusy off and MediaCountsAsActivity on, media playback must
+// neither busy-pause nor idle-pause the countdown: a movie with no input
+// keeps the schedule running and the break fires normally.
+func TestMediaCountsAsActivityKeepsCountdownRunning(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.PauseWhenBusy = false
+	h.cfg.Idle.MediaCountsAsActivity = true
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 3 * time.Minute // no input for 3m...
+	h.busy.set(true, "media playing")
+	h.clearEvents()
+	h.advance(BusyPollInterval + time.Second)
+
+	if h.hasKind(EventAutoPaused) {
+		t.Fatalf("idle-paused despite media playing: %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().Phase; got != PhaseScheduled {
+		t.Fatalf("phase=%s, want scheduled (countdown keeps running)", got)
+	}
+
+	// Let the break interval elapse: the break must start, not be credited
+	// as natural and not be paused.
+	h.clearEvents()
+	h.advance(10 * time.Second)
+	if h.hasKind(EventAutoPaused) {
+		t.Errorf("auto-paused during media: %v", h.kinds())
+	}
+	if h.hasKind(EventNatural) {
+		t.Errorf("EventNatural credited despite media playing: %v", h.kinds())
+	}
+	if !h.hasKind(EventBreakStart) {
+		t.Errorf("expected EventBreakStart during media in %v", h.kinds())
+	}
+}
+
+// Opting out of MediaCountsAsActivity preserves the legacy behavior: media
+// with no input still idle-pauses as "away" when busy-pausing is off.
+func TestMediaCountsAsActivityOffPreservesIdlePause(t *testing.T) {
+	h := newHarness(t)
+	h.cfg.Idle.PauseWhenBusy = false
+	h.cfg.Idle.MediaCountsAsActivity = false
+	h.cfgCh <- h.cfg
+	h.drain()
+
+	h.idle.d = 3 * time.Minute
+	h.busy.set(true, "media playing")
+	h.clearEvents()
+	h.advance(BusyPollInterval + time.Second)
+
+	if !h.hasKind(EventAutoPaused) {
+		t.Fatalf("expected EventAutoPaused (legacy away pause) in %v", h.kinds())
+	}
+	if got := h.sched.Snapshot().AutoPauseReason; got != "away" {
+		t.Errorf("reason=%q, want away", got)
+	}
+}

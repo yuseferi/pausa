@@ -43,6 +43,15 @@ func Open(path string) (*Store, error) {
 		// Corrupted file - keep defaults but report.
 		return s, fmt.Errorf("parse config (using defaults): %w", jerr)
 	}
+	// Migration: MediaCountsAsActivity was added after 1.0.4 with a default
+	// of true. Config files written before it existed decode the missing key
+	// as false, which would silently keep the old "movies count as idle"
+	// behavior. Detect the missing key and opt existing users into the fix;
+	// an explicitly saved false is preserved. The migrated value persists
+	// on the next Set.
+	if !hasJSONKey(data, "idle", "mediaCountsAsActivity") {
+		loaded.Idle.MediaCountsAsActivity = true
+	}
 	loaded.Validate()
 	s.cfg = loaded
 	s.exists = true
@@ -121,6 +130,26 @@ func (s *Store) Close() {
 		close(ch)
 	}
 	s.subscribers = nil
+}
+
+// hasJSONKey reports whether the nested object data[obj][key] is present in
+// a raw JSON document. Used for migrating newly added keys: a missing key
+// means "written by an older version", as opposed to an explicit zero value.
+func hasJSONKey(data []byte, obj, key string) bool {
+	var top map[string]json.RawMessage
+	if err := json.Unmarshal(data, &top); err != nil {
+		return false
+	}
+	raw, ok := top[obj]
+	if !ok {
+		return false
+	}
+	var inner map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &inner); err != nil {
+		return false
+	}
+	_, ok = inner[key]
+	return ok
 }
 
 func (s *Store) writeAtomic(c Config) error {

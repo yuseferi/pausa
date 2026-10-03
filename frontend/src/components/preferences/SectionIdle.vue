@@ -62,5 +62,16 @@ const mediaDebounceSec = computed({
       </span>
       <input class="field__input" type="number" min="0" max="300" v-model.number="mediaDebounceSec" />
     </label>
+
+    <label v-if="model.pauseWhenIdle" class="field">
+      <span class="field__label">
+        Media counts as activity
+        <small class="field__hint">While meetings, videos, or music are playing, lack of keyboard/mouse input never triggers the "Away" pause. Whether media pauses the countdown as busy is still set by "Pause during meetings &amp; videos" above — turn that off to let breaks count down during movies.</small>
+      </span>
+      <span class="toggle">
+        <input type="checkbox" v-model="model.mediaCountsAsActivity" />
+        <span class="toggle__slider" />
+      </span>
+    </label>
   </section>
 </template>
