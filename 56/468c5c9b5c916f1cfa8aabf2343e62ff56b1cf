@@ -1,0 +1,23 @@
+internal/version/version.go
+  s_8adbb88475ff81::t_37085c94502489 1-4,8
+.github/workflows/release.yml
+  s_8adbb88475ff81::t_2be861a21de850 120-121
+scripts/release.sh
+  s_8adbb88475ff81::t_ed3b21511f500a 57-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "56468c5c9b5c916f1cfa8aabf2343e62ff56b1cf",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
