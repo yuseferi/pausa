@@ -245,3 +245,29 @@ jobs:
           git add Casks/pausa.rb
           git commit -m "chore(cask): update Pausa cask for ${{ steps.version.outputs.version }} [skip ci]"
           git push origin HEAD:main
+
+      # The canonical cask lives here; the public tap (yuseferi/homebrew-pausa)
+      # is a mirror so `brew install --cask yuseferi/pausa/pausa` resolves.
+      - name: Mirror cask to the Homebrew tap repository
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::warning::TAP_GITHUB_TOKEN is not set; skipping the homebrew-pausa mirror."
+            exit 0
+          fi
+          TAP_DIR="$(mktemp -d)"
+          git clone --depth 1 \
+            "https://x-access-token:${TAP_TOKEN}@github.com/yuseferi/homebrew-pausa.git" \
+            "$TAP_DIR"
+          cp Casks/pausa.rb "$TAP_DIR/Casks/pausa.rb"
+          cd "$TAP_DIR"
+          if git diff --quiet -- Casks/pausa.rb; then
+            echo "Tap already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/pausa.rb
+          git commit -m "pausa ${{ steps.version.outputs.version }}"
+          git push
