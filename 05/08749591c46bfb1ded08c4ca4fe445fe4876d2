@@ -1,0 +1,24 @@
+.github/workflows/release.yml
+  s_8adbb88475ff81::t_b821751f7035cf 248-273
+site/index.html
+  s_8adbb88475ff81::t_5c8a364252dfc8 40,45
+  s_8adbb88475ff81::t_9bbd64d28997a6 195-196
+README.md
+  s_8adbb88475ff81::t_345b7df02b134c 43,46-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "0508749591c46bfb1ded08c4ca4fe445fe4876d2",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
