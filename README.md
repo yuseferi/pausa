@@ -40,14 +40,12 @@
 Homebrew is the recommended path:
 
 ```bash
-brew tap yuseferi/pausa https://github.com/yuseferi/pausa
-brew trust yuseferi/pausa   # recent Homebrew requires trusting third-party taps
-brew install --cask pausa
+brew install --cask yuseferi/pausa/pausa
 ```
 
-> The tap uses an explicit URL because the cask lives in this repository (not a
-> `homebrew-pausa` repo), so `brew install --cask yuseferi/pausa/pausa` on its
-> own will not resolve.
+This automatically taps
+[`yuseferi/homebrew-pausa`](https://github.com/yuseferi/homebrew-pausa) and
+installs the latest release.
 
 Already tapped?
 
