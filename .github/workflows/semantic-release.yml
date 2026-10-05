@@ -40,10 +40,35 @@ jobs:
           git fetch --tags --force
           echo "before=$(git tag --sort=-version:refname | head -1)" >> "$GITHUB_OUTPUT"
 
+      # semantic-release v24 pushes a git-notes ref *before* it publishes the
+      # GitHub release. A transient server error there (or any late failure)
+      # leaves a tag with no release and no assets. Recover by publishing the
+      # release ourselves from the tag + CHANGELOG, then let the dispatch step
+      # below kick off the asset build.
       - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if npx semantic-release; then
+            exit 0
+          fi
+
+          echo "::warning::semantic-release failed; checking for a recoverable release"
+          git fetch --tags --force
+          NEW_TAG="$(git tag --sort=-version:refname | head -1)"
+          if [ -z "$NEW_TAG" ]; then
+            echo "No tags found; cannot recover."; exit 1
+          fi
+          if gh release view "$NEW_TAG" >/dev/null 2>&1; then
+            echo "Release $NEW_TAG already exists; the failure is not releasable here."; exit 1
+          fi
+
+          VERSION="${NEW_TAG#v}"
+          NOTES="$(sed -n "/^## \[${VERSION}\]/,/^## \[/p" CHANGELOG.md | sed '$d')"
+          [ -n "$NOTES" ] || NOTES="Release ${NEW_TAG}"
+          echo "Publishing recovered release ${NEW_TAG}"
+          gh release create "$NEW_TAG" --title "$NEW_TAG" --notes "$NOTES"
 
       # semantic-release publishes with GITHUB_TOKEN, and events it creates do
       # not trigger other workflows — so `release: published` never fired the
