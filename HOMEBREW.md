@@ -1,112 +1,103 @@
 # Homebrew Distribution
 
-## Current state
+## Install
 
-Pausa is already installable via a repo tap:
+```bash
+brew install --cask yuseferi/pausa/pausa
+```
+
+This auto-taps the public companion tap
+[`yuseferi/homebrew-pausa`](https://github.com/yuseferi/homebrew-pausa) and
+installs the latest release. Verified on Homebrew 7.x with
+`brew install --cask --dry-run`: the fully-qualified name resolves and installs
+without a separate `brew trust` step.
+
+### Explicit-tap fallback
+
+If the one-liner is unavailable (offline, older Homebrew, or you prefer the tap
+from this repo):
 
 ```bash
 brew tap yuseferi/pausa https://github.com/yuseferi/pausa
+brew trust yuseferi/pausa   # Homebrew 6+ requires trusting third-party taps
 brew install --cask pausa
 ```
 
-That is the **current working path**.
+Both cask copies select the correct asset with `on_arm` / `on_intel`, so the
+install works on Apple Silicon (`arm64`) and Intel (`amd64`).
 
-Pausa now ships both:
-- Apple Silicon (`arm64`)
-- Intel (`amd64`)
+---
 
-so the repo-tap cask works on both modern Mac architectures.
+## How the tap mirror works
 
-For local release prep, you can use:
+Homebrew maps a fully-qualified `user/tap/name` to `github.com/user/homebrew-tap`
+for auto-tapping. The app source lives in `yuseferi/pausa`, so a small companion
+tap exists to satisfy that name.
+
+- **Source of truth:** [`Casks/pausa.rb`](Casks/pausa.rb) in this repository.
+- **Mirror:** `yuseferi/homebrew-pausa` (public) — only `Casks/pausa.rb` + a
+  README. Do not edit it by hand; changes are overwritten.
+- On each release, the `update-cask` job in
+  [`.github/workflows/release.yml`](.github/workflows/release.yml):
+  1. rewrites `Casks/pausa.rb` with the new version and SHA256s,
+  2. commits it here,
+  3. mirrors it to `yuseferi/homebrew-pausa`.
+
+### Required secret: `TAP_GITHUB_TOKEN`
+
+The mirror push needs a token that can write to the tap repository (the
+workflow's `GITHUB_TOKEN` is scoped to this repo only).
+
+1. Create a **fine-grained PAT** with **Contents: Read and write**, scoped to
+   only `yuseferi/homebrew-pausa`.
+2. Add it as a repository secret named **`TAP_GITHUB_TOKEN`**
+   (Settings → Secrets and variables → Actions).
+
+If the secret is absent, the mirror step prints
+`::warning::TAP_GITHUB_TOKEN is not set; skipping the homebrew-pausa mirror.`
+and the release still succeeds — the tap just stays at its last version.
+
+---
+
+## Release flow
+
+1. **semantic-release** runs on every push to `main`. Conventional commits
+   determine the next version; it creates the tag and GitHub release.
+2. Because semantic-release publishes with `GITHUB_TOKEN`, and
+   `GITHUB_TOKEN`-created events do not trigger other workflows, the
+   `release: published` event never fires the build. The **Semantic Release
+   workflow explicitly dispatches** `Build Release Assets` for the new tag
+   (`workflow_dispatch` is exempt from that restriction). See
+   `.github/workflows/semantic-release.yml`.
+3. **Build Release Assets** (`release.yml`) builds the dual-arch zips, uploads
+   them to the release, rewrites `Casks/pausa.rb`, and mirrors the tap.
+
+Signing and notarization run when the Apple secrets are configured; otherwise
+the workflow falls back to an unsigned build. See
+[`NOTARIZATION.md`](NOTARIZATION.md).
+
+---
+
+## Local release prep
 
 ```bash
 scripts/release.sh 1.0.2
-```
-
-or:
-
-```bash
+# or
 make release VERSION=1.0.2
 ```
 
-This now builds both zip assets and automatically rewrites `Casks/pausa.rb`
-with the new version and SHA256 values.
+This builds both zip assets and rewrites `Casks/pausa.rb`. Local runs do **not**
+mirror the tap — use the CI release flow, or update
+`yuseferi/homebrew-pausa` manually, when you need the tap to move.
 
-The repo also uses **semantic-release** on `main`:
-- conventional commits determine the next version
-- semantic-release creates the tag and GitHub release
-- the release workflow reacts to the published release and uploads the dual-arch app zips
-
----
-
-## Goal: one-line install
-
-To make this work:
-
-```bash
-brew install --cask pausa
-```
-
-the cask must be merged into **Homebrew/homebrew-cask**.
-
----
-
-## Current blockers to upstream inclusion
-
-### 1. App bundle is unsigned
-
-At the moment:
-
-```bash
-codesign -dv --verbose=4 build/bin/pausa.app
-```
-
-reports that the app is **not signed**.
-
-For an official Homebrew cask, signing is strongly preferred and in practice
-often expected for a GUI app distributed as a `.app` bundle.
-
-Recommended fix:
-- Developer ID Application signing
-- notarization with Apple
-- staple the ticket to the final `.app`
-
-### 2. Release is dual-arch, but still unsigned
-
-The release workflow now publishes both:
-
-```text
-pausa-<version>-arm64-macos.zip
-pausa-<version>-amd64-macos.zip
-```
-
-and the cask selects the correct asset with `on_arm` / `on_intel`.
-
-This removes the architecture blocker for official inclusion.
-
-The main remaining blocker is still signing/notarization.
-
-### 3. Ongoing cask maintenance
-
-For each release, the cask must be updated with:
-- new `version`
-- new `sha256`
-- release asset URL (if naming changes)
-
-The current workflow automates building and uploading the release asset, but
-does **not** yet auto-open a PR against `homebrew-cask`.
+To sign/notarize a local build, set the env vars from `NOTARIZATION.md` and run
+`SIGN_NOTARIZE=1 scripts/release.sh <version>`.
 
 ---
 
 ## Current cask file
 
-The repo contains a cask candidate at:
-
-```text
-Casks/pausa.rb
-```
-
-It is intentionally shaped close to the Homebrew style already:
+`Casks/pausa.rb` is kept close to Homebrew style:
 - lower-case token
 - `name`, `desc`, `homepage`
 - `on_arm` / `on_intel` architecture-specific assets
@@ -115,58 +106,17 @@ It is intentionally shaped close to the Homebrew style already:
 
 ---
 
-## Suggested path to official inclusion
+## Future: official Homebrew cask
 
-1. Sign and notarize the app
-2. Produce either:
-   - dual-arch releases, or
-   - a universal build
-3. Keep release assets stable and predictable
-4. Copy `Casks/pausa.rb` into a branch of `Homebrew/homebrew-cask`
-5. Run Homebrew audit from that repo
-6. Open PR to `Homebrew/homebrew-cask`
+Landing in `Homebrew/homebrew-cask` would remove the need for a tap entirely
+(`brew install --cask pausa`). The remaining requirement in practice is a
+signed and notarized app bundle — the plumbing now exists in `release.yml`
+(see `NOTARIZATION.md`).
 
----
+Suggested path:
 
-## Example upstream cask PR draft
-
-Title:
-
-```text
-Add pausa
-```
-
-Body:
-
-```text
-## Description
-
-Adds Pausa, a native-feeling macOS break reminder for developers and
-knowledge workers.
-
-## App details
-
-- homepage: https://github.com/yuseferi/pausa
-- download: GitHub Releases
-- package: signed / notarized .app bundle zip
-
-## Notes
-
-- overlays support fullscreen-app Spaces
-- menu-bar app with native notifications
-- busy-aware auto-pause for meetings and media
-```
-
----
-
-## If you only want the user-facing one-liner
-
-The **only** durable way to get:
-
-```bash
-brew install --cask pausa
-```
-
-is to land in the official Homebrew cask repo.
-
-Until then, the repo-tap install remains the realistic path.
+1. Sign and notarize the app (configure the Apple secrets, cut a release).
+2. Keep release assets stable and predictable (already dual-arch).
+3. Copy `Casks/pausa.rb` into a branch of `Homebrew/homebrew-cask`.
+4. Run `brew audit --cask pausa` from that repo.
+5. Open a PR to `Homebrew/homebrew-cask`.
