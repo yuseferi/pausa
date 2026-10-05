@@ -1,0 +1,19 @@
+.github/workflows/semantic-release.yml
+  s_8adbb88475ff81::t_2e55d8aa46df64 13-14,37-42,47-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "3898e1ccc2fc3be8462543b92a35e3a0706ccee8",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
