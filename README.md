@@ -123,7 +123,6 @@ Pausa automatically pauses the countdown while you're busy, so meeting time is n
 
 - Microphone activity (meetings, calls, huddles)
 - System media playback (Now Playing)
-- Sustained audio output for apps that don't publish media state
 - Frontmost browser video and meeting pages, including muted YouTube and Google Meet
 
 The timer resumes automatically when you're free again. See [Busy Detection in Detail](#busy-detection-in-detail).
@@ -170,7 +169,6 @@ Pausa uses multiple signals to automatically pause the break timer while you're 
 |---|---|
 | **Microphone active** | Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation |
 | **Now Playing** | Apps and browsers that publish system media state |
-| **Audio output activity** | Fallback for apps that don't publish Now Playing (debounced to ignore short sounds) |
 | **Browser tab URL heuristic** | Muted frontmost video/meeting pages (YouTube, Google Meet, Netflix, Vimeo, Twitch, Disney+, Hulu, Prime Video, Loom) |
 
 **Supported browsers:** Chrome, Arc, Safari, Brave
@@ -206,7 +204,7 @@ All settings are editable through the Preferences UI. Key options include:
 | **Notifications** | Pre-break warnings, timing, action buttons |
 | **Display** | Theme, fullscreen overlays, all-monitors mode, exercise tips, breathing guide, accent color |
 | **Working Hours** | Enable/disable, weekday selection, start and end times |
-| **Idle & Busy** | Pause when idle, idle threshold, natural breaks, meeting/video detection, media debounce |
+| **Idle & Busy** | Pause when idle, idle threshold, natural breaks, meeting/video detection, media counts as activity |
 
 ---
 

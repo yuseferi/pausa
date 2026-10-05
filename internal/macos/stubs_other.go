@@ -65,10 +65,9 @@ func (s BusyState) String() string      { return "" }
 
 type BusySource struct{}
 
-func (BusySource) BusyState() (string, bool)                { return "", false }
-func NewBusySource(mediaDebounce time.Duration) *BusySource { return &BusySource{} }
-func (b *BusySource) SetMediaDebounce(d time.Duration)      {}
-func (b *BusySource) Close()                                {}
+func (BusySource) BusyState() (string, bool) { return "", false }
+func NewBusySource() *BusySource             { return &BusySource{} }
+func (b *BusySource) Close()                 {}
 
 type OverlayAction int
 

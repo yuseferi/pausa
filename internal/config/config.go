@@ -77,12 +77,6 @@ type IdleConfig struct {
 	// automatically when those signals clear. Catches Zoom/Meet/Teams
 	// calls, YouTube/Netflix playback, etc.
 	PauseWhenBusy bool `json:"pauseWhenBusy"`
-	// BusyMediaDebounce is how long sustained audio output must continue
-	// before Pausa treats it as real media playback. This avoids false
-	// positives from short notification sounds. Browser/video URL detection
-	// (YouTube, Meet, Netflix, etc.) is immediate and does not wait for the
-	// debounce window.
-	BusyMediaDebounce Duration `json:"busyMediaDebounce"`
 	// MediaCountsAsActivity means active media playback (meetings, videos,
 	// music) prevents the idle "Away" pause: lack of keyboard/mouse input
 	// while something is playing is treated as watching, not being away.
@@ -137,7 +131,6 @@ func Default() Config {
 			IdleThreshold:         Duration(2 * time.Minute),
 			NaturalBreaks:         true,
 			PauseWhenBusy:         true,
-			BusyMediaDebounce:     Duration(15 * time.Second),
 			MediaCountsAsActivity: true,
 		},
 		General: GeneralConfig{
@@ -212,7 +205,6 @@ func (c *Config) Validate() bool {
 
 	// Idle
 	clampDur(&c.Idle.IdleThreshold, 30*time.Second, time.Hour, time.Duration(d.Idle.IdleThreshold))
-	clampDur(&c.Idle.BusyMediaDebounce, 0, 5*time.Minute, time.Duration(d.Idle.BusyMediaDebounce))
 
 	return changed
 }

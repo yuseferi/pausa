@@ -8,11 +8,6 @@ const thresholdSec = computed({
   get: () => toSeconds(model.value.idleThreshold),
   set: (v) => { model.value.idleThreshold = fromSeconds(v) },
 })
-
-const mediaDebounceSec = computed({
-  get: () => toSeconds(model.value.busyMediaDebounce),
-  set: (v) => { model.value.busyMediaDebounce = fromSeconds(v) },
-})
 </script>
 
 <template>
@@ -53,14 +48,6 @@ const mediaDebounceSec = computed({
         <input type="checkbox" v-model="model.pauseWhenBusy" />
         <span class="toggle__slider" />
       </span>
-    </label>
-
-    <label v-if="model.pauseWhenBusy" class="field">
-      <span class="field__label">
-        Media debounce (seconds)
-        <small class="field__hint">How long audio output must continue before counting as media. Browser video pages are immediate; this only affects the audio-output fallback.</small>
-      </span>
-      <input class="field__input" type="number" min="0" max="300" v-model.number="mediaDebounceSec" />
     </label>
 
     <label v-if="model.pauseWhenIdle" class="field">

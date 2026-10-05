@@ -139,9 +139,6 @@ func (a *App) SaveConfig(c config.Config) (config.Config, error) {
 		slog.Error("save config", "err", err)
 		return saved, err
 	}
-	if a.busy != nil {
-		a.busy.SetMediaDebounce(saved.Idle.BusyMediaDebounce.AsDuration())
-	}
 	if saved.General.StartAtLogin != prev.General.StartAtLogin {
 		if ok := macos.SetLoginItemEnabled(saved.General.StartAtLogin); !ok {
 			slog.Warn("login item change failed", "enabled", saved.General.StartAtLogin)
