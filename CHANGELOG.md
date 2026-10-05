@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/yuseferi/pausa/compare/v1.4.0...v1.4.1) (2026-10-05)
+
+### Bug Fixes
+
+* stop reporting "media playing" when only the output device is held open ([#21](https://github.com/yuseferi/pausa/issues/21)) ([f948c7b](https://github.com/yuseferi/pausa/commit/f948c7b061e5538514cbe23d5bd3fdec0aeadd46))
+
 ## [1.4.0](https://github.com/yuseferi/pausa/compare/v1.3.1...v1.4.0) (2026-10-05)
 
 ### Features
