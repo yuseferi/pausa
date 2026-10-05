@@ -1,0 +1,20 @@
+site/index.html
+  s_8adbb88475ff81::t_6e5706d41bc1d3 39-40,45
+  s_8adbb88475ff81::t_11a2a4a12cefb9 195-196
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "9b38d7c549a40f9f8d981caa9809f30b777f2f7c",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
