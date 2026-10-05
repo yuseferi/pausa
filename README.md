@@ -57,14 +57,16 @@ Prefer a direct download? Grab the latest `.zip` — Apple silicon and Intel bui
 
 **<https://github.com/yuseferi/pausa/releases/latest>**
 
-> **First launch:** Pausa is not notarized yet, so macOS may show a Gatekeeper warning. Right-click the app → **Open**, or clear the quarantine flag:
+> **First launch (unsigned build):** Pausa isn't notarized yet, so macOS
+> blocks the first launch. Clear the quarantine flag once:
 >
 > ```bash
 > xattr -dr com.apple.quarantine /Applications/pausa.app
-> open /Applications/pausa.app
 > ```
 >
-> Notarized builds need a paid Apple Developer account — it's on the roadmap.
+> Or right-click the app in Finder → **Open**. (Recent Homebrew no longer offers
+> `--no-quarantine`.) Notarized builds need a paid Apple Developer account — see
+> [`NOTARIZATION.md`](NOTARIZATION.md).
 
 That's it. Pausa lives in your menu bar and quietly keeps you on a healthy break rhythm.
 

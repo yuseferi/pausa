@@ -178,7 +178,10 @@
     </details>
     <details class="faq">
       <summary>Why does macOS warn me on first launch?</summary>
-      <p>Pausa isn’t notarized yet. Right-click the app → <strong>Open</strong>, or run <code>xattr -dr com.apple.quarantine /Applications/pausa.app</code>. Notarization is on the roadmap.</p>
+      <p>Pausa isn’t notarized yet, so macOS blocks the first launch. Run
+      <code>xattr -dr com.apple.quarantine /Applications/pausa.app</code>, or
+      right-click the app in Finder → <strong>Open</strong>. Notarization needs a paid
+      Apple Developer account and is on the roadmap.</p>
     </details>
     <details class="faq">
       <summary>Does it work with fullscreen apps?</summary>
@@ -195,6 +198,16 @@
       <code class="install__cmd">brew install --cask yuseferi/pausa/pausa</code>
       <button class="btn btn--primary" data-copy="brew install --cask yuseferi/pausa/pausa" type="button">Copy</button>
     </div>
+
+    <p class="section__lead">
+      Pausa isn’t notarized yet, so macOS blocks the first launch. Run this once after
+      installing (or right-click the app in Finder → <strong>Open</strong>):
+    </p>
+    <div class="install">
+      <code class="install__cmd">xattr -dr com.apple.quarantine /Applications/pausa.app</code>
+      <button class="btn btn--ghost" data-copy="xattr -dr com.apple.quarantine /Applications/pausa.app" type="button">Copy</button>
+    </div>
+
     <p class="section__lead">
       <a class="btn btn--ghost" href="https://github.com/yuseferi/pausa/releases/latest">Download the latest .zip</a>
       <a class="btn btn--ghost" href="https://github.com/yuseferi/pausa">View source on GitHub</a>
