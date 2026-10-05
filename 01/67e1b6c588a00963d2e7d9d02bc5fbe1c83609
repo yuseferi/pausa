@@ -1,0 +1,24 @@
+README.md
+  s_8adbb88475ff81::t_fb52529c576a27 60-61,67-69
+site/index.html
+  s_8adbb88475ff81::t_b6e497aa559e80 181-184
+  s_8adbb88475ff81::t_402425c17f125b 201-210
+HOMEBREW.md
+  s_8adbb88475ff81::t_11f7bf9e362788 29-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "0167e1b6c588a00963d2e7d9d02bc5fbe1c83609",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
