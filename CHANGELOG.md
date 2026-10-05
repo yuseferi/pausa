@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/yuseferi/pausa/compare/v1.3.0...v1.3.1) (2026-10-05)
+
+### Bug Fixes
+
+* **site:** use the explicit tap URL in Homebrew install commands ([#13](https://github.com/yuseferi/pausa/issues/13)) ([fe4af18](https://github.com/yuseferi/pausa/commit/fe4af18e884ca990c75dafece4fbfa78afe86245))
+
 ## [1.3.0](https://github.com/yuseferi/pausa/compare/v1.2.0...v1.3.0) (2026-10-03)
 
 ### Features
