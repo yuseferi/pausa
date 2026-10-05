@@ -10,6 +10,8 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  # Required so this workflow can dispatch "Build Release Assets" below.
+  actions: write
 
 jobs:
   release:
@@ -32,7 +34,31 @@ jobs:
       - name: Install release dependencies
         run: npm ci
 
+      - name: Record current tags
+        id: tags
+        run: |
+          git fetch --tags --force
+          echo "before=$(git tag --sort=-version:refname | head -1)" >> "$GITHUB_OUTPUT"
+
       - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
+      # semantic-release publishes with GITHUB_TOKEN, and events it creates do
+      # not trigger other workflows — so `release: published` never fired the
+      # Build Release Assets workflow. workflow_dispatch is explicitly exempt
+      # from that restriction, so dispatch it ourselves for the new tag.
+      - name: Build release assets for the new tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch --tags --force
+          NEW_TAG="$(git tag --sort=-version:refname | head -1)"
+          BEFORE="${{ steps.tags.outputs.before }}"
+          if [ -z "$NEW_TAG" ] || [ "$NEW_TAG" = "$BEFORE" ]; then
+            echo "No new release was created; skipping asset build."
+            exit 0
+          fi
+          echo "New release ${NEW_TAG} — dispatching Build Release Assets"
+          gh workflow run release.yml --ref main -f version="${NEW_TAG#v}"
