@@ -1,0 +1,31 @@
+site/index.html
+  s_8adbb88475ff81::t_4883303859c0aa 104
+internal/macos/stubs_other.go
+  s_8adbb88475ff81::t_df05bde9686406 68-70
+main.go
+  s_8adbb88475ff81::t_f6a25972f31c26 48
+ARCHITECTURE.md
+  s_8adbb88475ff81::t_b70f72c9014192 174-178
+README.md
+  s_8adbb88475ff81::t_2cdd07f2d5deb6 207
+internal/macos/busy_darwin.go
+  s_8adbb88475ff81::t_5d718d42a48d40 190
+  s_8adbb88475ff81::t_560fca6f7ca3c1 59,61-65,97
+  s_8adbb88475ff81::t_67e4440c2cc1c2 163,182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "2924671b0599898e04002ab173b36bd6c3c2196a",
+  "prompts": {},
+  "sessions": {
+    "s_8adbb88475ff81": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f04244abaffeum3Vp2JwrtMYx3",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
