@@ -41,8 +41,13 @@ Homebrew is the recommended path:
 
 ```bash
 brew tap yuseferi/pausa https://github.com/yuseferi/pausa
+brew trust yuseferi/pausa   # recent Homebrew requires trusting third-party taps
 brew install --cask pausa
 ```
+
+> The tap uses an explicit URL because the cask lives in this repository (not a
+> `homebrew-pausa` repo), so `brew install --cask yuseferi/pausa/pausa` on its
+> own will not resolve.
 
 Already tapped?
 
