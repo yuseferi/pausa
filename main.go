@@ -45,7 +45,7 @@ func main() {
 
 	cfgSub := cfgStore.Subscribe()
 	catalog := tips.NewCatalog()
-	busySrc := macos.NewBusySource(cfgStore.Get().Idle.BusyMediaDebounce.AsDuration())
+	busySrc := macos.NewBusySource()
 	sched := scheduler.New(
 		clock.New(),
 		cfgStore.Get(),

@@ -171,11 +171,11 @@ a paused state.
   `activateWithOptions:NSApplicationActivateIgnoringOtherApps`.
 - **Idle**: `CGEventSourceSecondsSinceLastEventType` (no polling required;
   IOKit caches it).
-- **Busy detection**: microphone (`CoreAudio`), Now Playing (MediaRemote),
-  output-device activity, and — only when a supported browser is frontmost —
-  a 500 ms-timeout `osascript` URL lookup. A background sampler goroutine
-  refreshes a cached reading every 2 s; `BusyState()` is a cheap getter so the
-  scheduler actor never blocks on IOKit or `osascript`.
+- **Busy detection**: microphone (`CoreAudio`) and Now Playing (MediaRemote),
+  plus — only when a supported browser is frontmost — a 500 ms-timeout
+  `osascript` URL lookup. A background sampler goroutine refreshes a cached
+  reading every 2 s; `BusyState()` is a cheap getter so the scheduler actor
+  never blocks on IOKit or `osascript`.
 - **Multi-monitor overlays**: borderless `NSWindow` per non-primary
   `NSScreen` with a CAGradient background. The Wails main window handles the
   primary screen; overlays handle the rest.

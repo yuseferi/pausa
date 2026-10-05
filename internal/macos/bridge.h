@@ -114,7 +114,6 @@ int pausa_busy_now_playing_active(void);
 // not publish to the macOS Now Playing API. On its own this can be noisy
 // (notification sounds, etc.), so the Go side debounces it before treating
 // it as a true busy/media signal.
-int pausa_busy_output_active(void);
 
 // Windows --------------------------------------------------------------------
 

@@ -56,18 +56,15 @@ func (s BusyState) String() string {
 // signals:
 //  1. microphone in use (strong meeting/call signal)
 //  2. system Now Playing API (when browsers/apps publish there)
-//  3. sustained output-device activity (fallback for apps that don't)
-//  4. frontmost-browser URL heuristic (muted YouTube/Meet/Netflix tabs)
+//  3. frontmost-browser URL heuristic (muted YouTube/Meet/Netflix tabs)
 //
-// The output-device activity is debounced to avoid short notification sounds
-// from auto-pausing the schedule.
+// Output-device activity (kAudioDevicePropertyDeviceIsRunningSomewhere) is
+// deliberately NOT used: it reports whether any process holds the output
+// device open, which apps like Spotube keep doing while idle, so it produced
+// false "media playing" readings. The Now Playing API reflects actual
+// playback and is the reliable signal.
 type BusySource struct {
 	mu sync.Mutex
-	// outputActiveSince is non-zero while the output-device active signal has
-	// been continuously true. Once it has been true for >= mediaDebounce, we
-	// treat it as real media playback.
-	outputActiveSince time.Time
-	mediaDebounce     time.Duration
 
 	// cached reading served to BusyState(). Updated by the sampler
 	// goroutine so the expensive native/AppleScript detection never runs on
@@ -79,7 +76,6 @@ type BusySource struct {
 	havePrev    bool
 	prevMic     bool
 	prevNowPlay bool
-	prevOutput  bool
 	prevBrowser bool
 	prevReason  string
 	prevSince   time.Time
@@ -91,9 +87,6 @@ type BusySource struct {
 	done      chan struct{}
 }
 
-// DefaultMediaDebounce is the output-audio fallback debounce window.
-const DefaultMediaDebounce = 15 * time.Second
-
 // busySampleInterval is how often the background sampler refreshes the
 // cached reading. It is shorter than the scheduler's BusyPollInterval so a
 // poll never sees a reading older than one poll interval.
@@ -101,9 +94,8 @@ const busySampleInterval = 2 * time.Second
 
 // NewBusySource returns a configured BusySource and starts its background
 // sampler. Call Close to stop the sampler.
-func NewBusySource(mediaDebounce time.Duration) *BusySource {
+func NewBusySource() *BusySource {
 	bs := &BusySource{}
-	bs.SetMediaDebounce(mediaDebounce)
 	bs.start()
 	return bs
 }
@@ -146,18 +138,6 @@ func (b *BusySource) Close() {
 	})
 }
 
-// SetMediaDebounce updates the audio-output debounce duration. The browser
-// URL heuristic and the Now Playing signal remain immediate; only the raw
-// output-device fallback is delayed by this amount.
-func (b *BusySource) SetMediaDebounce(d time.Duration) {
-	if d < 0 {
-		d = 0
-	}
-	b.mu.Lock()
-	b.mediaDebounce = d
-	b.mu.Unlock()
-}
-
 // BusyState returns the most recent sampled busy label and whether the user
 // is busy. It is a cheap, non-blocking read: the expensive native and
 // AppleScript detection happens on the sampler goroutine, so the scheduler
@@ -173,7 +153,6 @@ func (b *BusySource) sample() {
 	// Native detectors.
 	mic := C.pausa_busy_microphone_active() != 0
 	nowPlaying := C.pausa_busy_now_playing_active() != 0
-	rawOutput := C.pausa_busy_output_active() != 0
 
 	// Browser heuristic: catches muted YouTube / Meet tabs when the browser is
 	// the frontmost app. This is intentionally conservative — we don't inspect
@@ -181,7 +160,7 @@ func (b *BusySource) sample() {
 	browserMedia, browserURL := frontmostBrowserMediaCandidate()
 	browserHost := hostOnly(browserURL)
 
-	media := nowPlaying || b.debouncedOutputActive(rawOutput) || browserMedia
+	media := nowPlaying || browserMedia
 
 	var state BusyState
 	if mic {
@@ -196,12 +175,11 @@ func (b *BusySource) sample() {
 	slog.Debug("busy poll",
 		"mic", mic,
 		"nowPlaying", nowPlaying,
-		"output", rawOutput,
 		"browserMedia", browserMedia,
 		"browserHost", browserHost,
 		"combined", reason)
 
-	b.logChange(mic, nowPlaying, rawOutput, browserMedia, reason, browserHost)
+	b.logChange(mic, nowPlaying, browserMedia, reason, browserHost)
 
 	b.mu.Lock()
 	b.cachedLabel = reason
@@ -209,29 +187,12 @@ func (b *BusySource) sample() {
 	b.mu.Unlock()
 }
 
-func (b *BusySource) debouncedOutputActive(rawOutput bool) bool {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	if rawOutput {
-		if b.outputActiveSince.IsZero() {
-			b.outputActiveSince = time.Now()
-		}
-		if b.mediaDebounce == 0 {
-			return true
-		}
-		return time.Since(b.outputActiveSince) >= b.mediaDebounce
-	}
-	b.outputActiveSince = time.Time{}
-	return false
-}
-
-func (b *BusySource) logChange(mic, nowPlaying, rawOutput, browserMedia bool, reason, browserHost string) {
+func (b *BusySource) logChange(mic, nowPlaying, browserMedia bool, reason, browserHost string) {
 	b.mu.Lock()
 	now := time.Now()
 	if b.havePrev &&
 		b.prevMic == mic &&
 		b.prevNowPlay == nowPlaying &&
-		b.prevOutput == rawOutput &&
 		b.prevBrowser == browserMedia &&
 		b.prevReason == reason {
 		b.mu.Unlock()
@@ -240,7 +201,6 @@ func (b *BusySource) logChange(mic, nowPlaying, rawOutput, browserMedia bool, re
 	attrs := []any{
 		"mic", mic,
 		"nowPlaying", nowPlaying,
-		"output", rawOutput,
 		"browserMedia", browserMedia,
 		"browserHost", browserHost,
 		"label", reason,
@@ -252,7 +212,6 @@ func (b *BusySource) logChange(mic, nowPlaying, rawOutput, browserMedia bool, re
 	b.havePrev = true
 	b.prevMic = mic
 	b.prevNowPlay = nowPlaying
-	b.prevOutput = rawOutput
 	b.prevBrowser = browserMedia
 	b.prevReason = reason
 	b.prevSince = now

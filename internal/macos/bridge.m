@@ -586,21 +586,6 @@ static AudioObjectID defaultInputDevice(void) {
     return dev;
 }
 
-static AudioObjectID defaultOutputDevice(void) {
-    AudioObjectID dev = kAudioObjectUnknown;
-    AudioObjectPropertyAddress addr = {
-        .mSelector = kAudioHardwarePropertyDefaultOutputDevice,
-        .mScope    = kAudioObjectPropertyScopeGlobal,
-        .mElement  = kAudioObjectPropertyElementMain,
-    };
-    UInt32 size = (UInt32)sizeof(dev);
-    if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr,
-                                   0, NULL, &size, &dev) != noErr) {
-        return kAudioObjectUnknown;
-    }
-    return dev;
-}
-
 int pausa_busy_microphone_active(void) {
     @try {
         AudioObjectID dev = defaultInputDevice();
@@ -683,28 +668,6 @@ int pausa_busy_now_playing_active(void) {
         return result ? 1 : 0;
     } @catch (NSException *e) {
         NSLog(@"pausa: now_playing exception: %@", e);
-        return 0;
-    }
-}
-
-int pausa_busy_output_active(void) {
-    @try {
-        AudioObjectID dev = defaultOutputDevice();
-        if (dev == kAudioObjectUnknown) return 0;
-
-        UInt32 running = 0;
-        UInt32 size = (UInt32)sizeof(running);
-        AudioObjectPropertyAddress addr = {
-            .mSelector = kAudioDevicePropertyDeviceIsRunningSomewhere,
-            .mScope    = kAudioObjectPropertyScopeOutput,
-            .mElement  = kAudioObjectPropertyElementMain,
-        };
-        if (AudioObjectGetPropertyData(dev, &addr, 0, NULL, &size, &running) != noErr) {
-            return 0;
-        }
-        return running ? 1 : 0;
-    } @catch (NSException *e) {
-        NSLog(@"pausa: output_active exception: %@", e);
         return 0;
     }
 }
