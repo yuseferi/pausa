@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/yuseferi/pausa/compare/v1.3.1...v1.4.0) (2026-10-05)
+
+### Features
+
+* refresh the app icon ([#19](https://github.com/yuseferi/pausa/issues/19)) ([364feb7](https://github.com/yuseferi/pausa/commit/364feb7b3b1c67f01e825cff2334c8d1aa70a74c))
+
 ## [1.3.1](https://github.com/yuseferi/pausa/compare/v1.3.0...v1.3.1) (2026-10-05)
 
 ### Bug Fixes
