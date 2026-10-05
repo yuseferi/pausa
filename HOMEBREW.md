@@ -26,6 +26,20 @@ brew install --cask pausa
 Both cask copies select the correct asset with `on_arm` / `on_intel`, so the
 install works on Apple Silicon (`arm64`) and Intel (`amd64`).
 
+### First launch (unsigned builds)
+
+Until the Apple secrets in [`NOTARIZATION.md`](NOTARIZATION.md) are configured,
+released builds are **unsigned**, and recent Homebrew no longer offers
+`--no-quarantine` (it removed the Gatekeeper bypass). macOS therefore blocks the
+first launch. Users clear it once with:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/pausa.app
+```
+
+or by right-clicking the app in Finder → **Open**. Configure the signing secrets
+to ship notarized builds and remove this step.
+
 ---
 
 ## How the tap mirror works
