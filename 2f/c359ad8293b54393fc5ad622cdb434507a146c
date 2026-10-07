@@ -1,0 +1,25 @@
+frontend/src/views/PreferencesView.vue
+  s_326e9603c7e11c::t_25799a60dd1897 2,16-19,21,30-34,37,39,42-47,50,67-112,116-117,132,139-140,156-165,167,170-176,180,187,197,202-207
+frontend/src/style.css
+  s_326e9603c7e11c::t_c2cc632b8b363b 133-134,141,143,151-157,160-163
+  s_326e9603c7e11c::t_72b6fa13cb709b 99
+  s_326e9603c7e11c::t_8cc266e322549d 102-111,117,164
+frontend/src/components/preferences/SectionDisplay.vue
+  s_326e9603c7e11c::t_99c5eee88dcb84 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "2fc359ad8293b54393fc5ad622cdb434507a146c",
+  "prompts": {},
+  "sessions": {
+    "s_326e9603c7e11c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ee98a78a4ffeBLxJfE32eY9uuD",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
