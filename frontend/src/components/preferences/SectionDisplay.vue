@@ -14,7 +14,7 @@ const accentPresets = ['#0ea5e9', '#7c3aed', '#22c55e', '#f59e0b', '#ef4444', '#
   <section>
     <label class="field">
       <span class="field__label">Theme</span>
-      <select class="field__input" style="width: auto;" v-model="model.theme">
+      <select class="field__select" v-model="model.theme">
         <option v-for="t in themes" :key="t.value" :value="t.value">{{ t.label }}</option>
       </select>
     </label>
