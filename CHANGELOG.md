@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/yuseferi/pausa/compare/v1.4.1...v1.5.0) (2026-10-07)
+
+### Features
+
+* **settings:** sidebar preferences layout with regrouped sections ([#22](https://github.com/yuseferi/pausa/issues/22)) ([8a479b5](https://github.com/yuseferi/pausa/commit/8a479b5664c87fcff6317f2d53f7e229c8c35d27))
+
 ## [1.4.1](https://github.com/yuseferi/pausa/compare/v1.4.0...v1.4.1) (2026-10-05)
 
 ### Bug Fixes
