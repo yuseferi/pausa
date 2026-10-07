@@ -1,10 +1,7 @@
 <script setup>
-// Modal preferences. Local mutations are made on a draft; on save, we send
+// Sidebar preferences. Local mutations are made on a draft; on save, we send
 // to the backend, which validates and broadcasts a `config:updated` event
 // the store listens to.
-//
-// Settings are organized into focused sections, each its own component, so
-// adding a new section is a one-file change.
 
 import { computed, reactive, ref, watch } from 'vue'
 import { state, ui, saveConfig } from '../lib/store'
@@ -16,14 +13,12 @@ import SectionIdle from '../components/preferences/SectionIdle.vue'
 import SectionGeneral from '../components/preferences/SectionGeneral.vue'
 
 const tabs = [
-  { id: 'schedule',     label: 'Schedule' },
-  { id: 'notifications', label: 'Notifications' },
-  { id: 'display',      label: 'Display' },
-  { id: 'workingHours', label: 'Working Hours' },
-  { id: 'idle',         label: 'Idle & Natural' },
-  { id: 'general',      label: 'General' },
+  { id: 'breaks',     label: 'Breaks' },
+  { id: 'detection',  label: 'Detection' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'general',    label: 'General' },
 ]
-const tab = ref('schedule')
+const tab = ref('breaks')
 
 // Deep-clone the live config so cancellations don't mutate it. The modal is
 // gated on `ready` because the native menu can open preferences before the
@@ -32,13 +27,27 @@ const tab = ref('schedule')
 const ready = computed(() => !!state.config)
 const draft = reactive(state.config ? JSON.parse(JSON.stringify(state.config)) : {})
 
+// Don't clobber in-progress edits when `config:updated` arrives while open.
+// Only re-sync from the store when the draft still matches the last synced
+// snapshot (i.e. the user has no unsaved edits).
+const lastSynced = ref(ready.value ? JSON.stringify(draft) : '')
+
 watch(() => state.config, (cfg) => {
   if (!cfg) return
+  if (ready.value && JSON.stringify(draft) !== lastSynced.value) return
   Object.assign(draft, JSON.parse(JSON.stringify(cfg)))
+  lastSynced.value = JSON.stringify(draft)
 }, { deep: true })
+
+const resetDraft = () => {
+  if (!state.config) return
+  Object.assign(draft, JSON.parse(JSON.stringify(state.config)))
+  lastSynced.value = JSON.stringify(draft)
+}
 
 const onSave = async () => {
   await saveConfig(JSON.parse(JSON.stringify(draft)))
+  lastSynced.value = JSON.stringify(draft)
   ui.closePreferences()
 }
 </script>
@@ -55,24 +64,57 @@ const onSave = async () => {
         </button>
       </header>
 
-      <nav class="modal__tabs">
-        <button v-for="t in tabs" :key="t.id"
-                :class="['modal__tab', { 'modal__tab--active': tab === t.id }]"
-                @click="tab = t.id">
-          {{ t.label }}
-        </button>
-      </nav>
+      <div class="prefs">
+        <nav class="prefs__side">
+          <button v-for="t in tabs" :key="t.id"
+                  :class="['modal__tab', { 'modal__tab--active': tab === t.id }]"
+                  @click="tab = t.id">
+            {{ t.label }}
+          </button>
+        </nav>
 
-      <div class="modal__body">
-        <SectionSchedule       v-if="tab === 'schedule'"     v-model="draft.schedule" />
-        <SectionNotifications  v-else-if="tab === 'notifications'" v-model="draft.notification" />
-        <SectionDisplay        v-else-if="tab === 'display'" v-model="draft.display" />
-        <SectionWorkingHours   v-else-if="tab === 'workingHours'" v-model="draft.workingHours" />
-        <SectionIdle           v-else-if="tab === 'idle'"    v-model="draft.idle" />
-        <SectionGeneral        v-else-if="tab === 'general'" v-model="draft.general" />
+        <div class="prefs__content">
+          <template v-if="tab === 'breaks'">
+            <div class="pref-group">
+              <h3 class="section__title">Break schedule</h3>
+              <SectionSchedule v-model="draft.schedule" />
+            </div>
+            <div class="pref-group">
+              <h3 class="section__title">Working hours</h3>
+              <SectionWorkingHours v-model="draft.workingHours" />
+            </div>
+          </template>
+
+          <template v-else-if="tab === 'detection'">
+            <div class="pref-group">
+              <h3 class="section__title">Idle &amp; natural breaks</h3>
+              <SectionIdle v-model="draft.idle" />
+            </div>
+          </template>
+
+          <template v-else-if="tab === 'experience'">
+            <div class="pref-group">
+              <h3 class="section__title">Notifications</h3>
+              <SectionNotifications v-model="draft.notification" />
+            </div>
+            <div class="pref-group">
+              <h3 class="section__title">Display</h3>
+              <SectionDisplay v-model="draft.display" />
+            </div>
+          </template>
+
+          <template v-else-if="tab === 'general'">
+            <div class="pref-group">
+              <h3 class="section__title">General</h3>
+              <SectionGeneral v-model="draft.general" />
+            </div>
+          </template>
+        </div>
       </div>
 
       <footer class="modal__footer">
+        <button class="btn btn--ghost" @click="resetDraft">Reset</button>
+        <span class="modal__spacer" />
         <button class="btn btn--ghost" @click="ui.closePreferences">Cancel</button>
         <button class="btn btn--primary" @click="onSave">Save</button>
       </footer>
@@ -87,15 +129,15 @@ const onSave = async () => {
   backdrop-filter: blur(4px);
   display: grid; place-items: center;
   z-index: 100;
-  padding: 20px;
+  padding: 12px;
 }
 .modal {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
+  max-width: 640px;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
@@ -111,23 +153,38 @@ const onSave = async () => {
 .modal__title { font-size: 16px; font-weight: 600; }
 .btn--icon { padding: 6px; }
 
-.modal__tabs {
+.prefs {
   display: flex;
-  gap: 4px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
 }
+.prefs__side {
+  width: 180px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.prefs__content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
 .modal__tab {
   background: transparent;
   border: 0;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font: inherit;
   font-size: 13px;
   color: var(--fg-muted);
   border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
+  text-align: left;
 }
 .modal__tab:hover { background: var(--bg-deep); color: var(--fg); }
 .modal__tab--active {
@@ -135,17 +192,17 @@ const onSave = async () => {
   color: var(--accent);
 }
 
-.modal__body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-}
-
 .modal__footer {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 8px;
   padding: 14px 18px;
   border-top: 1px solid var(--border);
+}
+.modal__spacer { flex: 1; }
+
+@media (max-width: 560px) {
+  .prefs__side { width: 140px; padding: 8px; }
+  .prefs__content { padding: 16px; }
 }
 </style>

@@ -96,14 +96,25 @@ button, input, select, .no-drag {
 }
 .btn--danger:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .btn--lg { padding: 14px 28px; font-size: 16px; }
+.btn--sm { padding: 6px 12px; font-size: 13px; }
 
 /* Form -------------------------------------------------------------------*/
+.section__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 16px 0 4px;
+}
+.section__title:first-child { margin-top: 0; }
+.pref-group + .pref-group { margin-top: 20px; }
 .field {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
 .field:last-child { border-bottom: none; }
@@ -119,25 +130,37 @@ button, input, select, .no-drag {
   margin-top: 2px;
 }
 .field__input {
-  width: 96px;
+  width: 140px;
+  min-width: 140px;
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elev);
   color: var(--fg);
   font: inherit;
-  text-align: center;
+  text-align: right;
 }
+.field__input[type="time"] { text-align: right; }
 .field__input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .field__select {
-  composes: field__input;
   width: auto;
-  min-width: 120px;
+  min-width: 160px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: var(--fg);
+  font: inherit;
   text-align: left;
+}
+.field__select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* Toggle ----------------------------------------------------------------- */
