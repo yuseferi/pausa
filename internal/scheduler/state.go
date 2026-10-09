@@ -54,6 +54,8 @@ type Stats struct {
 	BreaksSkipped   int `json:"breaksSkipped"`
 	BreaksPostponed int `json:"breaksPostponed"`
 	NaturalBreaks   int `json:"naturalBreaks"`
+	CurrentStreak   int `json:"currentStreak"`
+	BestStreak      int `json:"bestStreak"`
 }
 
 // EventKind enumerates UI-relevant scheduler events.

@@ -168,6 +168,7 @@ Pausa uses multiple signals to automatically pause the break timer while you're 
 | Signal | What It Catches |
 |---|---|
 | **Microphone active** | Meet, Zoom, Teams, Discord, Slack huddles, browser calls, dictation |
+| **macOS Calendar events** | Scheduled meetings and busy events via local EventKit |
 | **Now Playing** | Apps and browsers that publish system media state |
 | **Browser tab URL heuristic** | Muted frontmost video/meeting pages (YouTube, Google Meet, Netflix, Vimeo, Twitch, Disney+, Hulu, Prime Video, Loom) |
 

@@ -109,6 +109,10 @@ int pausa_busy_microphone_active(void);
 // or changes the API. Returns 0 if nothing is playing or detection failed.
 int pausa_busy_now_playing_active(void);
 
+// Returns 1 if a busy event on the user's macOS Calendar (EventKit) is currently
+// active (e.g. an active meeting or event). Returns 0 otherwise.
+int pausa_busy_calendar_active(void);
+
 // Returns 1 if the system's default audio output device is currently being
 // used by some process. This acts as a fallback for browsers/apps that do
 // not publish to the macOS Now Playing API. On its own this can be noisy

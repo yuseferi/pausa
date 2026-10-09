@@ -55,6 +55,7 @@ type BusyKind uint8
 const (
 	BusyMicrophone BusyKind = 1 << iota
 	BusyMediaPlaying
+	BusyCalendar
 )
 
 type BusyState uint8

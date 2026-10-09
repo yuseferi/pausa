@@ -24,6 +24,7 @@ type BusyKind uint8
 const (
 	BusyMicrophone   BusyKind = 1 << iota // a meeting / call / dictation
 	BusyMediaPlaying                      // YouTube / Spotify / video tab playing
+	BusyCalendar                          // active calendar event
 )
 
 // BusyState reports which busy signals are currently active. Returns 0
@@ -41,15 +42,17 @@ func (s BusyState) String() string {
 	if s == 0 {
 		return ""
 	}
-	switch {
-	case s.Has(BusyMicrophone) && s.Has(BusyMediaPlaying):
-		return "in call · media"
-	case s.Has(BusyMicrophone):
-		return "in a meeting"
-	case s.Has(BusyMediaPlaying):
-		return "media playing"
+	parts := make([]string, 0, 3)
+	if s.Has(BusyMicrophone) {
+		parts = append(parts, "in a meeting")
 	}
-	return ""
+	if s.Has(BusyMediaPlaying) {
+		parts = append(parts, "media playing")
+	}
+	if s.Has(BusyCalendar) {
+		parts = append(parts, "calendar event")
+	}
+	return strings.Join(parts, " · ")
 }
 
 // BusySource implements scheduler.BusySource by polling a few macOS-native
@@ -153,6 +156,7 @@ func (b *BusySource) sample() {
 	// Native detectors.
 	mic := C.pausa_busy_microphone_active() != 0
 	nowPlaying := C.pausa_busy_now_playing_active() != 0
+	cal := C.pausa_busy_calendar_active() != 0
 
 	// Browser heuristic: catches muted YouTube / Meet tabs when the browser is
 	// the frontmost app. This is intentionally conservative — we don't inspect
@@ -169,12 +173,16 @@ func (b *BusySource) sample() {
 	if media {
 		state |= BusyState(BusyMediaPlaying)
 	}
+	if cal {
+		state |= BusyState(BusyCalendar)
+	}
 	reason := state.String()
 
 	// Per-poll detail (verbose; enable with PAUSA_LOG_LEVEL=debug).
 	slog.Debug("busy poll",
 		"mic", mic,
 		"nowPlaying", nowPlaying,
+		"calendar", cal,
 		"browserMedia", browserMedia,
 		"browserHost", browserHost,
 		"combined", reason)

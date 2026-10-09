@@ -41,8 +41,8 @@ const thresholdSec = computed({
 
     <label class="field">
       <span class="field__label">
-        Pause during meetings &amp; videos
-        <small class="field__hint">Detects microphone use, system media playback, and supported browser video pages (YouTube, Meet, Netflix, Vimeo, Twitch, etc.). Resumes automatically.</small>
+        Pause during meetings, videos &amp; calendar events
+        <small class="field__hint">Detects microphone use, macOS Calendar meetings, system media playback, and supported browser video pages (YouTube, Meet, Netflix, Vimeo, Twitch, etc.). Resumes automatically.</small>
       </span>
       <span class="toggle">
         <input type="checkbox" v-model="model.pauseWhenBusy" />

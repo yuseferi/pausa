@@ -16,7 +16,7 @@ package macos
 
 /*
 #cgo CFLAGS: -fobjc-arc -fmodules -Wno-deprecated-declarations -mmacosx-version-min=11.0
-#cgo LDFLAGS: -mmacosx-version-min=11.0 -framework Cocoa -framework UserNotifications -framework QuartzCore -framework CoreGraphics -framework CoreAudio -framework ServiceManagement
+#cgo LDFLAGS: -mmacosx-version-min=11.0 -framework Cocoa -framework UserNotifications -framework QuartzCore -framework CoreGraphics -framework CoreAudio -framework ServiceManagement -framework EventKit
 
 #include "bridge.h"
 */
