@@ -4,6 +4,10 @@ defineProps({ stats: { type: Object, required: true } })
 
 <template>
   <div class="stats">
+    <div class="stat stat--streak" title="Current consecutive breaks taken">
+      <div class="stat__value">🔥 {{ stats.currentStreak || 0 }}</div>
+      <div class="stat__label">Streak</div>
+    </div>
     <div class="stat">
       <div class="stat__value">{{ stats.breaksTaken }}</div>
       <div class="stat__label">Taken</div>
@@ -26,8 +30,8 @@ defineProps({ stats: { type: Object, required: true } })
 <style scoped>
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
   margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid var(--border);

@@ -19,6 +19,7 @@
 #import <CoreAudio/CoreAudio.h>
 #import <UserNotifications/UserNotifications.h>
 #import <ServiceManagement/ServiceManagement.h>
+#import <EventKit/EventKit.h>
 
 #include "bridge.h"
 #include <stdlib.h>
@@ -552,6 +553,38 @@ double pausa_idle_seconds(void) {
         NSLog(@"pausa: idle exception: %@", e);
         return 0.0;
     }
+}
+
+// Calendar detection (EventKit) ----------------------------------------------
+
+int pausa_busy_calendar_active(void) {
+    @try {
+        if (@available(macOS 10.15, *)) {
+            static EKEventStore *store = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                store = [[EKEventStore alloc] init];
+            });
+
+            // Check authorization status without blocking or asking if not determined
+            EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
+            if (status != EKAuthorizationStatusAuthorized) {
+                return 0;
+            }
+
+            NSDate *now = [NSDate date];
+            NSPredicate *pred = [store predicateForEventsWithStartDate:now endDate:now calendars:nil];
+            NSArray<EKEvent *> *events = [store eventsMatchingPredicate:pred];
+            for (EKEvent *ev in events) {
+                if (!ev.isAllDay && ev.status != EKEventStatusCanceled && ev.availability != EKEventAvailabilityFree) {
+                    return 1;
+                }
+            }
+        }
+    } @catch (NSException *e) {
+        NSLog(@"pausa: calendar active check exception: %@", e);
+    }
+    return 0;
 }
 
 // Busy detection -------------------------------------------------------------

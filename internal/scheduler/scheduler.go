@@ -305,9 +305,14 @@ func (c *cmdEndBreak) apply(s *Scheduler, st *actorState) {
 
 	if c.reason == endSkip {
 		st.stats.BreaksSkipped++
+		st.stats.CurrentStreak = 0
 		s.publish(EventSkipped, st, withKind(completed))
 	} else {
 		st.stats.BreaksTaken++
+		st.stats.CurrentStreak++
+		if st.stats.CurrentStreak > st.stats.BestStreak {
+			st.stats.BestStreak = st.stats.CurrentStreak
+		}
 		s.publish(EventBreakEnd, st, withKind(completed))
 	}
 
@@ -629,6 +634,10 @@ func (s *Scheduler) naturalBreakEnd(st *actorState) {
 	st.currentKind = ""
 	st.breakEndsAt = time.Time{}
 	st.stats.BreaksTaken++
+	st.stats.CurrentStreak++
+	if st.stats.CurrentStreak > st.stats.BestStreak {
+		st.stats.BestStreak = st.stats.CurrentStreak
+	}
 	s.publish(EventBreakEnd, st, withKind(completed))
 	s.advanceCounters(st, completed)
 	if st.manualPaused {
@@ -855,6 +864,10 @@ func (s *Scheduler) exitAutoPause(st *actorState) {
 		if _, isBusy := s.busy.BusyState(); !isBusy {
 			slog.Info("away time credited as natural break", "away", awayTime.Round(time.Second).String())
 			st.stats.NaturalBreaks++
+			st.stats.CurrentStreak++
+			if st.stats.CurrentStreak > st.stats.BestStreak {
+				st.stats.BestStreak = st.stats.CurrentStreak
+			}
 			s.publish(EventNatural, st, withKind(st.nextKind))
 			s.advanceCounters(st, st.nextKind)
 			s.scheduleNext(st)
