@@ -1,0 +1,24 @@
+scripts/release.sh
+  s_3b83b9fb27a5b7::t_188cdf0c434ae4 105
+  s_3b83b9fb27a5b7::t_120fe743dbda67 103-104,106-110
+.github/workflows/release.yml
+  s_3b83b9fb27a5b7::t_0bbed2e56d9801 226-234
+Casks/pausa.rb
+  s_3b83b9fb27a5b7::t_4d1842708ec954 20-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "9c9c564db3505fb36ddf54e68a996118bdf21088",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
