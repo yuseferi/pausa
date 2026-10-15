@@ -7,10 +7,18 @@ import (
 	"time"
 )
 
+// CurrentSchemaVersion is the on-disk configuration schema version written by
+// this build. Bump it whenever a change needs to migrate an older file, and
+// add the corresponding step to Config.migrate.
+const CurrentSchemaVersion = 1
+
 // Config is the user-facing settings for Pausa. All durations are stored as
 // time.Duration in memory; on-disk JSON uses string forms (e.g. "10m", "20s")
 // via custom marshalling so the file is human-editable.
 type Config struct {
+	// Version is the schema version of the file this Config was loaded from
+	// (or written with). Zero means a file predating schema versioning.
+	Version      int                `json:"version"`
 	Schedule     ScheduleConfig     `json:"schedule"`
 	Notification NotificationConfig `json:"notification"`
 	Display      DisplayConfig      `json:"display"`
@@ -97,6 +105,7 @@ type GeneralConfig struct {
 func Default() Config {
 	allWeekdays := [7]bool{false, true, true, true, true, true, false}
 	return Config{
+		Version: CurrentSchemaVersion,
 		Schedule: ScheduleConfig{
 			ShortInterval: Duration(10 * time.Minute),
 			ShortDuration: Duration(20 * time.Second),
@@ -146,6 +155,14 @@ func Default() Config {
 func (c *Config) Validate() bool {
 	d := Default()
 	changed := false
+
+	// Any config that passes through Validate is, by definition, current:
+	// stamp the schema version so a partially-built config from the UI (which
+	// may not carry the field) can never persist a stale version.
+	if c.Version != CurrentSchemaVersion {
+		c.Version = CurrentSchemaVersion
+		changed = true
+	}
 
 	clampDur := func(v *Duration, min, max, def time.Duration) {
 		td := time.Duration(*v)

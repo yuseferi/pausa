@@ -258,3 +258,58 @@ func TestStoreOpenMigratesMissingMediaCountsAsActivity(t *testing.T) {
 		t.Error("explicitly saved false must be preserved, not re-migrated")
 	}
 }
+
+// Config files written before schema versioning (no "version" key) must be
+// stamped with the current version on load, and a config built by the UI
+// without the field must not be able to persist a stale version.
+func TestStoreStampsSchemaVersion(t *testing.T) {
+	if got := Default().Version; got != CurrentSchemaVersion {
+		t.Fatalf("Default().Version = %d, want %d", got, CurrentSchemaVersion)
+	}
+
+	// Legacy file: no "version" key at all.
+	raw, err := json.Marshal(Default())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	delete(doc, "version")
+	legacy, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	path := filepath.Join(t.TempDir(), "cfg.json")
+	if err := os.WriteFile(path, legacy, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := s.Get().Version; got != CurrentSchemaVersion {
+		t.Errorf("legacy config Version = %d, want %d", got, CurrentSchemaVersion)
+	}
+
+	// A Set with the field zeroed (as an older UI payload would send) is
+	// re-stamped by Validate and never persisted as 0.
+	c := s.Get()
+	c.Version = 0
+	saved, err := s.Set(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Version != CurrentSchemaVersion {
+		t.Errorf("saved Version = %d, want %d", saved.Version, CurrentSchemaVersion)
+	}
+	s2, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := s2.Get().Version; got != CurrentSchemaVersion {
+		t.Errorf("reloaded Version = %d, want %d", got, CurrentSchemaVersion)
+	}
+}
