@@ -32,7 +32,7 @@
 </p>
 
 <p align="center">
-  <img src="screenshots/break-overlay.png" alt="Pausa fullscreen break overlay with countdown and breathing guide" width="820">
+  <img src="screenshots/break-overlay.png" alt="Pausa fullscreen break overlay with the countdown, a break tip, and Postpone / Skip actions" width="820">
 </p>
 
 ## Install
@@ -105,13 +105,18 @@ On top of that:
 
 ### Preferences
 
-<p align="center">
-  <img src="screenshots/preferences-1.png" alt="Pausa preferences — general settings" width="760">
-</p>
+Preferences are grouped into four sections — **Breaks**, **Detection**, **Experience**, and **General**:
 
-<p align="center">
-  <img src="screenshots/preferences-2.png" alt="Pausa preferences — display and idle settings" width="760">
-</p>
+<table>
+  <tr>
+    <td width="50%"><img src="screenshots/preferences-breaks.png" alt="Pausa preferences — Breaks: short/long break intervals, durations, and postpone times"></td>
+    <td width="50%"><img src="screenshots/preferences-detection.png" alt="Pausa preferences — Detection: pause when idle, count natural breaks, pause during meetings and videos"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="screenshots/preferences-experience.png" alt="Pausa preferences — Experience: notifications, theme, accent color, and fullscreen breaks"></td>
+    <td width="50%"><img src="screenshots/preferences-general.png" alt="Pausa preferences — General: start at login, show in Dock, menu-bar countdown, and app updates"></td>
+  </tr>
+</table>
 
 ---
 
