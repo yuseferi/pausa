@@ -1,0 +1,27 @@
+internal/config/store.go
+  s_3b83b9fb27a5b7::t_a77d3fa55d2cd5 46-49,56-73
+  s_3b83b9fb27a5b7::t_63ccb5bc3173d6 74-75
+internal/config/config.go
+  s_3b83b9fb27a5b7::t_5767f7d3096a4e 159-165
+  s_3b83b9fb27a5b7::t_f389d462d7b988 108
+  s_3b83b9fb27a5b7::t_f8b8c7d80249f6 10-14,19-21
+  s_3b83b9fb27a5b7::t_2402336ec46f40 166
+internal/config/config_test.go
+  s_3b83b9fb27a5b7::t_8f717bc2060d84 261-315
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "933c771d973a5d2e092ca793b41edcc34732cffe",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}

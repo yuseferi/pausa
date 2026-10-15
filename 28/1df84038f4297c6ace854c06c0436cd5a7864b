@@ -1,0 +1,20 @@
+build/darwin/Info.plist
+  s_3b83b9fb27a5b7::t_78e4c96fec0edd 53
+  s_3b83b9fb27a5b7::t_3f259f4415fc58 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "281df84038f4297c6ace854c06c0436cd5a7864b",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}

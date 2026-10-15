@@ -1,0 +1,20 @@
+main.go
+  s_3b83b9fb27a5b7::t_808df8694c7976 76-85
+  s_3b83b9fb27a5b7::t_ec001a95f5e0cc 86-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "5f1e438bd1649b53614ef5dc3bd2182342efec69",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
