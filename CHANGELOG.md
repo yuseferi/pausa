@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/yuseferi/pausa/compare/v1.6.0...v1.7.0) (2026-10-15)
+
+### Features
+
+* redesign the app icon and refresh screenshots ([#25](https://github.com/yuseferi/pausa/issues/25)) ([3ac70c0](https://github.com/yuseferi/pausa/commit/3ac70c074ee77815d2fa30a2268cdfd99137b639))
+
 ## [1.6.0](https://github.com/yuseferi/pausa/compare/v1.5.0...v1.6.0) (2026-10-15)
 
 ### Features
