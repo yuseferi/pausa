@@ -1,0 +1,22 @@
+scripts/install.sh
+  s_3b83b9fb27a5b7::t_ae661b5fdbd0e6 1-51,53-54,56-99
+  s_3b83b9fb27a5b7::t_edf0c9576e9449 52,55
+README.md
+  s_3b83b9fb27a5b7::t_744a9e24e23022 60-65,67-69,75-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "7e311c3cd178a05f1cd9840428a502f88854de93",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
