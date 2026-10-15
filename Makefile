@@ -1,4 +1,4 @@
-.PHONY: dev build frontend test check seed-dist clean release install-local
+.PHONY: dev build frontend icons test check seed-dist clean release install-local
 
 VERSION ?=
 
@@ -15,6 +15,11 @@ build:
 
 frontend:
 	cd frontend && npm run build
+
+# Regenerate the app icon (.icns/.iconset/build/appicon.png) from
+# build/icons/appicon.svg. Requires macOS built-ins only.
+icons:
+	./build/icons/build-icons.sh
 
 # The Go //go:embed directive requires frontend/dist to exist. Seed an empty
 # directory so backend checks work on a clean checkout (mirrors CI).

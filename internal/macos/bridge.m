@@ -233,7 +233,12 @@ void pausa_statusbar_set_builtin_icon(int state) {
 
             NSImage *img = nil;
             if ([NSImage respondsToSelector:@selector(imageWithSystemSymbolName:accessibilityDescription:)]) {
-                NSString *symbol = @"pause.fill";
+                // Pausa's minimum deployment target is macOS 11, where SF
+                // Symbols are always available, so this branch is the icon in
+                // practice and makeFallbackStatusIcon is effectively legacy.
+                // The default glyph echoes the app icon: a ring around the
+                // pause bars ("pause.circle").
+                NSString *symbol = @"pause.circle";
                 switch (st) {
                     case 1: symbol = @"pause.circle.fill"; break;
                     case 2: symbol = @"video.fill"; break;

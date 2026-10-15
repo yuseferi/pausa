@@ -69,4 +69,3 @@ yarn-error.log*
 /build/darwin/Info.dev.plist
 /build/icons/appicon.icns
 /build/icons/appicon.iconset/
-/build/icons/menubar/

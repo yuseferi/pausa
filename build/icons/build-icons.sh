@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-# Generate the macOS .icns file from build/icons/appicon.svg, plus the
-# template PNGs for the menu-bar status item from statusbar.svg.
+# Generate the macOS .icns file from build/icons/appicon.svg.
 #
 # Outputs:
 #   build/appicon.png            -- 1024x1024 PNG (Wails app icon source)
 #   build/icons/appicon.iconset/ -- all sizes Apple expects
 #   build/icons/appicon.icns     -- assembled .icns (used by .app bundle)
-#   build/icons/menubar/         -- statusbar template PNGs (1x/2x/3x)
 #
 # Requires only macOS built-ins: qlmanage, sips, iconutil.
 
@@ -15,10 +13,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 APP_SVG="${SCRIPT_DIR}/appicon.svg"
-BAR_SVG="${SCRIPT_DIR}/statusbar.svg"
 ICONSET="${SCRIPT_DIR}/appicon.iconset"
 ICNS_OUT="${SCRIPT_DIR}/appicon.icns"
-MENU_DIR="${SCRIPT_DIR}/menubar"
 
 if [[ ! -f "${APP_SVG}" ]]; then
   echo "missing ${APP_SVG}" >&2
@@ -76,23 +72,7 @@ iconutil -c icns "${ICONSET}" -o "${ICNS_OUT}"
 echo "==> Updating ${BUILD_DIR}/appicon.png (1024x1024)"
 render_svg "${APP_SVG}" 1024 "${BUILD_DIR}/appicon.png"
 
-echo "==> Building menu-bar template PNGs"
-mkdir -p "${MENU_DIR}"
-# Standard menu-bar logical size is 22pt. Provide 1x/2x/3x retina assets.
-declare -a MENU_SIZES=(
-  "22:menubar.png"
-  "44:menubar@2x.png"
-  "66:menubar@3x.png"
-)
-for spec in "${MENU_SIZES[@]}"; do
-  size="${spec%%:*}"
-  name="${spec##*:}"
-  echo "    ${name} (${size}x${size})"
-  render_svg "${BAR_SVG}" "${size}" "${MENU_DIR}/${name}"
-done
-
 echo
 echo "Done."
 echo "  - App icon:      ${ICNS_OUT}"
 echo "  - Wails source:  ${BUILD_DIR}/appicon.png"
-echo "  - Menubar PNGs:  ${MENU_DIR}/"
