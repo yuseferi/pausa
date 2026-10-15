@@ -1,0 +1,19 @@
+build/icons/appicon.svg
+  s_3b83b9fb27a5b7::t_98cbed4364bf11 5-10,16-17,54-60,76-82,86-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f1f30b8af3937247221cead4fce0a35161d407f3",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
