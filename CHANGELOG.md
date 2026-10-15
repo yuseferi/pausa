@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/yuseferi/pausa/compare/v1.5.0...v1.6.0) (2026-10-15)
+
+### Features
+
+* unsigned-friendly install path and stable app identity ([#24](https://github.com/yuseferi/pausa/issues/24)) ([9e7e002](https://github.com/yuseferi/pausa/commit/9e7e00280d428d2a8459220ce0b6a720234c5c08))
+
 ## [1.5.0](https://github.com/yuseferi/pausa/compare/v1.4.1...v1.5.0) (2026-10-07)
 
 ### Features
