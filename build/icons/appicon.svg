@@ -2,12 +2,19 @@
 <!--
   Pausa app icon. 1024x1024 master.
 
+  Concept: a break *timer*. A bold countdown ring (a ~280deg progress arc on a
+  faint track) reads as "time until your next break", with the pause bars at
+  its centre carrying the product's core verb. The ring is intentionally thick
+  so it survives downscaling to 16px as a clean circle, where the bars remain
+  the instantly-recognisable silhouette.
+
   Design notes:
   - macOS squircle: 824/1024 canvas with a 185 corner radius (Apple's Big Sur
     icon grid), leaving standard padding for macOS's own icon mask.
   - Background: sky -> blue diagonal gradient with a soft top-left highlight,
     a top rim light, and a subtle bottom inner shade for depth.
-  - A faint concentric ring hints at the break timer / cycle.
+  - Ring: radius 280, stroke 84 (>= ~1.3px at 16px). The 80deg gap is centred
+    on 12 o'clock so the mark is symmetric about the vertical axis.
   - Foreground: two rounded white pause bars with a soft drop shadow.
 
   Regenerate the .icns / .iconset / menu-bar PNGs with build-icons.sh.
@@ -44,6 +51,13 @@
       <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
 
+    <filter id="ringShadow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="16"/>
+      <feOffset dx="0" dy="8" result="o"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.18"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
     <filter id="barShadow" x="-45%" y="-45%" width="190%" height="190%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="14"/>
       <feOffset dx="0" dy="9" result="o"/>
@@ -59,13 +73,17 @@
     <rect x="100" y="100" width="824" height="824" rx="185" ry="185" fill="url(#bottomShade)"/>
   </g>
 
-  <!-- faint timer ring -->
-  <circle cx="512" cy="512" r="250" fill="none"
-          stroke="#ffffff" stroke-opacity="0.13" stroke-width="11"/>
+  <!-- timer ring: faint full track + bold countdown arc (gap centred at 12 o'clock) -->
+  <circle cx="512" cy="512" r="280" fill="none"
+          stroke="#ffffff" stroke-opacity="0.18" stroke-width="84"/>
+  <g filter="url(#ringShadow)">
+    <path d="M 692 297.5 A 280 280 0 1 1 332 297.5" fill="none"
+          stroke="#ffffff" stroke-opacity="0.96" stroke-width="84" stroke-linecap="round"/>
+  </g>
 
   <!-- pause bars -->
   <g filter="url(#barShadow)" fill="#ffffff">
-    <rect x="360" y="336" width="116" height="352" rx="58" ry="58"/>
-    <rect x="548" y="336" width="116" height="352" rx="58" ry="58"/>
+    <rect x="394" y="389" width="92" height="246" rx="46" ry="46"/>
+    <rect x="538" y="389" width="92" height="246" rx="46" ry="46"/>
   </g>
 </svg>
