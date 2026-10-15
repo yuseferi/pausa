@@ -100,6 +100,14 @@ cask "pausa" do
 
   app "pausa.app"
 
+  # Pausa is distributed unsigned (no paid Apple Developer account), so a
+  # downloaded bundle carries the com.apple.quarantine attribute and macOS
+  # refuses the first launch. Strip it so a plain brew install works.
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"]
+  end
+
   zap trash: [
     "~/Library/Application Support/Pausa",
     "~/Library/Logs/Pausa",
