@@ -105,7 +105,8 @@ cask "pausa" do
   # refuses the first launch. Strip it so a plain brew install works.
   postflight do
     system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"]
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"],
+                   must_succeed: true
   end
 
   zap trash: [

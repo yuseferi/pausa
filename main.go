@@ -80,7 +80,7 @@ func main() {
 		SingleInstanceLock: &options.SingleInstanceLock{
 			UniqueId: "com.yuseferi.pausa",
 			OnSecondInstanceLaunch: func(_ options.SecondInstanceData) {
-				app.ShowMainWindow()
+				app.FocusExisting()
 			},
 		},
 		Bind:      []interface{}{app},

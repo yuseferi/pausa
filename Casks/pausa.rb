@@ -23,7 +23,8 @@ cask "pausa" do
   # without the manual `xattr -dr` step.
   postflight do
     system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"]
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"],
+                   must_succeed: true
   end
 
   zap trash: [

@@ -237,6 +237,18 @@ func (a *App) CheckForUpdates() update.Info {
 // ShowMainWindow brings the main window into the foreground.
 func (a *App) ShowMainWindow() { wailsruntime.WindowShow(a.ctx) }
 
+// FocusExisting surfaces the running instance's window in response to a
+// second launch. Unminimising first matters when the window is minimized:
+// WindowShow alone is a no-op for a minimized window, so the second launch
+// would exit without bringing Pausa into view.
+func (a *App) FocusExisting() {
+	if a.ctx == nil {
+		return
+	}
+	wailsruntime.WindowUnminimise(a.ctx)
+	wailsruntime.WindowShow(a.ctx)
+}
+
 // QuitApp exits the application.
 func (a *App) QuitApp() { wailsruntime.Quit(a.ctx) }
 

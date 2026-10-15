@@ -64,32 +64,47 @@ curl -fL --proto '=https' --tlsv1.2 -o "$TMP/$ASSET" "${BASE_URL}/${ASSET}" \
   || die "download failed: ${BASE_URL}/${ASSET}"
 
 # --- Verify checksum (when the release publishes one) -----------------------
-if curl -fsSL -o "$TMP/$ASSET.sha256" "${BASE_URL}/${ASSET}.sha256"; then
-  expected="$(tr -d '[:space:]' < "$TMP/$ASSET.sha256")"
-  actual="$(shasum -a 256 "$TMP/$ASSET" | awk '{print $1}')"
-  [[ "$expected" == "$actual" ]] || die "checksum mismatch (expected ${expected}, got ${actual})"
-  log "Checksum verified"
-else
-  log "warning: no checksum published for ${ASSET}; skipping verification"
+# Treat only a 404 as "no checksum published" and fail closed on every other
+# transport or HTTP error, so we never install an unverified archive.
+code="$(curl -sSL -o "$TMP/$ASSET.sha256" -w '%{http_code}' "${BASE_URL}/${ASSET}.sha256" || true)"
+case "$code" in
+  200)
+    expected="$(tr -d '[:space:]' < "$TMP/$ASSET.sha256")"
+    actual="$(shasum -a 256 "$TMP/$ASSET" | awk '{print $1}')"
+    [[ "$expected" == "$actual" ]] || die "checksum mismatch (expected ${expected}, got ${actual})"
+    log "Checksum verified"
+    ;;
+  404)
+    log "warning: no checksum published for ${ASSET}; skipping verification"
+    ;;
+  *)
+    die "could not fetch checksum for ${ASSET} (HTTP ${code:-none}); refusing to install unverified"
+    ;;
+esac
+
+# --- Extract and validate BEFORE replacing any existing install -------------
+# A failed extraction must not leave the user without a working app, so the
+# current bundle is only removed once the new one is confirmed present.
+mkdir -p "$TMP/extract"
+ditto -x -k "$TMP/$ASSET" "$TMP/extract" || die "failed to extract ${ASSET}"
+
+new_app="$TMP/extract/${APP_NAME}.app"
+if [[ ! -d "$new_app" ]]; then
+  # The release zip normally keeps the bundle at the top level (ditto
+  # --keepParent), but fall back to the first .app found just in case.
+  new_app="$(find "$TMP/extract" -maxdepth 2 -name '*.app' -print -quit)"
+  [[ -n "$new_app" ]] || die "no .app bundle found inside ${ASSET}"
 fi
+
+# Unsigned build: clear the quarantine bit on the staged bundle before it is
+# moved into place. xattr -dr exits 0 when nothing matches, so this only
+# suppresses genuinely unexpected failures.
+xattr -dr com.apple.quarantine "$new_app" 2>/dev/null || true
 
 # --- Install ----------------------------------------------------------------
 log "Installing to ${DEST}/${APP_NAME}.app"
 rm -rf "$DEST/${APP_NAME}.app"
-ditto -x -k "$TMP/$ASSET" "$TMP/extract"
-
-if [[ -d "$TMP/extract/${APP_NAME}.app" ]]; then
-  mv "$TMP/extract/${APP_NAME}.app" "$DEST/${APP_NAME}.app"
-else
-  # The release zip normally keeps the bundle at the top level (ditto
-  # --keepParent), but fall back to the first .app found just in case.
-  found="$(find "$TMP/extract" -maxdepth 2 -name '*.app' -print -quit)"
-  [[ -n "$found" ]] || die "no .app bundle found inside ${ASSET}"
-  mv "$found" "$DEST/${APP_NAME}.app"
-fi
-
-# Unsigned build: clear the quarantine bit so the first launch is not blocked.
-xattr -dr com.apple.quarantine "$DEST/${APP_NAME}.app" 2>/dev/null || true
+mv "$new_app" "$DEST/${APP_NAME}.app"
 
 log "Installed Pausa ${VERSION}"
 
