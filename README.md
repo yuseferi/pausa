@@ -57,16 +57,23 @@ Prefer a direct download? Grab the latest `.zip` — Apple silicon and Intel bui
 
 **<https://github.com/yuseferi/pausa/releases/latest>**
 
+Or install with a single command — it picks the right build for your Mac, verifies the checksum, and clears the unsigned-build first-launch block:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yuseferi/pausa/main/scripts/install.sh | bash
+```
+
 > **First launch (unsigned build):** Pausa isn't notarized yet, so macOS
-> blocks the first launch. Clear the quarantine flag once:
+> quarantines a freshly downloaded copy. The Homebrew cask and the one-line
+> installer above clear that attribute for you. If you installed the `.zip` by
+> hand instead, clear it once:
 >
 > ```bash
 > xattr -dr com.apple.quarantine /Applications/pausa.app
 > ```
 >
-> Or right-click the app in Finder → **Open**. (Recent Homebrew no longer offers
-> `--no-quarantine`.) Notarized builds need a paid Apple Developer account — see
-> [`NOTARIZATION.md`](NOTARIZATION.md).
+> Or right-click the app in Finder → **Open**. Notarized builds need a paid
+> Apple Developer account — see [`NOTARIZATION.md`](NOTARIZATION.md).
 
 That's it. Pausa lives in your menu bar and quietly keeps you on a healthy break rhythm.
 

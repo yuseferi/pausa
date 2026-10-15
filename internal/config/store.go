@@ -43,19 +43,34 @@ func Open(path string) (*Store, error) {
 		// Corrupted file - keep defaults but report.
 		return s, fmt.Errorf("parse config (using defaults): %w", jerr)
 	}
-	// Migration: MediaCountsAsActivity was added after 1.0.4 with a default
-	// of true. Config files written before it existed decode the missing key
-	// as false, which would silently keep the old "movies count as idle"
-	// behavior. Detect the missing key and opt existing users into the fix;
-	// an explicitly saved false is preserved. The migrated value persists
-	// on the next Set.
-	if !hasJSONKey(data, "idle", "mediaCountsAsActivity") {
-		loaded.Idle.MediaCountsAsActivity = true
-	}
+	// Migration: upgrade older files in place before validation. The inline
+	// mediaCountsAsActivity repair lives in migrate; the schema Version field
+	// (stamped by migrate and Validate) is the anchor for future steps.
+	loaded.migrate(data)
 	loaded.Validate()
 	s.cfg = loaded
 	s.exists = true
 	return s, nil
+}
+
+// migrate upgrades a decoded config from older on-disk schemas in place. It
+// consults the raw JSON (via hasJSONKey) so it can distinguish a missing key
+// from an explicitly saved zero value. Steps here must be idempotent: a file
+// written by the current build is migrated again on every load.
+func (c *Config) migrate(raw []byte) {
+	// MediaCountsAsActivity was added after 1.0.4 with a default of true.
+	// Config files written before it existed decode the missing key as false,
+	// which would silently keep the old "movies count as idle" behavior.
+	// Detect the missing key and opt existing users into the fix; an
+	// explicitly saved false is preserved. The migrated value persists on the
+	// next Set.
+	if !hasJSONKey(raw, "idle", "mediaCountsAsActivity") {
+		c.Idle.MediaCountsAsActivity = true
+	}
+
+	// Future version-gated migrations go here, e.g.:
+	//   if c.Version < 2 { ...; }
+	c.Version = CurrentSchemaVersion
 }
 
 // Get returns a copy of the current configuration.

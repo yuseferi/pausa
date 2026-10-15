@@ -73,8 +73,18 @@ func main() {
 		OnStartup:        app.Startup,
 		OnDomReady:       app.DomReady,
 		OnShutdown:       app.Shutdown,
-		Bind:             []interface{}{app},
-		Frameless:        true,
+		// Prevent a second launch from spinning up a second status item,
+		// busy sampler, and scheduler. Instead, surface the existing window.
+		// UniqueId matches the bundle identifier so the lock and the app
+		// identity stay in sync.
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId: "com.yuseferi.pausa",
+			OnSecondInstanceLaunch: func(_ options.SecondInstanceData) {
+				app.FocusExisting()
+			},
+		},
+		Bind:      []interface{}{app},
+		Frameless: true,
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
 				TitlebarAppearsTransparent: true,
