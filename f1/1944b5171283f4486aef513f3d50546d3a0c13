@@ -1,0 +1,29 @@
+scripts/install.sh
+  s_3b83b9fb27a5b7::t_f6c52924d3ba4a 67-83,85-89,91-92,95-96,99-107
+Casks/pausa.rb
+  s_3b83b9fb27a5b7::t_c8e501b441d24e 26-27
+internal/breakapp/app.go
+  s_3b83b9fb27a5b7::t_8176acd335ab3d 240-251
+.github/workflows/release.yml
+  s_3b83b9fb27a5b7::t_0948ce3e382311 232-233
+main.go
+  s_3b83b9fb27a5b7::t_0f44a3fe171a39 83
+scripts/release.sh
+  s_3b83b9fb27a5b7::t_2580b09067b37d 108-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f11944b5171283f4486aef513f3d50546d3a0c13",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
