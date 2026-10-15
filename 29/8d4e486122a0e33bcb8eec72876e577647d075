@@ -1,0 +1,25 @@
+screenshots/README.md
+  s_3b83b9fb27a5b7::t_231b91759e587d 1-41
+README.md
+  s_3b83b9fb27a5b7::t_c98a5c473e7706 35
+  s_3b83b9fb27a5b7::t_93e70f028206b8 108-119
+site/index.html
+  s_3b83b9fb27a5b7::t_90bc33230287f2 139
+  s_3b83b9fb27a5b7::t_3259e2398f281b 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "298d4e486122a0e33bcb8eec72876e577647d075",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
