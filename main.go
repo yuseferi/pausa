@@ -18,7 +18,7 @@ import (
 	"pausa/internal/clock"
 	"pausa/internal/config"
 	plog "pausa/internal/log"
-	"pausa/internal/macos"
+	"pausa/internal/platform"
 	"pausa/internal/scheduler"
 	"pausa/internal/tips"
 )
@@ -45,12 +45,12 @@ func main() {
 
 	cfgSub := cfgStore.Subscribe()
 	catalog := tips.NewCatalog()
-	busySrc := macos.NewBusySource()
+	busySrc := platform.NewBusySource()
 	sched := scheduler.New(
 		clock.New(),
 		cfgStore.Get(),
 		cfgSub,
-		macos.IdleSource{},
+		platform.NewIdleSource(),
 		busySrc,
 	)
 	app := breakapp.New(cfgStore, sched, catalog, busySrc)

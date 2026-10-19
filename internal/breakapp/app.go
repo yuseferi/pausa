@@ -14,7 +14,7 @@ import (
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"pausa/internal/config"
-	"pausa/internal/macos"
+	"pausa/internal/platform"
 	"pausa/internal/scheduler"
 	"pausa/internal/tips"
 	"pausa/internal/update"
@@ -23,14 +23,14 @@ import (
 
 // Status-bar menu item tags. Negative numbers reserved for internal use.
 const (
-	tagNextBreak macos.MenuTag = 1
-	tagTakeBreak macos.MenuTag = 2
-	tagPause     macos.MenuTag = 3
-	tagResume    macos.MenuTag = 4
-	tagShow      macos.MenuTag = 5
-	tagPrefs     macos.MenuTag = 6
-	tagQuit      macos.MenuTag = 7
-	tagReset     macos.MenuTag = 8
+	tagNextBreak platform.MenuTag = 1
+	tagTakeBreak platform.MenuTag = 2
+	tagPause     platform.MenuTag = 3
+	tagResume    platform.MenuTag = 4
+	tagShow      platform.MenuTag = 5
+	tagPrefs     platform.MenuTag = 6
+	tagQuit      platform.MenuTag = 7
+	tagReset     platform.MenuTag = 8
 )
 
 // App is the Wails-bound application object. It owns the scheduler,
@@ -44,8 +44,8 @@ type App struct {
 	cfg    *config.Store
 	sched  *scheduler.Scheduler
 	tips   *tips.Catalog
-	busy   *macos.BusySource
-	status *macos.StatusBar
+	busy   platform.BusySource
+	status platform.StatusBar
 
 	// nativeOnce guards setupStatusBar / setupNotifications so they're only
 	// invoked the first time DomReady fires.
@@ -63,7 +63,7 @@ type App struct {
 }
 
 // New constructs an App. Call Startup from the Wails OnStartup callback.
-func New(cfg *config.Store, sched *scheduler.Scheduler, catalog *tips.Catalog, busy *macos.BusySource) *App {
+func New(cfg *config.Store, sched *scheduler.Scheduler, catalog *tips.Catalog, busy platform.BusySource) *App {
 	return &App{
 		cfg:   cfg,
 		sched: sched,
@@ -98,9 +98,9 @@ func (a *App) DomReady(ctx context.Context) {
 		// menu-bar-driven anyway. Users who opted into ShowInDock keep
 		// the regular policy (Dock icon) at the cost of that capability.
 		if a.cfg.Get().General.ShowInDock {
-			macos.SetRegularActivationPolicy()
+			platform.SetRegularActivationPolicy()
 		} else {
-			macos.SetAccessoryActivationPolicy()
+			platform.SetAccessoryActivationPolicy()
 		}
 		a.setupStatusBar()
 		a.setupNotifications()
@@ -121,7 +121,7 @@ func (a *App) Shutdown(ctx context.Context) {
 	if a.busy != nil {
 		a.busy.Close()
 	}
-	macos.CloseOverlays()
+	platform.CloseOverlays()
 	a.cfg.Close()
 }
 
@@ -140,15 +140,15 @@ func (a *App) SaveConfig(c config.Config) (config.Config, error) {
 		return saved, err
 	}
 	if saved.General.StartAtLogin != prev.General.StartAtLogin {
-		if ok := macos.SetLoginItemEnabled(saved.General.StartAtLogin); !ok {
+		if ok := platform.SetLoginItemEnabled(saved.General.StartAtLogin); !ok {
 			slog.Warn("login item change failed", "enabled", saved.General.StartAtLogin)
 		}
 	}
 	if saved.General.ShowInDock != prev.General.ShowInDock {
 		if saved.General.ShowInDock {
-			macos.SetRegularActivationPolicy()
+			platform.SetRegularActivationPolicy()
 		} else {
-			macos.SetAccessoryActivationPolicy()
+			platform.SetAccessoryActivationPolicy()
 		}
 	}
 	wailsruntime.EventsEmit(a.ctx, "config:updated", saved)
@@ -261,13 +261,13 @@ func (a *App) OpenPreferences() {
 
 // ---------- Internal: status bar ----------
 
-func (a *App) setStatus(sb *macos.StatusBar) {
+func (a *App) setStatus(sb platform.StatusBar) {
 	a.mu.Lock()
 	a.status = sb
 	a.mu.Unlock()
 }
 
-func (a *App) getStatus() *macos.StatusBar {
+func (a *App) getStatus() platform.StatusBar {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.status
@@ -277,9 +277,9 @@ func (a *App) setupStatusBar() {
 	// Use a native vector template icon. This avoids raster/template
 	// rendering glitches (the old gray-square issue) and lets us reflect
 	// running/paused/busy/break states directly in the menu bar.
-	sb := macos.SetupStatusBar("")
+	sb := platform.SetupStatusBar("")
 	a.setStatus(sb)
-	sb.SetBuiltinIcon(macos.StatusIconRunning)
+	sb.SetBuiltinIcon(platform.StatusIconRunning)
 
 	sb.AddDisabled(tagNextBreak, "Loading…")
 	sb.AddSeparator()
@@ -311,7 +311,7 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 
 	switch snap.Phase {
 	case scheduler.PhasePaused:
-		status.SetBuiltinIcon(macos.StatusIconPaused)
+		status.SetBuiltinIcon(platform.StatusIconPaused)
 		status.UpdateItem(tagNextBreak, "Breaks paused")
 		status.SetItemHidden(tagPause, true)
 		status.SetItemHidden(tagResume, false)
@@ -324,10 +324,10 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 			// Idle-away gets its own icon and wording so users can tell
 			// "you walked away" apart from "meeting / media playing".
 			// Media playback always reports as busy, never as away.
-			status.SetBuiltinIcon(macos.StatusIconPaused)
+			status.SetBuiltinIcon(platform.StatusIconPaused)
 			status.UpdateItem(tagNextBreak, "Away — timer paused")
 		} else {
-			status.SetBuiltinIcon(macos.StatusIconBusy)
+			status.SetBuiltinIcon(platform.StatusIconBusy)
 			// Auto-paused (busy detection). Show why so the user doesn't
 			// wonder why their break didn't fire.
 			status.UpdateItem(tagNextBreak, "Paused — "+label)
@@ -337,12 +337,12 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 		status.SetItemHidden(tagPause, false)
 		status.SetItemHidden(tagResume, true)
 	case scheduler.PhaseOnBreak:
-		status.SetBuiltinIcon(macos.StatusIconBreak)
+		status.SetBuiltinIcon(platform.StatusIconBreak)
 		status.UpdateItem(tagNextBreak, "Break in progress")
 		status.SetItemHidden(tagPause, false)
 		status.SetItemHidden(tagResume, true)
 	default:
-		status.SetBuiltinIcon(macos.StatusIconRunning)
+		status.SetBuiltinIcon(platform.StatusIconRunning)
 		left := time.Until(snap.NextBreakAt)
 		if left < 0 {
 			left = 0
@@ -369,13 +369,13 @@ func (a *App) updateStatusBar(snap scheduler.Snapshot) {
 // ---------- Internal: notifications ----------
 
 func (a *App) setupNotifications() {
-	macos.SetNotificationHandler(func(action macos.NotifAction) {
+	platform.SetNotificationHandler(func(action platform.NotifAction) {
 		switch action {
-		case macos.NotifSkip:
+		case platform.NotifSkip:
 			a.sched.SkipBreak()
-		case macos.NotifPostpone:
+		case platform.NotifPostpone:
 			a.sched.PostponeBreak()
-		case macos.NotifDefault:
+		case platform.NotifDefault:
 			a.sched.TakeBreakNow()
 		}
 	})
@@ -384,11 +384,11 @@ func (a *App) setupNotifications() {
 // setupOverlayHandlers wires button clicks inside the native overlay
 // (Skip / Postpone) into the scheduler.
 func (a *App) setupOverlayHandlers() {
-	macos.SetOverlayActionHandler(func(action macos.OverlayAction) {
+	platform.SetOverlayActionHandler(func(action platform.OverlayAction) {
 		switch action {
-		case macos.OverlaySkip:
+		case platform.OverlaySkip:
 			a.sched.SkipBreak()
-		case macos.OverlayPostpone:
+		case platform.OverlayPostpone:
 			a.sched.PostponeBreak()
 		}
 	})
@@ -432,7 +432,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// EventBreakStart we may have already activated Pausa and lose the
 		// real previous-app context, especially when the previous app was
 		// in a fullscreen Space.
-		if name := macos.FrontmostApp(); name != "" {
+		if name := platform.FrontmostApp(); name != "" {
 			*previousApp = name
 			slog.Info("captured previous app", "name", name)
 		}
@@ -441,7 +441,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 			if ev.BreakKind == scheduler.BreakLong {
 				label = "long"
 			}
-			macos.Notify(
+			platform.Notify(
 				fmt.Sprintf("Your %s break starts soon", label),
 				fmt.Sprintf("In %d seconds. Tap to start now.", ev.SecondsUntil),
 				cfg.Notification.ShowActions,
@@ -454,7 +454,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// pre-break notification (warning disabled, or user invoked
 		// "Take a break now" directly).
 		if *previousApp == "" {
-			if name := macos.FrontmostApp(); name != "" {
+			if name := platform.FrontmostApp(); name != "" {
 				*previousApp = name
 				slog.Info("captured previous app at break start", "name", name)
 			}
@@ -483,11 +483,11 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		}
 		slog.Info("break started",
 			"kind", ev.BreakKind,
-			"screenCount", macos.ScreenCount(),
+			"screenCount", platform.ScreenCount(),
 			"allMonitors", cfg.Display.AllMonitors,
 			"fullscreen", cfg.Display.Fullscreen)
 
-		macos.CreateOverlays(macos.OverlayOptions{
+		platform.CreateOverlays(platform.OverlayOptions{
 			Kind:              kindStr,
 			Title:             title,
 			Timer:             formatTimer(int(dur.Seconds())),
@@ -499,16 +499,16 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		})
 
 	case scheduler.EventBreakTick:
-		macos.UpdateOverlayTimer(formatTimer(ev.SecondsLeft))
+		platform.UpdateOverlayTimer(formatTimer(ev.SecondsLeft))
 
 	case scheduler.EventBreakEnd, scheduler.EventSkipped:
 		// Close every overlay and return focus to the previous app.
-		macos.CloseOverlays()
+		platform.CloseOverlays()
 
 		prev := *previousApp
 		*previousApp = ""
 		slog.Info("break ended, restoring previous app", "name", prev)
-		macos.HideSelfAndActivate(prev)
+		platform.HideSelfAndActivate(prev)
 
 	case scheduler.EventNatural:
 		// A natural break is credited from idle time: no overlay was ever
@@ -522,12 +522,12 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// restore focus when a break was actually active — the scheduler
 		// sets BreakKind on EventReset only then, so a reset during the
 		// warning window won't hide the dashboard.
-		macos.CloseOverlays()
+		platform.CloseOverlays()
 		prev := *previousApp
 		*previousApp = ""
 		if ev.BreakKind != "" && prev != "" {
 			slog.Info("schedule reset, restoring previous app", "name", prev)
-			macos.HideSelfAndActivate(prev)
+			platform.HideSelfAndActivate(prev)
 		}
 	}
 
