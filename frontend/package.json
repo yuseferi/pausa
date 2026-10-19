@@ -12,13 +12,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "vue": "^3.4.15"
+    "vue": "^3.5.44"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/test-utils": "^2.5.1",
-    "eslint": "^10.11.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-vue": "^10.11.1",
     "globals": "^17.13.0",
     "jsdom": "^25.0.1",
