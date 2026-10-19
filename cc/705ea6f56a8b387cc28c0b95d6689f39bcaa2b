@@ -1,0 +1,25 @@
+frontend/package.json
+  s_3b83b9fb27a5b7::t_afa0c02bca8a00 15,19,21
+package.json
+  s_3b83b9fb27a5b7::t_7df878c7f0e2a0 14
+frontend/package-lock.json
+  s_3b83b9fb27a5b7::t_3f6560766551a3 11,15,17,40-42,49-51,58-60,63,73-75,78-79,846-852,1225-1227,1230-1232,1234,1237-1238,1365-1367,1370-1372,1374,1378-1380,1383-1384,1388-1390,1393-1397,1400-1401,1405-1407,1410-1411,1415-1417,1420,1424-1426,1429-1430,1434-1436,1439-1441,1446-1448,1451-1453,1457-1459,1965-1967,2766-2768,2973-2975,2992,2994,3177-3179,3476-3478,3481-3485
+package-lock.json
+  s_3b83b9fb27a5b7::t_cd8dbf82c28453 15,665-667
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "cc705ea6f56a8b387cc28c0b95d6689f39bcaa2b",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
