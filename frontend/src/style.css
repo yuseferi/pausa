@@ -215,3 +215,16 @@ button, input, select, .no-drag {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Accessibility ---------------------------------------------------------- */
+/* Honour the system "Reduce motion" setting: neutralize transitions and
+   animations app-wide. Individual components (e.g. the breathing guide) can
+   still opt into a specific static presentation. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
