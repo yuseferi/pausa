@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/yuseferi/pausa/compare/v1.7.0...v1.8.0) (2026-10-19)
+
+### Features
+
+* **a11y:** accessibility polish, frontend tests, and contributor docs ([#26](https://github.com/yuseferi/pausa/issues/26)) ([ff6dec5](https://github.com/yuseferi/pausa/commit/ff6dec5f02203cab439c1999aa0ee2be855987ad))
+
 ## [1.7.0](https://github.com/yuseferi/pausa/compare/v1.6.0...v1.7.0) (2026-10-15)
 
 ### Features
