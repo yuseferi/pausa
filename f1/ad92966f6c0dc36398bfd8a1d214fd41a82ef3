@@ -1,0 +1,24 @@
+frontend/src/views/PreferencesView.vue
+  s_3b83b9fb27a5b7::t_04af0eb27a2cb9 56-57,59-68,76-97,101,105-109
+  s_3b83b9fb27a5b7::t_863c468ebea22e 110
+frontend/src/views/PreferencesView.test.js
+  s_3b83b9fb27a5b7::t_112e1d1981f4bb 3,40-50,54-55,60,66,69-70,73,77,82-103
+CONTRIBUTING.md
+  s_3b83b9fb27a5b7::t_e1bea66a6ed6fa 29,33,37-41,47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f1ad92966f6c0dc36398bfd8a1d214fd41a82ef3",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
