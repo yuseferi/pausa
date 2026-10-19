@@ -30,6 +30,9 @@ pausa/
 │   │             duration.go        # Duration JSON marshalling
 │   │             store.go           # atomic load/save + pub/sub
 │   ├── tips/     tips.go            # exercise-tip catalog
+│   ├── platform/ platform.go        # OS seam: StatusBar/Busy/Idle contracts
+│   │             platform_darwin.go # darwin impl -> internal/macos
+│   │             platform_other.go  # safe no-ops for other platforms
 │   ├── scheduler/state.go           # FSM types
 │   │             scheduler.go       # actor goroutine
 │   │             scheduler_test.go  # 43 tests w/ FakeClock
@@ -193,12 +196,19 @@ callers can safely invoke them from any goroutine.
 - Components are small (BreakCountdown, BreathingGuide, ExerciseTip, …) and
   pure — they take props and emit events.
 
-### Cross-platform stubs
+### Cross-platform seam
+`internal/platform` is the only place the portable core meets the OS. It
+declares the `StatusBar`, `BusySource`, and `IdleSource` contracts and the
+shared enums; `platform_darwin.go` delegates to `internal/macos` (with a small
+adapter for the bridge's own `MenuTag`/`StatusIconState` types) and
+`platform_other.go` supplies safe no-ops. `breakapp` and `main` depend only on
+`platform`, so a Windows/Linux implementation can be added without touching the
+scheduler or UI.
+
 Every macOS bridge file has a `//go:build darwin` tag and a sibling
-`stubs_other.go` with `//go:build !darwin`. The rest of the codebase doesn't
-care; `GOOS=linux CGO_ENABLED=0 go build ./internal/... .` succeeds. The app
-won't *work* on Linux, but it compiles, which keeps CI fast and discourages
-darwin-specific imports leaking outside `internal/macos`.
+`stubs_other.go` with `//go:build !darwin`. `GOOS=linux CGO_ENABLED=0 go build
+./internal/... .` succeeds, keeping CI fast and stopping darwin-specific
+imports from leaking outside `internal/macos`.
 
 ## Testing
 
