@@ -1,0 +1,37 @@
+ARCHITECTURE.md
+  s_3b83b9fb27a5b7::t_203dfb11af1335 33-35
+  s_3b83b9fb27a5b7::t_e705a8e343281a 199-207,209-211
+internal/platform/platform_darwin.go
+  s_3b83b9fb27a5b7::t_f39f7835212eba 9-44,51-53
+  s_3b83b9fb27a5b7::t_e5c128d55c8c98 1-8,45-50,54-112
+internal/platform/platform.go
+  s_3b83b9fb27a5b7::t_a436c5902d949c 49
+  s_3b83b9fb27a5b7::t_6d3f082ceafe29 1-48,50-85
+internal/platform/platform_darwin_test.go
+  s_3b83b9fb27a5b7::t_8340d6f30a1c10 16-17
+  s_3b83b9fb27a5b7::t_f138d4c8a3fcbf 1-15,18-37
+internal/breakapp/app.go
+  s_3b83b9fb27a5b7::t_9e8e3b0b3a6435 17,26-33,47-48,66,101,103,124,143,149,151,264,270,280,282,314,327,330,340,345,372,374,376,378,387,389,391,435,444,457,486,490,502,506,511,525,530
+main.go
+  s_3b83b9fb27a5b7::t_5fc5aae41216b9 21,48,53
+internal/platform/platform_other.go
+  s_3b83b9fb27a5b7::t_bd185436c03a95 1-76
+internal/platform/platform_test.go
+  s_3b83b9fb27a5b7::t_a018d036d412b2 1-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "9d097d1606bb3337c5a6b4366b60ff323994a0b4",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
