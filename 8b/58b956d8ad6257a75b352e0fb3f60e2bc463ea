@@ -1,0 +1,21 @@
+go.mod
+  s_3b83b9fb27a5b7::t_3ac0b3dcd95a42 3,5,32-35
+go.sum
+  s_3b83b9fb27a5b7::t_bd306254ba9666 50-51,62-65,67-68,75-76,79-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "8b58b956d8ad6257a75b352e0fb3f60e2bc463ea",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
