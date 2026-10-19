@@ -1,13 +1,18 @@
 <script setup>
 // Pure-CSS breathing animation. 4 seconds in, 4 seconds out (8s loop).
 // No JS timers; we rely on the keyframes for both the size and label
-// transitions.
+// transitions. Users who prefer reduced motion get a static (non-animated)
+// circle via the media query in the style block.
 </script>
 
 <template>
   <div class="breathe">
-    <div class="breathe__circle">
-      <span class="breathe__label">Breathe</span>
+    <div
+      class="breathe__circle"
+      role="img"
+      aria-label="Breathing guide: breathe in slowly as the circle grows, and out as it shrinks"
+    >
+      <span class="breathe__label" aria-hidden="true">Breathe</span>
     </div>
   </div>
 </template>
@@ -37,5 +42,8 @@
 @keyframes breathe {
   0%, 100% { transform: scale(1);   background: rgba(255,255,255,0.12); }
   50%      { transform: scale(1.4); background: rgba(255,255,255,0.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .breathe__circle { animation: none; }
 }
 </style>

@@ -3,7 +3,7 @@
 // to the backend, which validates and broadcasts a `config:updated` event
 // the store listens to.
 
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { state, ui, saveConfig } from '../lib/store'
 import SectionSchedule from '../components/preferences/SectionSchedule.vue'
 import SectionNotifications from '../components/preferences/SectionNotifications.vue'
@@ -50,15 +50,81 @@ const onSave = async () => {
   lastSynced.value = JSON.stringify(draft)
   ui.closePreferences()
 }
+
+// --- Accessibility ---------------------------------------------------------
+// Focus the dialog when it opens (or once the config becomes ready, since the
+// modal is gated on `ready`), keep Tab inside the dialog, close on Escape, and
+// restore focus to the trigger on close.
+const modalEl = ref(null)
+let previouslyFocused = null
+
+const FOCUSABLE = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+const focusDialog = async () => {
+  await nextTick()
+  modalEl.value?.focus()
+}
+
+const onKeydown = (e) => {
+  if (e.key === 'Escape') {
+    ui.closePreferences()
+    return
+  }
+  if (e.key !== 'Tab' || !modalEl.value) return
+
+  const root = modalEl.value
+  const nodes = Array.from(root.querySelectorAll(FOCUSABLE)).filter((n) => n.getClientRects().length > 0)
+  if (nodes.length === 0) return
+
+  const first = nodes[0]
+  const last = nodes[nodes.length - 1]
+  const active = document.activeElement
+  const outside = !root.contains(active)
+
+  if (e.shiftKey && (active === first || outside)) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && (active === last || outside)) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
+onMounted(() => {
+  previouslyFocused = document.activeElement
+  window.addEventListener('keydown', onKeydown)
+  if (ready.value) focusDialog()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+    previouslyFocused.focus()
+  }
+})
+watch(ready, (isReady) => { if (isReady) focusDialog() })
 </script>
 
 <template>
   <div v-if="ready" class="modal-overlay" @click.self="ui.closePreferences">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div
+      ref="modalEl"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="prefs-title"
+      tabindex="-1"
+    >
       <header class="modal__header">
-        <h2 class="modal__title">Preferences</h2>
-        <button class="btn btn--ghost btn--icon" @click="ui.closePreferences">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <h2 class="modal__title" id="prefs-title">Preferences</h2>
+        <button class="btn btn--ghost btn--icon" aria-label="Close preferences" @click="ui.closePreferences">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
@@ -68,6 +134,7 @@ const onSave = async () => {
         <nav class="prefs__side">
           <button v-for="t in tabs" :key="t.id"
                   :class="['modal__tab', { 'modal__tab--active': tab === t.id }]"
+                  :aria-current="tab === t.id ? 'true' : undefined"
                   @click="tab = t.id">
             {{ t.label }}
           </button>

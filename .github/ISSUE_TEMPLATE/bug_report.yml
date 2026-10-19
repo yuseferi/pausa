@@ -1,0 +1,60 @@
+name: Bug report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Pausa is macOS-only — the details below help a lot.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Pausa version
+      description: Shown in Preferences → General, or the release you installed.
+      placeholder: "1.7.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install Pausa?
+      options:
+        - Homebrew cask
+        - install.sh one-liner
+        - Manual .zip
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: macOS version and hardware
+      placeholder: "macOS 15.1, Apple silicon"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: "`~/Library/Logs/Pausa/pausa.log`. Set `PAUSA_LOG_LEVEL=debug` for verbose output."
+      render: text
+    validations:
+      required: false
