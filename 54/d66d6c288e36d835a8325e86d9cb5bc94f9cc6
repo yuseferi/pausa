@@ -1,0 +1,38 @@
+.github/workflows/ci.yml
+  s_3b83b9fb27a5b7::t_12bb4ae82cf352 91-94
+Makefile
+  s_3b83b9fb27a5b7::t_85e498c142b509 37
+frontend/vitest.setup.js
+  s_3b83b9fb27a5b7::t_1d1e8570db8d15 1-16
+frontend/src/components/BreathingGuide.test.js
+  s_3b83b9fb27a5b7::t_d0f1a936b92492 1-11
+frontend/vite.config.js
+  s_3b83b9fb27a5b7::t_0f08b0af93f668 1,4-5,13-19
+frontend/src/components/StatsRow.test.js
+  s_3b83b9fb27a5b7::t_295c7623a38fc3 1-26
+frontend/package.json
+  s_3b83b9fb27a5b7::t_7478c01536d39f 10-12
+  s_3b83b9fb27a5b7::t_6862347ad931ea 20,24-26
+frontend/src/lib/duration.test.js
+  s_3b83b9fb27a5b7::t_a334dc17c3bbab 1-50
+frontend/src/lib/store.test.js
+  s_3b83b9fb27a5b7::t_653419d76b98a9 1-100
+frontend/package-lock.json
+  s_3b83b9fb27a5b7::t_1b457edddccede 16,20-36,109-223,839-845,1231-1353,1454-1484,1508-1517,1535-1551,1582-1591,1606-1680,1709-1729,1736-1749,1768-1771,1775-1839,1848-1903,2149-2158,2226-2242,2258-2324,2351-2392,2406-2418,2426-2479,2500-2506,2530-2536,2544-2613,2668-2681,2691-2723,2740-2749,2782-2797,2811-2817,2868-2893,2914-2957,3016-3022,3098-3124,3161-3167,3177-3287,3378-3466,3488-3494,3520-3580,3597-3613,3624-3645,3656-3662
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "54d66d6c288e36d835a8325e86d9cb5bc94f9cc6",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
