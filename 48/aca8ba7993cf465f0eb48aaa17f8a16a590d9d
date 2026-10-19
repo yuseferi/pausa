@@ -1,0 +1,36 @@
+frontend/src/style.css
+  s_3b83b9fb27a5b7::t_2b5cbe17d2bb23 218-230
+frontend/src/components/BreathingGuide.vue
+  s_3b83b9fb27a5b7::t_c0348f736f0a62 4-5,10-15,46-47
+  s_cb8bdf1949860c::t_8052bed65d7e2c 48
+frontend/src/views/PreferencesView.vue
+  s_3b83b9fb27a5b7::t_8fef554a34b1cc 6
+  s_3b83b9fb27a5b7::t_d10107fa6b8617 53-73
+  s_3b83b9fb27a5b7::t_40b261866b154e 78-85,87-89,99
+frontend/src/views/PreferencesView.test.js
+  s_3b83b9fb27a5b7::t_da103109b04fbb 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "48aca8ba7993cf465f0eb48aaa17f8a16a590d9d",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    },
+    "s_cb8bdf1949860c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eaa6869d2ffeolySWS46PPIDhP",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
