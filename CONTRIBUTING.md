@@ -26,20 +26,25 @@ wails dev          # hot-reloading dev build
 
 ## Tests and checks
 
-Everything CI runs is available locally via `make check`:
+`make check` runs the core local checks:
 
 ```bash
 make test    # go vet + go test -race + go build
-make check   # the above, plus the Linux cross-compile, frontend lint and build
+make check   # the above, plus the Linux cross-compile, frontend lint + tests + build
 make icons   # regenerate the app icon from build/icons/appicon.svg
 ```
+
+CI runs the same steps **plus** two things `make check` does not: it generates
+the Wails bindings (`wails generate module`) and runs `golangci-lint`. Run
+`wails generate module` locally if you also need the generated bindings (the
+frontend unit tests do not — they stub their boundaries).
 
 Frontend:
 
 ```bash
 cd frontend
 npm run lint
-npm run test        # vitest (unit + component)
+npm run test        # vitest (unit + component), no generated bindings needed
 npm run test:watch  # watch mode
 npm run build
 ```

@@ -53,8 +53,19 @@ const onSave = async () => {
 
 // --- Accessibility ---------------------------------------------------------
 // Focus the dialog when it opens (or once the config becomes ready, since the
-// modal is gated on `ready`) and close it on Escape.
+// modal is gated on `ready`), keep Tab inside the dialog, close on Escape, and
+// restore focus to the trigger on close.
 const modalEl = ref(null)
+let previouslyFocused = null
+
+const FOCUSABLE = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
 
 const focusDialog = async () => {
   await nextTick()
@@ -62,14 +73,41 @@ const focusDialog = async () => {
 }
 
 const onKeydown = (e) => {
-  if (e.key === 'Escape') ui.closePreferences()
+  if (e.key === 'Escape') {
+    ui.closePreferences()
+    return
+  }
+  if (e.key !== 'Tab' || !modalEl.value) return
+
+  const root = modalEl.value
+  const nodes = Array.from(root.querySelectorAll(FOCUSABLE)).filter((n) => n.getClientRects().length > 0)
+  if (nodes.length === 0) return
+
+  const first = nodes[0]
+  const last = nodes[nodes.length - 1]
+  const active = document.activeElement
+  const outside = !root.contains(active)
+
+  if (e.shiftKey && (active === first || outside)) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && (active === last || outside)) {
+    e.preventDefault()
+    first.focus()
+  }
 }
 
 onMounted(() => {
+  previouslyFocused = document.activeElement
   window.addEventListener('keydown', onKeydown)
   if (ready.value) focusDialog()
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+    previouslyFocused.focus()
+  }
+})
 watch(ready, (isReady) => { if (isReady) focusDialog() })
 </script>
 
