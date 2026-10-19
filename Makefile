@@ -34,6 +34,7 @@ test: seed-dist
 check: test
 	GOOS=linux CGO_ENABLED=0 go build $(GO_PKGS)
 	cd frontend && npm run lint
+	cd frontend && npm run test
 	cd frontend && npm run build
 
 clean:
