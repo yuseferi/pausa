@@ -82,6 +82,12 @@ func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	a.cancelCtx = cancel
 
+	// Non-macOS routes notifications through the Wails service, which needs
+	// its D-Bus/WinRT channel opened before the first send.
+	if err := platform.InitNotifications(ctx); err != nil {
+		slog.Warn("init notifications", "err", err)
+	}
+
 	a.sched.Start(ctx)
 	go a.eventPump(ctx)
 }
@@ -122,6 +128,7 @@ func (a *App) Shutdown(ctx context.Context) {
 		a.busy.Close()
 	}
 	platform.CloseOverlays()
+	platform.CloseNotifications(ctx)
 	a.cfg.Close()
 }
 
@@ -442,6 +449,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 				label = "long"
 			}
 			platform.Notify(
+				a.ctx,
 				fmt.Sprintf("Your %s break starts soon", label),
 				fmt.Sprintf("In %d seconds. Tap to start now.", ev.SecondsUntil),
 				cfg.Notification.ShowActions,
@@ -487,6 +495,16 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 			"allMonitors", cfg.Display.AllMonitors,
 			"fullscreen", cfg.Display.Fullscreen)
 
+		// Platforms without native panels (Windows/Linux) use the Wails
+		// window as the break surface. Showing it is mandatory there —
+		// otherwise the user gets the notification and then simply nothing.
+		if !platform.NativeOverlays {
+			wailsruntime.WindowShow(a.ctx)
+			if cfg.Display.Fullscreen {
+				wailsruntime.WindowFullscreen(a.ctx)
+			}
+		}
+
 		platform.CreateOverlays(platform.OverlayOptions{
 			Kind:              kindStr,
 			Title:             title,
@@ -504,6 +522,11 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 	case scheduler.EventBreakEnd, scheduler.EventSkipped:
 		// Close every overlay and return focus to the previous app.
 		platform.CloseOverlays()
+		if !platform.NativeOverlays {
+			// Mirror the fullscreen entered at break start so the
+			// dashboard comes back as a normal window.
+			wailsruntime.WindowUnfullscreen(a.ctx)
+		}
 
 		prev := *previousApp
 		*previousApp = ""
@@ -523,6 +546,9 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// sets BreakKind on EventReset only then, so a reset during the
 		// warning window won't hide the dashboard.
 		platform.CloseOverlays()
+		if !platform.NativeOverlays {
+			wailsruntime.WindowUnfullscreen(a.ctx)
+		}
 		prev := *previousApp
 		*previousApp = ""
 		if ev.BreakKind != "" && prev != "" {

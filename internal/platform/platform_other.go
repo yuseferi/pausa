@@ -2,12 +2,20 @@
 
 package platform
 
-import "time"
+import (
+	"context"
+	"log/slog"
+	"time"
 
-// This file provides no-op implementations for platforms Pausa does not yet
-// support natively. They exist so the module cross-compiles and so the core
-// (scheduler, config, UI) can run headless in tests. Windows and Linux will
-// replace these with real implementations.
+	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+)
+
+// This file provides the baseline implementation for platforms without a
+// native bridge. On Windows and Linux the app still runs — the Wails window is
+// the whole UI, and notifications go through the Wails notification service
+// (D-Bus on Linux, WinRT/toast on Windows) — but tray, busy detection, idle
+// detection and multi-screen overlays are unavailable. Other GOOS values fall
+// back to the same no-ops so the module keeps cross-compiling.
 
 type nopStatusBar struct{}
 
@@ -24,8 +32,29 @@ func (nopStatusBar) Teardown()                       {}
 // SetupStatusBar returns a no-op status bar.
 func SetupStatusBar(string) StatusBar { return nopStatusBar{} }
 
-// Notify is a no-op.
-func Notify(string, string, bool, bool) {}
+// InitNotifications opens the platform notification channel. On non-macOS this
+// is the Wails notification service, which must be initialized before the
+// first send (on Linux it holds the D-Bus connection).
+func InitNotifications(ctx context.Context) error {
+	return wailsruntime.InitializeNotifications(ctx)
+}
+
+// CloseNotifications releases the notification channel.
+func CloseNotifications(ctx context.Context) {
+	wailsruntime.CleanupNotifications(ctx)
+}
+
+// Notify posts a desktop notification. Action buttons and notification
+// actions are macOS-only, so withActions and withSound are ignored here.
+func Notify(ctx context.Context, title, body string, withActions, withSound bool) {
+	if err := wailsruntime.SendNotification(ctx, wailsruntime.NotificationOptions{
+		ID:    "pausa-break-warning",
+		Title: title,
+		Body:  body,
+	}); err != nil {
+		slog.Warn("desktop notification failed", "err", err)
+	}
+}
 
 // SetNotificationHandler is a no-op.
 func SetNotificationHandler(func(NotifAction)) {}
