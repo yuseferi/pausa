@@ -1,0 +1,61 @@
+internal/platform/platform_other.go
+  s_3b83b9fb27a5b7::t_e923660c87de4c 47,55-57
+  s_3b83b9fb27a5b7::t_1f70a27be58ea3 6,10,15-18
+  s_3b83b9fb27a5b7::t_a2d3bf5a6d6aa0 5,7-8,11-14
+  s_3b83b9fb27a5b7::t_f8122b2e2d9475 35-46,48-54
+.github/workflows/release.yml
+  s_3b83b9fb27a5b7::t_ff37924e7046f4 227-230,234-236,238-247,253
+  s_3b83b9fb27a5b7::t_657c78626506cb 153-202,214-226,231-233,237,248-252,254-256
+  s_3b83b9fb27a5b7::t_f8c43e7c673af8 203-213
+README.md
+  s_3b83b9fb27a5b7::t_d21bf326faa2ca 236-237,240-254
+  s_3b83b9fb27a5b7::t_d15733797f421c 280
+  s_3b83b9fb27a5b7::t_7e0dea3b07e4b4 14
+  s_3b83b9fb27a5b7::t_e3db7d02af3e1c 418,421
+  s_3b83b9fb27a5b7::t_b24fdb5438aa33 255
+internal/breakapp/app.go
+  s_3b83b9fb27a5b7::t_3eec8fdbd7c442 504,528,550
+  s_3b83b9fb27a5b7::t_865d57c96aa317 85-90
+  s_3b83b9fb27a5b7::t_ff6966e1c36449 452
+  s_3b83b9fb27a5b7::t_c484c08cf6a69d 131
+  s_3b83b9fb27a5b7::t_ddea2e7558826b 525-527,529
+  s_3b83b9fb27a5b7::t_def63e01796b68 549,551
+  s_3b83b9fb27a5b7::t_e08dba5b14b678 498-503,505-507
+main.go
+  s_3b83b9fb27a5b7::t_ac026b1cec255f 9
+  s_3b83b9fb27a5b7::t_6f35b76d70a5dd 67-70
+ARCHITECTURE.md
+  s_3b83b9fb27a5b7::t_bed4027a6795e3 33,35
+  s_3b83b9fb27a5b7::t_f7819e4c6f6601 220-224
+  s_3b83b9fb27a5b7::t_e4a794e47c4310 278-281
+  s_3b83b9fb27a5b7::t_48cb3ace8d86d1 238-239
+  s_3b83b9fb27a5b7::t_831e23834b260e 204-219,227-231
+internal/platform/platform.go
+  s_3b83b9fb27a5b7::t_b54b4c41e5e833 19-29
+.github/workflows/ci.yml
+  s_3b83b9fb27a5b7::t_b0b5de12499a56 133-145
+internal/platform/platform_darwin_test.go
+  s_3b83b9fb27a5b7::t_6398a237a09a37 38-50
+Makefile
+  s_3b83b9fb27a5b7::t_4044893dba4649 36
+internal/platform/platform_darwin.go
+  s_3b83b9fb27a5b7::t_479d6fba3b8896 64-70,72
+  s_3b83b9fb27a5b7::t_972d44764af23f 6-7
+  s_3b83b9fb27a5b7::t_681b9bba3d278a 16-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "d87864797bc3ae264a5f1d4ea5e2878c21f8043c",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
