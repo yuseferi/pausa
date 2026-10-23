@@ -130,8 +130,19 @@ jobs:
       - name: Install GTK / WebKit dev packages
         if: matrix.name == 'linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+          set -euo pipefail
+          if pkg-config --exists webkit2gtk-4.1 && pkg-config --exists gtk+-3.0; then
+            echo "GTK/WebKit dev headers already present; skipping apt."
+            exit 0
+          fi
+          # The runner image sometimes has unattended-upgrades holding the
+          # dpkg lock, which makes apt wait indefinitely.
+          sudo systemctl stop unattended-upgrades || true
+          sudo killall unattended-upgrades || true
+          export DEBIAN_FRONTEND=noninteractive
+          sudo -E apt-get update -o Acquire::Retries=3 -o DPkg::Lock::Timeout=120
+          sudo -E apt-get install -y --no-install-recommends \
+            pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest

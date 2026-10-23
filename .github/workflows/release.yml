@@ -150,6 +150,110 @@ jobs:
             dist/*.zip
             dist/*.sha256
 
+  build-desktop:
+    name: Build ${{ matrix.name }} binary
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            tags: webkit2_41
+            asset_suffix: linux-amd64
+          - name: windows
+            os: windows-latest
+            tags: ""
+            asset_suffix: windows-amd64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${{ github.event.inputs.version }}"
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install GTK / WebKit dev packages
+        if: matrix.name == 'linux'
+        run: |
+          set -euo pipefail
+          if pkg-config --exists webkit2gtk-4.1 && pkg-config --exists gtk+-3.0; then
+            echo "GTK/WebKit dev headers already present; skipping apt."
+            exit 0
+          fi
+          sudo systemctl stop unattended-upgrades || true
+          sudo killall unattended-upgrades || true
+          export DEBIAN_FRONTEND=noninteractive
+          sudo -E apt-get update -o Acquire::Retries=3 -o DPkg::Lock::Timeout=120
+          sudo -E apt-get install -y --no-install-recommends \
+            pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build
+        run: |
+          wails build -tags "${{ matrix.tags }}" \
+            -ldflags "-X pausa/internal/version.Version=${{ steps.version.outputs.version }}"
+
+      # A .tar.gz keeps the executable bit on Linux; Windows gets a .zip.
+      # Both ship a .sha256 next to them, matching the macOS assets.
+      - name: Package (Linux)
+        if: matrix.name == 'linux'
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          ASSET="dist/pausa-${{ steps.version.outputs.version }}-${{ matrix.asset_suffix }}.tar.gz"
+          tar -czf "$ASSET" -C build/bin pausa
+          sha256sum "$ASSET" | awk '{print $1}' > "$ASSET.sha256"
+
+      - name: Package (Windows)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $asset = "dist/pausa-${{ steps.version.outputs.version }}-${{ matrix.asset_suffix }}.zip"
+          Compress-Archive -Path build/bin/pausa.exe -DestinationPath $asset
+          (Get-FileHash -Algorithm SHA256 $asset).Hash.ToLower() |
+            Out-File -NoNewline "$asset.sha256"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/*.sha256
+
   update-cask:
     name: Update Homebrew cask after release
     runs-on: ubuntu-latest

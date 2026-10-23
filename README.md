@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/yuseferi/pausa/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/yuseferi/pausa?color=0ea5e9&label=release"></a>
   <a href="https://github.com/yuseferi/pausa/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/yuseferi/pausa?color=0ea5e9"></a>
-  <img alt="Platform: macOS" src="https://img.shields.io/badge/platform-macOS-111111?logo=apple&logoColor=white">
+  <img alt="Platform: macOS, Windows, Linux" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-111111?logo=apple&logoColor=white">
   <a href="https://github.com/yuseferi/pausa/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/yuseferi/pausa/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/yuseferi/pausa/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/yuseferi/pausa?style=social"></a>
 </p>
@@ -233,8 +233,25 @@ Pausa runs entirely on your Mac:
 
 ## Requirements
 
-- macOS (Apple silicon and Intel builds both published)
+- **macOS** 11 or later (Apple silicon and Intel builds both published)
+- **Windows 10/11** and **Linux (amd64)** builds are published as a *lite* edition — see [Windows and Linux](#windows-and-linux) below
 - Break overlays work best with the default accessory activation policy. If you enable **Show in Dock**, Pausa uses the regular activation policy, which can reduce its ability to cover fullscreen-app Spaces.
+
+### Windows and Linux
+
+The Windows and Linux builds run the same scheduler, dashboard, preferences and break screen as macOS, but without the native macOS integration:
+
+| | macOS | Windows / Linux |
+|---|---|---|
+| Break reminder | Native notification with Skip/Postpone buttons | System notification |
+| Break screen | Native `NSPanel` overlays, every monitor | The app window, fullscreen if enabled |
+| Menu-bar / tray item | Yes | No — closing the window quits |
+| Busy detection (calls, video) | Yes | No |
+| Idle detection | Yes | No |
+| Launch at login | Yes | Not yet |
+| Fullscreen-app Spaces | Yes | N/A |
+
+This is a deliberate first step: the portable core, config format and UI are shared, so the remaining platform work can land incrementally without forking the app.
 
 ---
 
@@ -260,7 +277,7 @@ Yes. Break overlays are native panels that render above fullscreen Spaces, and c
 ## Known Limitations
 
 - Browser video detection for muted tabs is currently **frontmost-tab only**
-- Linux and Windows are not supported as runtime targets yet
+- The Windows and Linux builds are a lite edition: no tray icon, no native overlay panels, no busy or idle detection, and no launch-at-login
 - Some media detection relies on Apple-private APIs (`MediaRemote`) and browser scripting fallbacks
 
 ---
@@ -398,9 +415,10 @@ npm run build
 
 ```bash
 GOOS=linux CGO_ENABLED=0 go build ./internal/... .
+GOOS=windows CGO_ENABLED=0 go build ./internal/... .
 ```
 
-Pausa is macOS-focused, but non-darwin stubs are maintained so cross-compilation continues to work.
+That only proves the pure-Go core type-checks. CI also runs a real `wails build` on `ubuntu-latest` and `windows-latest` (job `Package`), which is what catches GTK/WebKit and Windows toolchain problems.
 
 ### Releases
 

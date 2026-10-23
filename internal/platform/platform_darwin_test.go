@@ -35,3 +35,16 @@ func TestEnumsMatchBridge(t *testing.T) {
 		}
 	}
 }
+
+// breakapp decides whether to show the Wails window for a break based on
+// NativeOverlays, and whether closing the window may hide it based on
+// SystemTray. macOS must advertise both, or breaks would render twice (once
+// in a panel and once in the window) and the close button would quit.
+func TestDarwinCapabilities(t *testing.T) {
+	if !NativeOverlays {
+		t.Error("NativeOverlays must be true on darwin")
+	}
+	if !SystemTray {
+		t.Error("SystemTray must be true on darwin")
+	}
+}
