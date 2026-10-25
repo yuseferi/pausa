@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/yuseferi/pausa/compare/v1.8.0...v1.9.0) (2026-10-25)
+
+### Features
+
+* run Pausa on Windows and Linux (lite) ([#47](https://github.com/yuseferi/pausa/issues/47)) ([5cd3a31](https://github.com/yuseferi/pausa/commit/5cd3a31b2157b9697a766372bb7467875a83b383))
+
 ## [1.8.0](https://github.com/yuseferi/pausa/compare/v1.7.0...v1.8.0) (2026-10-19)
 
 ### Features
