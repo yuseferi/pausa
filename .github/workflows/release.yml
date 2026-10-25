@@ -166,6 +166,12 @@ jobs:
             tags: ""
             asset_suffix: windows-amd64
 
+    # Windows defaults to PowerShell, but every step here is bash (the macOS
+    # job gets bash for free). The pwsh packaging step overrides this.
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
