@@ -1,3 +1,9 @@
+## [1.9.1](https://github.com/yuseferi/pausa/compare/v1.9.0...v1.9.1) (2026-10-25)
+
+### Bug Fixes
+
+* **ci:** run the Windows release steps under bash ([#54](https://github.com/yuseferi/pausa/issues/54)) ([44dfe34](https://github.com/yuseferi/pausa/commit/44dfe34ddd208de570cc43642d21f3723df13cac))
+
 ## [1.9.0](https://github.com/yuseferi/pausa/compare/v1.8.0...v1.9.0) (2026-10-25)
 
 ### Features
