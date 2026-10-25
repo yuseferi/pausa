@@ -16,6 +16,17 @@ package platform
 
 import "time"
 
+// NativeOverlays reports whether this platform draws the break UI itself
+// (macOS borderless NSPanels, one per screen). When false, CreateOverlays and
+// friends are no-ops and the caller must show the Wails window for the break
+// instead — otherwise the user gets a notification and then nothing.
+var NativeOverlays = false
+
+// SystemTray reports whether SetupStatusBar renders a persistent menu-bar /
+// tray surface. When false there is no way to bring the app back after its
+// window is hidden, so the window close button must quit instead of hiding.
+var SystemTray = false
+
 // MenuTag identifies a status-item / tray menu entry. Zero and negative tags
 // are reserved.
 type MenuTag int

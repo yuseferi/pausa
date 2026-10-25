@@ -30,9 +30,9 @@ pausa/
 │   │             duration.go        # Duration JSON marshalling
 │   │             store.go           # atomic load/save + pub/sub
 │   ├── tips/     tips.go            # exercise-tip catalog
-│   ├── platform/ platform.go        # OS seam: StatusBar/Busy/Idle contracts
+│   ├── platform/ platform.go        # OS seam: contracts + capability flags
 │   │             platform_darwin.go # darwin impl -> internal/macos
-│   │             platform_other.go  # safe no-ops for other platforms
+│   │             platform_other.go  # Windows/Linux lite: notifications, no-ops
 │   ├── scheduler/state.go           # FSM types
 │   │             scheduler.go       # actor goroutine
 │   │             scheduler_test.go  # 43 tests w/ FakeClock
@@ -201,21 +201,42 @@ callers can safely invoke them from any goroutine.
 declares the `StatusBar`, `BusySource`, and `IdleSource` contracts and the
 shared enums; `platform_darwin.go` delegates to `internal/macos` (with a small
 adapter for the bridge's own `MenuTag`/`StatusIconState` types) and
-`platform_other.go` supplies safe no-ops. `breakapp` and `main` depend only on
-`platform`, so a Windows/Linux implementation can be added without touching the
-scheduler or UI.
+`platform_other.go` implements the Windows/Linux lite edition. `breakapp` and
+`main` depend only on `platform`, so platform work never touches the scheduler
+or UI.
+
+Two capability flags describe what an implementation can actually do, because
+the fallback behaviour differs per feature:
+
+- `NativeOverlays` — the platform draws the break UI itself. When false,
+  `CreateOverlays` is a no-op and `breakapp` shows the Wails window (and
+  fullscreens it when the user asked for fullscreen) so the break is visible
+  at all.
+- `SystemTray` — a persistent tray/menu-bar surface exists, so the window may
+  hide on close. When false, `main` sets `HideWindowOnClose: false`; otherwise
+  closing the window would strand an invisible process with no way back.
+
+Windows/Linux therefore get: the same scheduler, config, dashboard, preferences
+and break screen; system notifications through the Wails notification service
+(D-Bus on Linux, WinRT/toast on Windows); and no tray, busy detection, idle
+detection, native overlays or launch-at-login. `Notify` ignores the
+action-button and sound flags there, since notification actions are
+macOS-only.
 
 Every macOS bridge file has a `//go:build darwin` tag and a sibling
-`stubs_other.go` with `//go:build !darwin`. `GOOS=linux CGO_ENABLED=0 go build
-./internal/... .` succeeds, keeping CI fast and stopping darwin-specific
-imports from leaking outside `internal/macos`.
+`stubs_other.go` with `//go:build !darwin`. `GOOS=linux CGO_ENABLED=0` and
+`GOOS=windows CGO_ENABLED=0` builds keep CI fast and stop darwin-specific
+imports from leaking outside `internal/macos`; the `Package` CI job then does a
+real cgo `wails build` on both platforms, which is the check that matters for
+GTK/WebKit and the Windows toolchain.
 
 ## Testing
 
 ```
 go test -race ./internal/... .   # 56 tests, ~2s
 go vet ./internal/... .          # zero issues
-GOOS=linux CGO_ENABLED=0 go build ./internal/... .  # cross-compile sanity
+GOOS=linux CGO_ENABLED=0 go build ./internal/... .    # cross-compile sanity
+GOOS=windows CGO_ENABLED=0 go build ./internal/... .  # cross-compile sanity
 npm --prefix frontend run lint            # frontend ESLint (flat/essential)
 npm --prefix frontend run build           # frontend bundle (vite build)
 ```
@@ -254,3 +275,7 @@ Common changes:
   `~/Library/Application Support/Pausa/stats.log`.
 - **Custom exercises UI** — the `tips.Catalog` already supports `Add` /
   `Remove`; just need a frontend section.
+- **Windows/Linux tray and busy detection** — the lite build ships without
+  them. A tray needs a real `StatusBar` implementation: a systray library on
+  Windows, and on Linux a sidecar process, because a second GTK main loop
+  conflicts with the one Wails owns.

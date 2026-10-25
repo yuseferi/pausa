@@ -3,6 +3,8 @@
 package platform
 
 import (
+	"context"
+
 	"pausa/internal/macos"
 )
 
@@ -10,6 +12,13 @@ import (
 // The bridge uses its own MenuTag/StatusIconState types, so the adapter is the
 // single place that translates between the two.
 type darwinStatusBar struct{ inner *macos.StatusBar }
+
+func init() {
+	// macOS draws breaks in native NSPanels and keeps a real status item, so
+	// the window may hide and the overlay owns the break UI.
+	NativeOverlays = true
+	SystemTray = true
+}
 
 var _ StatusBar = darwinStatusBar{}
 
@@ -52,8 +61,15 @@ func SetupStatusBar(title string) StatusBar {
 	return darwinStatusBar{inner: macos.SetupStatusBar(title)}
 }
 
+// InitNotifications is a no-op: the macOS bridge owns its own
+// UNUserNotificationCenter delegate and authorization flow.
+func InitNotifications(context.Context) error { return nil }
+
+// CloseNotifications is a no-op on macOS.
+func CloseNotifications(context.Context) {}
+
 // Notify posts a native notification, optionally with action buttons/sound.
-func Notify(title, body string, withActions, withSound bool) {
+func Notify(_ context.Context, title, body string, withActions, withSound bool) {
 	macos.Notify(title, body, withActions, withSound)
 }
 
