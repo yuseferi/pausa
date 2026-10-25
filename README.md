@@ -57,6 +57,22 @@ Prefer a direct download? Grab the latest `.zip` — Apple silicon and Intel bui
 
 **<https://github.com/yuseferi/pausa/releases/latest>**
 
+**On Windows or Linux?** The same releases page has
+`pausa-<version>-windows-amd64.zip` and `pausa-<version>-linux-amd64.tar.gz`,
+each with a matching `.sha256`:
+
+```bash
+# Linux
+tar -xzf pausa-1.9.0-linux-amd64.tar.gz && ./pausa
+```
+
+Windows 10/11 ships the WebView2 runtime Pausa needs. The Linux build links
+GTK 3 and WebKit2GTK 4.1, so install those first — `libgtk-3-0` and
+`libwebkit2gtk-4.1-0` on Debian/Ubuntu (`t64` variants on 24.04+), `gtk3` and
+`webkit2gtk-4.1` on Fedora/Arch. See
+[Windows and Linux](#windows-and-linux) for what the lite build does and
+doesn't include.
+
 Or install with a single command — it picks the right build for your Mac, verifies the checksum, and clears the unsigned-build first-launch block:
 
 ```bash
