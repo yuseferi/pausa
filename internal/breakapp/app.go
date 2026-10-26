@@ -230,6 +230,12 @@ func (a *App) ResetBreaks() { a.sched.Reset() }
 // GetVersion returns the built-in application version.
 func (a *App) GetVersion() string { return version.Version }
 
+// GetCapabilities reports what the host platform supports. The preferences UI
+// uses it to hide controls that would be no-ops — without this, Windows and
+// Linux users see "Show in Dock" and "Show countdown in menu bar" switches
+// that silently do nothing.
+func (a *App) GetCapabilities() platform.Capabilities { return platform.Caps }
+
 // CheckForUpdates queries GitHub releases for a newer version. It only runs
 // when the user clicks the update button — never automatically — so Pausa
 // stays network-silent otherwise.
@@ -498,7 +504,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// Platforms without native panels (Windows/Linux) use the Wails
 		// window as the break surface. Showing it is mandatory there —
 		// otherwise the user gets the notification and then simply nothing.
-		if !platform.NativeOverlays {
+		if !platform.Caps.NativeOverlays {
 			wailsruntime.WindowShow(a.ctx)
 			if cfg.Display.Fullscreen {
 				wailsruntime.WindowFullscreen(a.ctx)
@@ -522,7 +528,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 	case scheduler.EventBreakEnd, scheduler.EventSkipped:
 		// Close every overlay and return focus to the previous app.
 		platform.CloseOverlays()
-		if !platform.NativeOverlays {
+		if !platform.Caps.NativeOverlays {
 			// Mirror the fullscreen entered at break start so the
 			// dashboard comes back as a normal window.
 			wailsruntime.WindowUnfullscreen(a.ctx)
@@ -546,7 +552,7 @@ func (a *App) handleSchedulerEvent(ev scheduler.Event, previousApp *string) {
 		// sets BreakKind on EventReset only then, so a reset during the
 		// warning window won't hide the dashboard.
 		platform.CloseOverlays()
-		if !platform.NativeOverlays {
+		if !platform.Caps.NativeOverlays {
 			wailsruntime.WindowUnfullscreen(a.ctx)
 		}
 		prev := *previousApp

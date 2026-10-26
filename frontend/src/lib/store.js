@@ -9,6 +9,17 @@ const _state = reactive({
   ready: false,
   firstLaunch: false,
   config: null,
+  // What the host platform supports. Defaults to everything so a failed or
+  // missing call never hides a setting that actually works; the backend
+  // narrows it on Windows/Linux.
+  capabilities: {
+    nativeOverlays: true,
+    systemTray: true,
+    dockIcon: true,
+    loginItem: true,
+    busyDetection: true,
+    idleDetection: true,
+  },
   snapshot: {
     phase: 'idle',
     nextKind: 'short',
@@ -52,12 +63,14 @@ export async function init() {
   if (window.__pausaInited) return
   window.__pausaInited = true
 
-  const [config, snapshot, firstLaunch] = await Promise.all([
+  const [config, snapshot, firstLaunch, capabilities] = await Promise.all([
     api.getConfig(),
     api.getSnapshot(),
     api.isFirstLaunch(),
+    api.getCapabilities(),
   ])
   if (config) _state.config = config
+  if (capabilities) _state.capabilities = { ..._state.capabilities, ...capabilities }
   applySnapshot(snapshot)
   _state.firstLaunch = !!firstLaunch
   _state.ready = true

@@ -6,6 +6,7 @@ vi.mock('./api', () => ({
   api: {
     getConfig: vi.fn(),
     getSnapshot: vi.fn(),
+    getCapabilities: vi.fn(),
     isFirstLaunch: vi.fn(),
     saveConfig: vi.fn(),
     markFirstLaunchComplete: vi.fn(),
@@ -38,6 +39,16 @@ beforeAll(async () => {
   api.getConfig.mockResolvedValue({ display: { theme: 'system', accentColor: '#0ea5e9' } })
   api.getSnapshot.mockResolvedValue(baseSnapshot)
   api.isFirstLaunch.mockResolvedValue(true)
+  // A lite (Windows/Linux) platform: the store's all-true defaults must be
+  // narrowed by what the backend reports.
+  api.getCapabilities.mockResolvedValue({
+    nativeOverlays: false,
+    systemTray: false,
+    dockIcon: false,
+    loginItem: false,
+    busyDetection: false,
+    idleDetection: false,
+  })
   await init()
 })
 
@@ -47,6 +58,9 @@ describe('store', () => {
     expect(state.config.display.accentColor).toBe('#0ea5e9')
     expect(state.snapshot.phase).toBe('scheduled')
     expect(state.firstLaunch).toBe(true)
+    expect(state.capabilities.nativeOverlays).toBe(false)
+    expect(state.capabilities.systemTray).toBe(false)
+    expect(state.capabilities.idleDetection).toBe(false)
     expect(handlers['scheduler:event']).toBeTypeOf('function')
     expect(handlers['scheduler:hydrate']).toBeTypeOf('function')
     expect(handlers['config:updated']).toBeTypeOf('function')

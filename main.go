@@ -6,7 +6,6 @@ package main
 import (
 	"embed"
 	"log/slog"
-	"runtime"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -65,9 +64,9 @@ func main() {
 		MinWidth:          560,
 		MinHeight:         640,
 		// macOS keeps running as a menu-bar app when the window closes, so the
-		// close button hides it. On Windows/Linux there is no tray to bring it
-		// back from, so closing must quit instead of stranding a hidden app.
-		HideWindowOnClose: runtime.GOOS == "darwin",
+		// close button hides it. Without a tray to restore it from, closing
+		// must quit instead of stranding a hidden app.
+		HideWindowOnClose: platform.Caps.SystemTray,
 		StartHidden:       false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,

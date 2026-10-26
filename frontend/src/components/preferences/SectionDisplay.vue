@@ -1,4 +1,6 @@
 <script setup>
+import { state } from '../../lib/store'
+
 const model = defineModel({ required: true })
 
 const themes = [
@@ -38,7 +40,7 @@ const accentPresets = ['#0ea5e9', '#7c3aed', '#22c55e', '#f59e0b', '#ef4444', '#
         <span class="toggle__slider" />
       </span>
     </label>
-    <label class="field">
+    <label v-if="state.capabilities.nativeOverlays" class="field">
       <span class="field__label">Show on all monitors</span>
       <span class="toggle">
         <input type="checkbox" v-model="model.allMonitors" />
