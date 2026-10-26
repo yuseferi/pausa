@@ -1,13 +1,13 @@
 cask "pausa" do
-  version "1.9.2"
+  version "1.9.4"
 
   on_arm do
-    sha256 "a9fc4b7f8c12d4b357d9f6c9e57992d5676de76b312c328b9944f8026578efa0"
+    sha256 "c50732b050b9abe3897ef9560a51b2c841f89a36dbdfc282767b2b11319139dd"
     url "https://github.com/yuseferi/pausa/releases/download/v#{version}/pausa-#{version}-arm64-macos.zip"
   end
 
   on_intel do
-    sha256 "21150007cfaeabcc509c9d71357ce30a6d83f0310dbf9f944574b7ec858bda37"
+    sha256 "5a4819b115146b025b36b6e3a00a30910cb8025ff84ba1a51b16cd5bccaa0e0e"
     url "https://github.com/yuseferi/pausa/releases/download/v#{version}/pausa-#{version}-amd64-macos.zip"
   end
 
