@@ -288,7 +288,28 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
+      # Two releases cut minutes apart race each other here, and the slower
+      # run used to rewrite the cask backwards — 1.9.0 overwrote 1.9.1 once
+      # already, which makes `brew install` serve an old build. A re-dispatch
+      # of an old version does the same thing. Only ever move forwards.
+      - name: Skip if the cask is already newer
+        id: guard
+        run: |
+          set -euo pipefail
+          CURRENT=$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/pausa.rb)
+          TARGET="${{ steps.version.outputs.version }}"
+          if [ -z "$CURRENT" ]; then
+            echo "::warning::Could not read the current cask version; continuing."
+            exit 0
+          fi
+          HIGHEST=$(printf '%s\n%s\n' "$CURRENT" "$TARGET" | sort -V | tail -1)
+          if [ "$HIGHEST" != "$TARGET" ]; then
+            echo "::notice::Cask is already at $CURRENT, newer than $TARGET — skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fetch release checksums
+        if: steps.guard.outputs.skip != 'true'
         id: assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -306,6 +327,7 @@ jobs:
           echo "amd_sha=$AMD_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Rewrite cask
+        if: steps.guard.outputs.skip != 'true'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           ARM_SHA="${{ steps.assets.outputs.arm_sha }}"
@@ -362,6 +384,7 @@ jobs:
           AMD_SHA: ${{ steps.assets.outputs.amd_sha }}
 
       - name: Commit updated cask
+        if: steps.guard.outputs.skip != 'true'
         run: |
           git diff --quiet -- Casks/pausa.rb && exit 0
           git config user.name "github-actions[bot]"
@@ -373,6 +396,7 @@ jobs:
       # The canonical cask lives here; the public tap (yuseferi/homebrew-pausa)
       # is a mirror so `brew install --cask yuseferi/pausa/pausa` resolves.
       - name: Mirror cask to the Homebrew tap repository
+        if: steps.guard.outputs.skip != 'true'
         env:
           TAP_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
         run: |
