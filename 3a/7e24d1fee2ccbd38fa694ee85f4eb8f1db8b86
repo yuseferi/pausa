@@ -1,0 +1,69 @@
+frontend/src/components/preferences/SectionIdle.test.js
+  s_3b83b9fb27a5b7::t_74900195920aa9 1-69
+frontend/src/lib/api.js
+  s_3b83b9fb27a5b7::t_5a8ae6ef86e060 8
+  s_3b83b9fb27a5b7::t_4c9153824433c1 60
+main.go
+  s_3b83b9fb27a5b7::t_60e231fd64dc11 67-69
+internal/breakapp/app.go
+  s_3b83b9fb27a5b7::t_2860536ecd3d9d 507,531,555
+  s_3b83b9fb27a5b7::t_6bd8af5981670d 233-238
+frontend/src/lib/store.js
+  s_3b83b9fb27a5b7::t_8551a1b9e18427 12-22
+  s_3b83b9fb27a5b7::t_0e50d090500a48 66,70,73
+frontend/src/components/preferences/SectionGeneral.vue
+  s_3b83b9fb27a5b7::t_3c421495055503 55-59,66,73
+  s_3b83b9fb27a5b7::t_595efd0bd945c3 120-125
+  s_3b83b9fb27a5b7::t_3319d1280bd9d6 4
+  s_3b83b9fb27a5b7::t_776e23589d8473 2,8-13
+  s_3b83b9fb27a5b7::t_510ef520e0ff09 54
+  s_5ebf29c21d87b0::t_38f31e0775eca0 14
+frontend/src/components/preferences/SectionDisplay.vue
+  s_3b83b9fb27a5b7::t_fefb19b3a6d5dc 2-3
+  s_3b83b9fb27a5b7::t_c450320db983b9 43
+internal/platform/platform_darwin.go
+  s_3b83b9fb27a5b7::t_da764c26a9fd3e 17-27
+frontend/src/lib/store.test.js
+  s_3b83b9fb27a5b7::t_ba1f46d8d82051 61-63
+  s_3b83b9fb27a5b7::t_e8169eb066b46e 42-51
+  s_3b83b9fb27a5b7::t_098099d8551c4f 9
+frontend/src/components/preferences/SectionIdle.vue
+  s_3b83b9fb27a5b7::t_f8b23a0a6856e5 4
+  s_3b83b9fb27a5b7::t_49b4071d1ad409 16,19,27,32,43,54
+frontend/src/components/preferences/SectionDisplay.test.js
+  s_3b83b9fb27a5b7::t_f7efc8b0802760 1-58
+README.md
+  s_3b83b9fb27a5b7::t_bb7c63f9b03fc0 270-271
+internal/platform/platform_darwin_test.go
+  s_3b83b9fb27a5b7::t_a0d37378849ce2 44,47,51-68
+  s_5ebf29c21d87b0::t_2a4cbd39821ed6 69
+ARCHITECTURE.md
+  s_3b83b9fb27a5b7::t_8900b6804bbbce 208-224
+internal/platform/platform.go
+  s_3b83b9fb27a5b7::t_7a0e68629e7b03 10-11,14
+  s_3b83b9fb27a5b7::t_83a1641dbcac06 19-41,43-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "3a7e24d1fee2ccbd38fa694ee85f4eb8f1db8b86",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    },
+    "s_5ebf29c21d87b0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e880d309affeaENVYZu8owPs96",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
