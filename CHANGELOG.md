@@ -1,3 +1,9 @@
+## [1.9.4](https://github.com/yuseferi/pausa/compare/v1.9.3...v1.9.4) (2026-10-26)
+
+### Bug Fixes
+
+* **ui:** hide preferences the platform cannot honour ([#56](https://github.com/yuseferi/pausa/issues/56)) ([faafe1c](https://github.com/yuseferi/pausa/commit/faafe1c932c1fba2ba6d3191bca2d8a3dcd415f3))
+
 ## [1.9.3](https://github.com/yuseferi/pausa/compare/v1.9.2...v1.9.3) (2026-10-26)
 
 ### Bug Fixes
