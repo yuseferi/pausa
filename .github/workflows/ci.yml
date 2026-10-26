@@ -129,6 +129,7 @@ jobs:
       # so `wails build` can produce a runnable binary.
       - name: Install GTK / WebKit dev packages
         if: matrix.name == 'linux'
+        timeout-minutes: 15
         run: |
           set -euo pipefail
           if pkg-config --exists webkit2gtk-4.1 && pkg-config --exists gtk+-3.0; then
@@ -137,12 +138,19 @@ jobs:
           fi
           # The runner image sometimes has unattended-upgrades holding the
           # dpkg lock, which makes apt wait indefinitely.
-          sudo systemctl stop unattended-upgrades || true
-          sudo killall unattended-upgrades || true
+          timeout 60 sudo systemctl stop unattended-upgrades || true
+          timeout 60 sudo killall unattended-upgrades || true
           export DEBIAN_FRONTEND=noninteractive
-          sudo -E apt-get update -o Acquire::Retries=3 -o DPkg::Lock::Timeout=120
-          sudo -E apt-get install -y --no-install-recommends \
-            pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+          # Bound every network phase: apt has hung for 25+ minutes on a slow
+          # mirror and on the dpkg lock, and a silent hang burns a runner for
+          # the whole workflow timeout.
+          APT_OPTS=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30
+                    -o Acquire::https::Timeout=30 -o DPkg::Lock::Timeout=120
+                    -o Dpkg::Options::=--force-confdef
+                    -o Dpkg::Options::=--force-confold)
+          timeout 300 sudo -E apt-get update "${APT_OPTS[@]}"
+          timeout 600 sudo -E apt-get install -y --no-install-recommends \
+            "${APT_OPTS[@]}" pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
