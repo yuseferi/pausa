@@ -1,0 +1,19 @@
+.github/workflows/release.yml
+  s_3b83b9fb27a5b7::t_72d741d4c370d5 291-310,312,330,387,399
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "45dea97995aaca75a090ca7a917b64d95cf06e91",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
