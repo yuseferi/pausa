@@ -1,9 +1,16 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime'
-import { api } from '../../lib/store'
+import { api, state } from '../../lib/store'
 
 const model = defineModel({ required: true })
+
+// The rows below are hidden when their capability is false, so the note has to
+// appear whenever at least one of them is missing rather than keying off a
+// single flag.
+const hasHiddenOptions = computed(() =>
+  !state.capabilities.loginItem || !state.capabilities.dockIcon || !state.capabilities.systemTray,
+)
 
 const version = ref('')
 const checking = ref(false)
@@ -44,21 +51,26 @@ const openReleases = () => {
 
 <template>
   <section>
-    <label class="field">
+    <p v-if="hasHiddenOptions" class="platform-note">
+      Some options are hidden because this platform has no tray icon or native
+      break panels. Reminders arrive as system notifications, and the break
+      screen is the app window.
+    </p>
+    <label v-if="state.capabilities.loginItem" class="field">
       <span class="field__label">Start at login</span>
       <span class="toggle">
         <input type="checkbox" v-model="model.startAtLogin" />
         <span class="toggle__slider" />
       </span>
     </label>
-    <label class="field">
+    <label v-if="state.capabilities.dockIcon" class="field">
       <span class="field__label">Show in Dock</span>
       <span class="toggle">
         <input type="checkbox" v-model="model.showInDock" />
         <span class="toggle__slider" />
       </span>
     </label>
-    <label class="field">
+    <label v-if="state.capabilities.systemTray" class="field">
       <span class="field__label">
         Show countdown in menu bar
         <small class="field__hint">Hides the timer text but keeps the icon.</small>
@@ -105,6 +117,12 @@ const openReleases = () => {
 </template>
 
 <style scoped>
+.platform-note {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg-faint);
+}
 .field--stack {
   display: grid;
   gap: 10px;

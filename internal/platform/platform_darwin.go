@@ -14,10 +14,17 @@ import (
 type darwinStatusBar struct{ inner *macos.StatusBar }
 
 func init() {
-	// macOS draws breaks in native NSPanels and keeps a real status item, so
-	// the window may hide and the overlay owns the break UI.
-	NativeOverlays = true
-	SystemTray = true
+	// macOS has the full native stack: NSPanel overlays, a real status item,
+	// a dock/accessory policy switch, a login item, and both auto-pause
+	// detectors.
+	Caps = Capabilities{
+		NativeOverlays: true,
+		SystemTray:     true,
+		DockIcon:       true,
+		LoginItem:      true,
+		BusyDetection:  true,
+		IdleDetection:  true,
+	}
 }
 
 var _ StatusBar = darwinStatusBar{}

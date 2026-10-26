@@ -7,25 +7,42 @@
 //
 //   - platform_darwin.go — the macOS implementation, backed by internal/macos
 //     (AppKit / CoreAudio / MediaRemote via cgo).
-//   - platform_other.go — safe no-ops, so the module still cross-compiles on
-//     any other platform (Windows/Linux implementations will slot in here).
+//   - platform_other.go — the Windows/Linux lite implementation: Wails
+//     notifications, no native overlays, tray, busy or idle detection.
 //
 // Callers must not assume a StatusBar, overlay, or notification is actually
-// rendered: on unsupported platforms these are intentional no-ops.
+// rendered: check Capabilities (or treat the no-ops as no-ops).
 package platform
 
 import "time"
 
-// NativeOverlays reports whether this platform draws the break UI itself
-// (macOS borderless NSPanels, one per screen). When false, CreateOverlays and
-// friends are no-ops and the caller must show the Wails window for the break
-// instead — otherwise the user gets a notification and then nothing.
-var NativeOverlays = false
+// Capabilities describes what the running platform's implementation can
+// actually do. The core reads it to choose a fallback behaviour; the UI reads
+// it to hide preferences that would otherwise be silent no-ops.
+type Capabilities struct {
+	// NativeOverlays means the OS draws the break UI itself (macOS
+	// NSPanels). When false, CreateOverlays is a no-op and the caller shows
+	// the Wails window for the break instead.
+	NativeOverlays bool `json:"nativeOverlays"`
+	// SystemTray means a persistent menu-bar / tray surface exists, so the
+	// window may hide on close and be restored from there.
+	SystemTray bool `json:"systemTray"`
+	// DockIcon means the app can switch between dock and accessory
+	// activation policies.
+	DockIcon bool `json:"dockIcon"`
+	// LoginItem means launch-at-login can actually be toggled.
+	LoginItem bool `json:"loginItem"`
+	// BusyDetection means meetings and media playback can auto-pause the
+	// schedule.
+	BusyDetection bool `json:"busyDetection"`
+	// IdleDetection means idle time is observable, so "away" pauses and
+	// natural breaks can work.
+	IdleDetection bool `json:"idleDetection"`
+}
 
-// SystemTray reports whether SetupStatusBar renders a persistent menu-bar /
-// tray surface. When false there is no way to bring the app back after its
-// window is hidden, so the window close button must quit instead of hiding.
-var SystemTray = false
+// Caps is the capability set for the running platform. The platform's init
+// sets it once; nothing mutates it afterwards.
+var Caps Capabilities
 
 // MenuTag identifies a status-item / tray menu entry. Zero and negative tags
 // are reserved.

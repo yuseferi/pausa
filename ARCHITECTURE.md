@@ -205,16 +205,23 @@ adapter for the bridge's own `MenuTag`/`StatusIconState` types) and
 `main` depend only on `platform`, so platform work never touches the scheduler
 or UI.
 
-Two capability flags describe what an implementation can actually do, because
-the fallback behaviour differs per feature:
+One `platform.Capabilities` struct describes what an implementation can
+actually do. `breakapp` reads it to pick a fallback behaviour, and the
+preferences UI reads it — through the bound `GetCapabilities` — to hide
+controls that would otherwise be silent no-ops:
 
-- `NativeOverlays` — the platform draws the break UI itself. When false,
-  `CreateOverlays` is a no-op and `breakapp` shows the Wails window (and
-  fullscreens it when the user asked for fullscreen) so the break is visible
-  at all.
-- `SystemTray` — a persistent tray/menu-bar surface exists, so the window may
-  hide on close. When false, `main` sets `HideWindowOnClose: false`; otherwise
-  closing the window would strand an invisible process with no way back.
+| Flag | false means |
+|---|---|
+| `NativeOverlays` | `CreateOverlays` is a no-op; `breakapp` shows the Wails window (fullscreened if asked) so the break is visible at all |
+| `SystemTray` | no tray to restore from, so `main` keeps `HideWindowOnClose: false` — otherwise closing strands an invisible process |
+| `DockIcon` | no dock/accessory activation-policy switch, so "Show in Dock" is hidden |
+| `LoginItem` | launch-at-login can't be toggled, so "Start at login" is hidden |
+| `BusyDetection` | meetings and media can't be observed, so the busy toggles are hidden |
+| `IdleDetection` | idle time isn't observable, so "Pause when idle" and natural breaks are hidden |
+
+macOS sets all six in `platform_darwin.go`'s `init()`, and
+`platform_darwin_test.go` pins that: advertising a capability macOS can't
+honour would hide a setting users can actually use.
 
 Windows/Linux therefore get: the same scheduler, config, dashboard, preferences
 and break screen; system notifications through the Wails notification service

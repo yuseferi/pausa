@@ -5,6 +5,7 @@
 import {
   CheckForUpdates,
   EndBreak,
+  GetCapabilities,
   GetConfig,
   GetSnapshot,
   GetTips,
@@ -56,6 +57,7 @@ function dispatch(event, ...args) {
 export const api = {
   // Read
   getConfig:        safe('getConfig', GetConfig),
+  getCapabilities:  safe('getCapabilities', GetCapabilities),
   getSnapshot:      safe('getSnapshot', GetSnapshot),
   getTips:          safe('getTips', GetTips),
   isFirstLaunch:    safe('isFirstLaunch', IsFirstLaunch),

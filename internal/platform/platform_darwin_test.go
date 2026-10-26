@@ -41,10 +41,29 @@ func TestEnumsMatchBridge(t *testing.T) {
 // SystemTray. macOS must advertise both, or breaks would render twice (once
 // in a panel and once in the window) and the close button would quit.
 func TestDarwinCapabilities(t *testing.T) {
-	if !NativeOverlays {
+	if !Caps.NativeOverlays {
 		t.Error("NativeOverlays must be true on darwin")
 	}
-	if !SystemTray {
+	if !Caps.SystemTray {
 		t.Error("SystemTray must be true on darwin")
+	}
+}
+
+// The preferences UI hides a control when its capability is false. If macOS
+// ever advertised a capability it cannot honour, users would lose a setting
+// they can actually use; this pins the full native set.
+func TestDarwinSupportsEveryCapability(t *testing.T) {
+	all := map[string]bool{
+		"NativeOverlays": Caps.NativeOverlays,
+		"SystemTray":     Caps.SystemTray,
+		"DockIcon":       Caps.DockIcon,
+		"LoginItem":      Caps.LoginItem,
+		"BusyDetection":  Caps.BusyDetection,
+		"IdleDetection":  Caps.IdleDetection,
+	}
+	for name, ok := range all {
+		if !ok {
+			t.Errorf("%s must be true on darwin", name)
+		}
 	}
 }

@@ -267,6 +267,8 @@ The Windows and Linux builds run the same scheduler, dashboard, preferences and 
 | Launch at login | Yes | Not yet |
 | Fullscreen-app Spaces | Yes | N/A |
 
+Preferences follow the same split: controls that would do nothing on Windows or Linux (Start at login, Show in Dock, countdown in menu bar, show on all monitors, idle and busy detection) are hidden there rather than shown as dead switches, with a short note explaining why.
+
 This is a deliberate first step: the portable core, config format and UI are shared, so the remaining platform work can land incrementally without forking the app.
 
 ---
