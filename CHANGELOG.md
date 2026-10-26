@@ -1,3 +1,9 @@
+## [1.9.2](https://github.com/yuseferi/pausa/compare/v1.9.1...v1.9.2) (2026-10-26)
+
+### Bug Fixes
+
+* **ci:** bound every apt phase so the Linux packaging job cannot hang ([#58](https://github.com/yuseferi/pausa/issues/58)) ([6ff8a5e](https://github.com/yuseferi/pausa/commit/6ff8a5edbd798f88ab9cd2c741ef195c54a52ed8))
+
 ## [1.9.1](https://github.com/yuseferi/pausa/compare/v1.9.0...v1.9.1) (2026-10-25)
 
 ### Bug Fixes
