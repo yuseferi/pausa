@@ -1,3 +1,9 @@
+## [1.9.3](https://github.com/yuseferi/pausa/compare/v1.9.2...v1.9.3) (2026-10-26)
+
+### Bug Fixes
+
+* **ci:** pin the Linux packaging job to ubuntu-24.04 ([#60](https://github.com/yuseferi/pausa/issues/60)) ([7a6e36b](https://github.com/yuseferi/pausa/commit/7a6e36b312f649bc8e9bd411d2899231340bac77))
+
 ## [1.9.2](https://github.com/yuseferi/pausa/compare/v1.9.1...v1.9.2) (2026-10-26)
 
 ### Bug Fixes
