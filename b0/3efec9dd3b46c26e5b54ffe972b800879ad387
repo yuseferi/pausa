@@ -1,0 +1,23 @@
+.github/workflows/pages.yml
+  s_3b83b9fb27a5b7::t_b9572a4f9563a5 35,41
+.github/workflows/release.yml
+  s_3b83b9fb27a5b7::t_b9572a4f9563a5 64,194
+.github/workflows/ci.yml
+  s_3b83b9fb27a5b7::t_b9572a4f9563a5 21,64,117,184,205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "b03efec9dd3b46c26e5b54ffe972b800879ad387",
+  "prompts": {},
+  "sessions": {
+    "s_3b83b9fb27a5b7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec10b8244ffe10IFbI8ypg87i2",
+        "model": "unknown"
+      },
+      "human_author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
