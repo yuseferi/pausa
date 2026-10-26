@@ -158,7 +158,11 @@ jobs:
       matrix:
         include:
           - name: linux
-            os: ubuntu-latest
+            # Pinned, not ubuntu-latest: the Linux build is cgo against the
+            # distro's GTK/WebKit, so the image is part of the build contract.
+            # 26.04's amd64v3 package set also made the apt install take 25+
+            # minutes on the Azure mirror. Keep in step with ci.yml.
+            os: ubuntu-24.04
             tags: webkit2_41
             asset_suffix: linux-amd64
           - name: windows

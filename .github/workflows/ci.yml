@@ -103,8 +103,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Pinned, not ubuntu-latest: the Linux Wails backend is cgo against
+          # the distro's GTK/WebKit, so the image is part of the build
+          # contract. ubuntu-latest moved to 26.04 mid-cycle and its
+          # amd64v3 package set is poorly cached on the Azure mirror — the
+          # apt install went from 2 minutes to 25+.
           - name: linux
-            os: ubuntu-latest
+            os: ubuntu-24.04
             tags: webkit2_41
           - name: windows
             os: windows-latest
