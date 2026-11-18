@@ -1,0 +1,16 @@
+.github/workflows/ci.yml
+  h_b2553c5b3d4072 32,75,161,229
+.github/workflows/release.yml
+  h_b2553c5b3d4072 230
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "75694bf4a35069654bfd556145b8adb78e1df098",
+  "prompts": {},
+  "humans": {
+    "h_b2553c5b3d4072": {
+      "author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
