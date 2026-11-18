@@ -1,0 +1,16 @@
+.github/workflows/release.yml
+  h_b2553c5b3d4072 368
+Casks/pausa.rb
+  h_b2553c5b3d4072 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "07142b43499b152c1b2a3abb0aa0caedaee835fe",
+  "prompts": {},
+  "humans": {
+    "h_b2553c5b3d4072": {
+      "author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
