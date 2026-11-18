@@ -1,0 +1,14 @@
+scripts/release.sh
+  h_b2553c5b3d4072 103-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4176a44563c70773bc66464690702d87b69a9ec1",
+  "prompts": {},
+  "humans": {
+    "h_b2553c5b3d4072": {
+      "author": "Yusef Mohamadi <yuseferi@gmail.com>"
+    }
+  }
+}
