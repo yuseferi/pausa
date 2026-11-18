@@ -227,7 +227,7 @@ jobs:
         run: npm ci
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.0
 
       - name: Build
         run: |
@@ -363,10 +363,10 @@ jobs:
             # account), so a downloaded bundle carries the
             # com.apple.quarantine attribute and macOS refuses the first
             # launch. Strip it so plain `brew install` works.
-            postflight do
-              system_command "/usr/bin/xattr",
-                             args: ["-dr", "com.apple.quarantine", "#{{appdir}}/pausa.app"],
-                             must_succeed: true
+            postflight_steps do
+              run "/usr/bin/xattr",
+                  args:         ["-dr", "com.apple.quarantine", "{{{{appdir}}}}/pausa.app"],
+                  must_succeed: true
             end
 
             zap trash: [

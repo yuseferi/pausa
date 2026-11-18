@@ -21,10 +21,10 @@ cask "pausa" do
   # account), so a downloaded bundle carries the
   # com.apple.quarantine attribute and macOS refuses the first
   # launch. Strip it so plain `brew install` works.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/pausa.app"],
-                   must_succeed: true
+  postflight_steps do
+    run "/usr/bin/xattr",
+        args:         ["-dr", "com.apple.quarantine", "{{appdir}}/pausa.app"],
+        must_succeed: true
   end
 
   zap trash: [
