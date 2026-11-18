@@ -23,7 +23,7 @@ cask "pausa" do
   # launch. Strip it so plain `brew install` works.
   postflight_steps do
     run "/usr/bin/xattr",
-        args: ["-dr", "com.apple.quarantine", "{{appdir}}/pausa.app"],
+        args:         ["-dr", "com.apple.quarantine", "{{appdir}}/pausa.app"],
         must_succeed: true
   end
 
