@@ -1,3 +1,9 @@
+## [1.9.5](https://github.com/yuseferi/pausa/compare/v1.9.4...v1.9.5) (2026-11-18)
+
+### Bug Fixes
+
+* use supported Homebrew postflight steps ([#70](https://github.com/yuseferi/pausa/issues/70)) ([bf886e0](https://github.com/yuseferi/pausa/commit/bf886e090baf9ba4bf93f1285b6038207014f3da))
+
 ## [1.9.4](https://github.com/yuseferi/pausa/compare/v1.9.3...v1.9.4) (2026-10-26)
 
 ### Bug Fixes
